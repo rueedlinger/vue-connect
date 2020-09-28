@@ -76,14 +76,17 @@ export default {
   methods: {
     restart: function (id) {
       axios.post('http://localhost:5000/api/connectors/' + id + '/restart')
+      .then(resp => {
+        this.data = resp.data
+      })
      .catch(e => {
         this.errors.push(e)
       })
     },
     pause: function (id) {
       axios.post('http://localhost:5000/api/connectors/' + id + '/pause')
-      .then(response => {
-        this.data = response.data
+      .then(resp => {
+        this.data = resp.data
       })
       .catch(e => {
         this.errors.push(e)
@@ -91,8 +94,8 @@ export default {
     },
     resume: function (id) {
       axios.post('http://localhost:5000/api/connectors/' + id + '/resume')
-      .then(response => {
-        this.data = response.data
+      .then(resp => {
+        this.data = resp.data
       })
       .catch(e => {
         this.errors.push(e)
@@ -100,8 +103,8 @@ export default {
     },
     restartTask: function (id, task_id) {
       axios.post('http://localhost:5000/api/connectors/' + id + '/tasks/' + task_id + '/restart')
-      .then(response => {
-        this.data = response.data
+      .then(resp => {
+        this.data = resp.data
       })
       .catch(e => {
         this.errors.push(e)

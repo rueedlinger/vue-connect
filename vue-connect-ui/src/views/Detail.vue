@@ -1,50 +1,76 @@
 <template>
   <div>
     <h1>{{ $route.params.id }}</h1>
-
-      <h4>Configuration</h4>
-
-      <a class="button" v-on:click="editConnector($route.params.id)">Edit</a> <a class="button" v-on:click="deleteConnector($route.params.id)">Delete</a>
-
-      <pre v-if="config">{{ config }}</pre>
-
-      
-
-      <h4>Connector Type: {{ status.type }}</h4>
-
-
-      <table class="u-full-width" v-if="status.connector">
+    
+      <table v-if="status.connector">
       <thead>
         <tr>
-          <th>State</th>
-          <th>Worker ID</th>
-          <th>Trace</th>
+          <th>Key</th>
+          <th>Value</th>
         </tr>
       </thead>
       <tbody>
         <tr>
-          <td v-bind:class="status.connector.state">{{ status.connector.state }}</td>
+          <td>Name</td>
+          <td>{{ status.name}}</td>
+        </tr>
+        <tr>
+          <td>Type</td>
+          <td>{{ status.type }}</td>
+        </tr>
+         <tr>
+          <td>Topics</td>
+          <td>{{ topics }}</td>
+        </tr>
+        <tr>
+          <td>Worker Id</td>
           <td>{{ status.connector.worker_id }}</td>
-          <td><pre class="trace">{{ status.connector.trace }}</pre></td>
+        </tr>
+         <tr>
+          <td>State</td>
+          <td>{{ status.connector.state }}</td>
+        </tr>
+         <tr>
+          <td>Config</td>
+          <td><pre>{{ config }}</pre></td>
+        </tr>
+         <tr>
+          <td></td>
+          <td><a class="button" v-on:click="editConnector($route.params.id)">Edit</a> <a class="button" v-on:click="deleteConnector($route.params.id)">Delete</a></td>
+        </tr>
+        <tr v-if="status.connector.trace">
+          <td>Trace</td>
+          <td><pre>{{ status.connector.trace }}</pre></td>
         </tr>
       </tbody>
     </table>
 
+
     <div v-for="task in status.tasks" :key="task.id">
-      <h4>Task Id: {{ task.id }}</h4>
+      <h2>Task ({{ task.id }})</h2>
       <table class="u-full-width" v-if="status.tasks">
       <thead>
         <tr>
-          <th>State</th>
-          <th>Worker ID</th>
-          <th>Trace</th>
+          <th>Key</th>
+          <th>Value</th>
         </tr>
       </thead>
       <tbody>
         <tr>
-          <td v-bind:class="task.state">{{task.state}}</td>
+          <td>Id</td>
+          <td>{{task.id}}</td>
+        </tr>
+        <tr>
+          <td>Worker Id</td>
           <td>{{task.worker_id}}</td>
-          <td><pre class="trace">{{task.trace}}</pre></td>
+        </tr>
+         <tr>
+          <td>State</td>
+          <td>{{task.state}}</td>
+        </tr>
+        <tr v-if="task.trace">
+          <td>Trace</td>
+          <td><pre>{{ task.trace }}</pre></td>
         </tr>
       </tbody>
       </table>
@@ -63,12 +89,7 @@ import axios from 'axios';
 export default {
   data() {
     return {
-      status: [
-        {
-          connector: [],
-          tasks: []
-        }
-      ],
+      status: [],
       config: [],
       errors: []
     }

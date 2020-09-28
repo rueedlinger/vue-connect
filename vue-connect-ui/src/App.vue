@@ -65,9 +65,7 @@ pre {
   font-size: 20px;
 }
 
-.trace {
-  font-size: 10px;
-}
+
 
 .RUNNING {
   color: #ffffff;
