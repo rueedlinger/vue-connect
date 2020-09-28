@@ -1,7 +1,7 @@
 <template>
   <div>
     <h1>About</h1>
-    <table v-if="info">
+    <table v-if="data">
       <thead>
         <tr>
           <th>Key</th>
@@ -11,15 +11,23 @@
       <tbody>
         <tr>
           <td>Version</td>
-          <td>{{ info.version }}</td>
+          <td>{{ data.version }}</td>
         </tr>
          <tr>
           <td>Commit</td>
-          <td>{{ info.commit }}</td>
+          <td>{{ data.commit }}</td>
         </tr>
           <tr>
-          <td>Kafka Cluster ID</td>
-          <td>{{ info.kafka_cluster_id }}</td>
+          <td>Kafka cluster ID</td>
+          <td>{{ data.kafka_cluster_id }}</td>
+        </tr>
+        <tr>
+          <td>Endpoint</td>
+          <td>{{ data.endpoint }}</td>
+        </tr>
+         <tr>
+          <td>Last update</td>
+          <td>{{ data.last_update }}</td>
         </tr>
       </tbody>
     </table>
@@ -32,17 +40,17 @@ import axios from 'axios';
 export default {
   data() {
     return {
-      info: null,
-      errors: null
+      data: [],
+      errors: []
     }
   },
 
   // Fetches posts when the component is created.
   created() {
-    axios.get(`http://localhost:8083`)
+    axios.get('http://localhost:5000/api/info')
     .then(response => {
       // JSON responses are automatically parsed.
-      this.info = response.data
+      this.data = response.data
     })
     .catch(e => {
       this.errors.push(e)

@@ -1,6 +1,4 @@
 # vue-connect
 
-```bash
-cd vue-connect-ui
- $ npm run serve
-```
+- [vue-connect-api](vue-connect-api) - the backend service project.
+- [vue-connect-ui](vue-connect-ui) - the ui project.

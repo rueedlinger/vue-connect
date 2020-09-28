@@ -1,4 +1,5 @@
 import Vue from 'vue'
+import './plugins/fontawesome'
 import axios from 'axios'
 import VueAxios from 'vue-axios'
 import App from './App.vue'

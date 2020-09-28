@@ -1,7 +1,7 @@
 <template>
   <div>
     <h1>Plugins</h1>
-    <table class="u-full-width" v-if="plugins">
+    <table class="u-full-width" v-if="data">
       <thead>
         <tr>
           <th>Connector</th>
@@ -12,11 +12,11 @@
         </tr>
       </thead>
       <tbody>
-        <tr v-for="item in plugins" :key="item.class">
-          <td>-</td>
-          <td>{{ item.class }}</td>
-          <td>{{ item.type }}</td>
-          <td>{{ item.version }}</td>
+        <tr v-for="plugin in data" :key="plugin.class">
+          <td>{{ plugin.name }}</td>
+          <td>{{ plugin.class }}</td>
+          <td>{{ plugin.type }}</td>
+          <td>{{ plugin.version }}</td>
           <td><a class="button" href="#">New connector</a></td>
         </tr>
       </tbody>
@@ -29,17 +29,17 @@ import axios from 'axios';
 export default {
   data() {
     return {
-      plugins: null,
-      errors: null
+      data: [],
+      errors: []
     }
   },
 
   // Fetches posts when the component is created.
   created() {
-    axios.get(`http://localhost:8083/connector-plugins`)
+    axios.get('http://localhost:5000/api/plugins')
     .then(response => {
       // JSON responses are automatically parsed.
-      this.plugins = response.data
+      this.data = response.data
     })
     .catch(e => {
       this.errors.push(e)

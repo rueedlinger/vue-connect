@@ -15,10 +15,44 @@
 <style>
 
 @import './assets/css/normalize.css';
-@import './assets/css/skeleton.css';
+@import './assets/css/milligram.css';
 
 body {
   padding: 60px;
+}
+
+a {
+  color: #42b983;
+  font-weight: bold;
+}
+
+.button, button, input[type="button"], input[type="reset"], input[type="submit"] {
+    background-color: #42b983;
+    border: 0.1rem solid #42b983;
+    border-radius: .4rem;
+    color: #fff;
+    cursor: pointer;
+    display: inline-block;
+    font-size: 1.1rem;
+    font-weight: 700;
+    height: 3.8rem;
+    letter-spacing: .1rem;
+    line-height: 3.8rem;
+    padding: 0 3.0rem;
+    text-align: center;
+    text-decoration: none;
+    text-transform: uppercase;
+    white-space: nowrap;
+}
+
+pre {
+    border-left: 0.3rem solid #6b6c6d;
+    padding-left: 5px;
+}
+
+.operation {
+  font-size: 50px;
+
 }
 
 .content {  
@@ -31,13 +65,45 @@ body {
   font-size: 20px;
 }
 
+.trace {
+  font-size: 10px;
+}
+
+.RUNNING {
+  color: #ffffff;
+  background-color: #42b983;
+  font-weight: bold;
+  text-align: center;
+}
+
+.UNASSIGNED {
+  color: #ffffff;
+  background-color: #eec271;
+  font-weight: bold;
+  text-align: center;
+}
+
+.PAUSED {
+  color: #ffffff;
+  background-color:#9aadc0;
+  font-weight: bold;
+  text-align: center;
+}
+
+.FAILED {
+  color: #ffffff;
+  background-color: #e94c4c;
+  font-weight: bold;
+  text-align: center;
+}
+
+
 
 #app {
   font-family: Avenir, Helvetica, Arial, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   text-align: left;
-  color: #2c3e50;
 }
 
 #nav {
@@ -46,10 +112,11 @@ body {
 
 #nav a {
   font-weight: bold;
-  color: #2c3e50;
 }
 
+
 #nav a.router-link-exact-active {
-  color: #42b983;
+  color: #6b6c6d;
+  text-decoration: underline;
 }
 </style>
