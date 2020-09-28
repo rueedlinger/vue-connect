@@ -92,6 +92,7 @@ export default {
     return {
       status: [],
       config: [],
+      topics: [],
       errors: []
     }
   },

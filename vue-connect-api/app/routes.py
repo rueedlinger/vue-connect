@@ -1,11 +1,20 @@
 from app import app
 from flask import jsonify
+from flask import request
 import requests
 import json
 from datetime import datetime
 
 REST_ENDPOINT = 'http://localhost:8083'
 
+@app.route('/api/connectors/<id>/config', methods = ['POST'])
+def update(id):
+    data = request.get_json()
+    r = requests.put(REST_ENDPOINT + '/connectors/' + id + '/config', json=data)
+    status = r.json()
+    print(r.status_code)
+    
+    return jsonify(status), r.status_code
 
 @app.route('/api/connectors/<id>/restart', methods = ['POST'])
 def restart(id):

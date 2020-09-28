@@ -24,6 +24,10 @@ body {
   padding: 0px;
 }
 
+textarea {
+  height: 400px
+}
+
 a {
   color: #42b983;
   font-weight: bold;

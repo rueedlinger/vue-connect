@@ -1,7 +1,7 @@
 <template>
   <div>
     <h1>{{$route.name}}</h1>
-    <h2>Conector {{ status.name}}</h2>
+    <h2>Conector {{ status.name }}</h2>
     
     <table v-if="status.connector">
       <thead>
@@ -13,7 +13,7 @@
       <tbody>
         <tr>
           <td>Name</td>
-          <td>{{ status.name}}</td>
+          <td><a v-bind:href="'/detail/' + status.name">{{ status.name }}</a> </td>
         </tr>
         <tr>
           <td>Type</td>
@@ -21,15 +21,19 @@
         </tr>
          <tr>
           <td>Config</td>
-          <td><pre>{{ config }}</pre></td>
+          <td>
+            <textarea v-model="jsonConfig"></textarea>
+          </td>
+        </tr>
+        <tr v-if="errors">
+          <td>Error</td>
+          <td>
+            <pre>{{errors}}</pre>
+          </td>
         </tr>
          <tr>
           <td></td>
-          <td><a class="button" v-on:click="editConnector($route.params.id)">Edit</a></td>
-        </tr>
-        <tr v-if="status.connector.trace">
-          <td>Trace</td>
-          <td><pre>{{ status.connector.trace }}</pre></td>
+          <td><a class="button" v-on:click="save($route.params.id)">Save</a></td>
         </tr>
       </tbody>
     </table>
@@ -44,7 +48,8 @@ export default {
     return {
       status: [],
       config: [],
-      errors: []
+      jsonConfig: "",
+      errors: ""
     }
   },
 
@@ -56,6 +61,7 @@ export default {
     .then(respAll => {
       this.status = respAll[0].data
       this.config = respAll[1].data
+      this.jsonConfig = JSON.stringify(respAll[1].data, null, 2)
     }).catch(e => {
       console.log(e)
       this.errors.push(e)
@@ -63,18 +69,27 @@ export default {
   },
   
   methods: {
-    editConnector: function (id) {
-      this.$router.push({path: '/edit/' + id })
+    save: function (id) {
+      
+      try {
+          let data = JSON.parse(this.jsonConfig)
+           axios.post('http://localhost:5000/api/connectors/' + id + '/config', data)
+            .then(() => {
+              this.$router.push('/detail/' + id)
+            })
+          .catch(error => {
+              this.errors = error.response.data.message
+            })
+      } catch(e) {
+        this.errors = e
+      }
     },
-    deleteConnector: function (id) {
-      axios.post('http://localhost:5000/api/connectors/' + id + '/delete')
-      .then(() => {
-        this.$router.push('/')
-      })
-     .catch(e => {
-        console.log(e)
-        this.errors.push(e)
-      })
+    validate: function() {
+      try {
+        JSON.parse(this.jsonConfig)
+    } catch(e) {
+      this.errors.push(e)
+    }
     }
   }
 }
