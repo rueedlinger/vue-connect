@@ -1,6 +1,6 @@
 <template>
   <div>
-    <h1>About</h1>
+    <h1>{{$route.name}}</h1>
     <table v-if="data">
       <thead>
         <tr>

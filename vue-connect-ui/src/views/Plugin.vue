@@ -1,6 +1,6 @@
 <template>
   <div>
-    <h1>Plugins</h1>
+    <h1>{{$route.name}}</h1>
     <table class="u-full-width" v-if="data">
       <thead>
         <tr>

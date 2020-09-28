@@ -1,12 +1,14 @@
 <template>
   <div id="app" class="content">
     <div id="nav">
-      | <router-link to="/">Connectors</router-link> |
+      | <router-link to="/">Status</router-link> |
       <router-link to="/plugins">Plugins</router-link> |
-      <router-link to="/about">About</router-link> |
+      <router-link to="/info">Info</router-link> |
     </div>
     <hr>
-    <router-view/>
+    <div class="content">
+      <router-view/>
+    </div>
   </div>
 </template>
 
@@ -18,7 +20,8 @@
 @import './assets/css/milligram.css';
 
 body {
-  padding: 60px;
+  margin: 60px;
+  padding: 0px;
 }
 
 a {
@@ -65,8 +68,6 @@ pre {
   font-size: 20px;
 }
 
-
-
 .RUNNING {
   color: #ffffff;
   background-color: #42b983;
@@ -105,13 +106,12 @@ pre {
 }
 
 #nav {
-  font-size: 20px;
+  font-size: 25px;
 }
 
 #nav a {
   font-weight: bold;
 }
-
 
 #nav a.router-link-exact-active {
   color: #6b6c6d;

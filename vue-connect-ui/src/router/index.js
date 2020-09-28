@@ -1,17 +1,18 @@
 import Vue from 'vue'
 import VueRouter from 'vue-router'
-import Home from '../views/Home.vue'
+import Status from '../views/Status.vue'
 import Plugin from '../views/Plugin.vue'
 import Detail from '../views/Detail.vue'
-import About from '../views/About.vue'
+import Edit from '../views/Edit.vue'
+import Info from '../views/Info.vue'
 
 Vue.use(VueRouter)
 
 const routes = [
   {
     path: '/',
-    name: 'Home',
-    component: Home
+    name: 'Status',
+    component: Status
   },
   {
     path: '/plugins',
@@ -24,9 +25,14 @@ const routes = [
     component: Detail
   },
   {
-    path: '/about',
-    name: 'About',
-    component: About
+    path: '/edit/:id',
+    name: 'Edit',
+    component: Edit
+  },
+  {
+    path: '/info',
+    name: 'Info',
+    component: Info
   }
 ]
 

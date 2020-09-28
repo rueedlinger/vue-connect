@@ -1,6 +1,6 @@
 <template>
   <div>
-    <h1>Connectors</h1>
+    <h1>{{$route.name}}</h1>
     <blockquote v-if="data.length == 0">
         <p><em>There are no connectors running...</em></p>
     </blockquote>
