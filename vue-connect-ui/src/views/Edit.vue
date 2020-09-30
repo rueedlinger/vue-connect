@@ -12,10 +12,6 @@
       </thead>
       <tbody>
         <tr>
-          <td>Name</td>
-          <td><a v-bind:href="'/detail/' + status.name">{{ status.name }}</a> </td>
-        </tr>
-        <tr>
           <td>Type</td>
           <td>{{ status.type }}</td>
         </tr>
@@ -84,13 +80,6 @@ export default {
         this.errors = e
       }
     },
-    validate: function() {
-      try {
-        JSON.parse(this.jsonConfig)
-    } catch(e) {
-      this.errors.push(e)
-    }
-    }
   }
 }
 </script>

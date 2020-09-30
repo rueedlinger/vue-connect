@@ -16,5 +16,5 @@ $ pipenv install
 ### Run the app
 
 ```bash
-pipenv run python app/app.py 
+pipenv run python api.py
 ```

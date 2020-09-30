@@ -68,6 +68,15 @@ def status(id):
     status = r.json()
     return jsonify(status)
 
+@app.route('/api/plugins/<name>/config/validate', methods=['POST'])
+def validate(name):
+    data = request.get_json()
+    print(data)
+    r = requests.put(REST_ENDPOINT + '/connector-plugins/' + name + '/config/validate', json=data)
+    config = r.json()
+    return jsonify(config), r.status_code
+
+
 @app.route('/api/plugins')
 def plugins():
     r = requests.get(REST_ENDPOINT + '/connector-plugins')

@@ -1,7 +1,7 @@
 <template>
   <div>
     <h1>{{$route.name}}</h1>
-    <table class="u-full-width" v-if="data">
+    <table v-if="data">
       <thead>
         <tr>
           <th>Connector</th>
@@ -17,7 +17,7 @@
           <td>{{ plugin.class }}</td>
           <td>{{ plugin.type }}</td>
           <td>{{ plugin.version }}</td>
-          <td><a class="button" href="#">New connector</a></td>
+          <td><a class="button" v-on:click="newConnector(plugin.class, plugin.type)">New connector</a></td>
         </tr>
       </tbody>
     </table>
@@ -44,6 +44,12 @@ export default {
     .catch(e => {
       this.errors.push(e)
     })
+  },
+
+  methods: {
+    newConnector: function (pluginClass, pluginType) {
+        this.$router.push('/new/' + pluginClass + '/' + pluginType)
+    }
   }
 }
 </script>

@@ -4,6 +4,7 @@ import Status from '../views/Status.vue'
 import Plugin from '../views/Plugin.vue'
 import Detail from '../views/Detail.vue'
 import Edit from '../views/Edit.vue'
+import New from '../views/New.vue'
 import Info from '../views/Info.vue'
 
 Vue.use(VueRouter)
@@ -28,6 +29,11 @@ const routes = [
     path: '/edit/:id',
     name: 'Edit',
     component: Edit
+  },
+  {
+    path: '/new/:id/:type',
+    name: 'New',
+    component: New
   },
   {
     path: '/info',

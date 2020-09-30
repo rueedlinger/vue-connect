@@ -19,10 +19,12 @@
           <td>Type</td>
           <td>{{ status.type }}</td>
         </tr>
+        <!--
          <tr>
           <td>Topics</td>
           <td>{{ topics }}</td>
         </tr>
+        -->
         <tr>
           <td>Worker Id</td>
           <td>{{ status.connector.worker_id }}</td>
