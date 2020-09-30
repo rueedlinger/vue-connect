@@ -59,7 +59,6 @@ pre {
 
 .operation {
   font-size: 50px;
-
 }
 
 .content {  

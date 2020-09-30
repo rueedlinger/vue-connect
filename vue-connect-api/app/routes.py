@@ -7,13 +7,29 @@ from datetime import datetime
 
 REST_ENDPOINT = 'http://localhost:8083'
 
+
+@app.route('/api/connectors/', methods = ['POST'])
+def new():
+    data = request.get_json()
+    if 'name' in data:
+        name = data['name']
+        del data['name']
+
+        cfg = {'name': name, 'config': data}
+
+        r = requests.post(REST_ENDPOINT + '/connectors/', json=cfg)
+        status = r.json()
+        
+        return jsonify(status), r.status_code
+    else:
+        return jsonify({'message': 'Missing configuration \'name\' -> Globally unique name to use for this connector.' }), 400
+
 @app.route('/api/connectors/<id>/config', methods = ['POST'])
 def update(id):
     data = request.get_json()
     r = requests.put(REST_ENDPOINT + '/connectors/' + id + '/config', json=data)
     status = r.json()
-    print(r.status_code)
-    
+
     return jsonify(status), r.status_code
 
 @app.route('/api/connectors/<id>/restart', methods = ['POST'])

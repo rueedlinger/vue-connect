@@ -38,7 +38,9 @@
       </tbody>
     </table>
 
-  <h3>Configuration Options</h3>
+ 
+
+  <h2>Configuration Options for {{ connectorName }}</h2>
   <table>
     <thead>
       <tr>
@@ -94,7 +96,6 @@ export default {
     axios.post('http://localhost:5000/api/plugins/' + name + '/config/validate', data)
     .then(resp => {
       let configs = resp.data.configs
-      console.log(configs)
       
       configs.forEach(function(entry) {
         if(entry.value.errors.length > 0) {
@@ -110,11 +111,9 @@ export default {
         })
       })
 
-      //console.log(data)
       this.jsonConfig = JSON.stringify(data, null, 2)
 
     }).catch(error => {
-      //console.log(error)
       this.errors = error.response.data
     })
   },
@@ -131,8 +130,8 @@ export default {
           .catch(error => {
               this.errors = error.response.data.message
             })
-      } catch(e) {
-        this.errors = e
+      } catch(error) {
+        this.errors = error.response.data
       }
     }
   }

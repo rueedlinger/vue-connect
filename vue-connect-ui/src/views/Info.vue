@@ -25,10 +25,6 @@
           <td>Endpoint</td>
           <td>{{ data.endpoint }}</td>
         </tr>
-         <tr>
-          <td>Last update</td>
-          <td>{{ data.last_update }}</td>
-        </tr>
       </tbody>
     </table>
   </div>

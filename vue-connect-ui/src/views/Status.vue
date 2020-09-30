@@ -5,6 +5,8 @@
         <p><em>There are no connectors running...</em></p>
     </blockquote>
 
+    
+
     <table class="u-full-width" v-if="data.length > 0">
       <thead>
         <tr>
@@ -21,7 +23,7 @@
           <td>
            <a v-bind:href="'/detail/' + item.name">{{ item.name }}</a> ({{ item.type }})
           </td>
-          <td class="operation"><a v-on:click="resume(item.name)"> <font-awesome-icon icon="play-circle"></font-awesome-icon> </a> <a v-on:click="pause(item.name)"> <font-awesome-icon icon="pause-circle"></font-awesome-icon></a> <a v-on:click="restart(item.name)"><font-awesome-icon icon="retweet"></font-awesome-icon></a>
+          <td class="operation"><a v-bind:href="'/detail/' + item.name"><font-awesome-icon icon="info-circle"></font-awesome-icon></a> <a v-on:click="resume(item.name)"> <font-awesome-icon icon="play-circle"></font-awesome-icon> </a> <a v-on:click="pause(item.name)"> <font-awesome-icon icon="pause-circle"></font-awesome-icon></a> <a v-on:click="restart(item.name)"><font-awesome-icon icon="retweet"></font-awesome-icon></a>
           </td>
           <td>{{ item.connector.worker_id }}</td>
           <td>
