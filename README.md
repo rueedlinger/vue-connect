@@ -22,7 +22,11 @@ vue-connect is build with [Vue.js](https://vuejs.org/p) and [Python](https://www
 ## Todo
 - Add Tests
 - Add build pipeline
+- Add changelog and version
 - Improve error handling
 - Write documentation
 - Provide Docker image
 - Improve UI for multiple workers (Connect Cluster)
+
+## License
+The project is licensed under the [Apache](LICENSE) license.
