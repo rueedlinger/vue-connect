@@ -26,7 +26,7 @@ docker build . -t vue-connect
 ```
 
 ```
-docker run --rm -it -p 8080:8080 -e "CONNECT_UR=http://localhost:8083" vue-connect 
+docker run --rm -it -p 8080:8080 -e "CONNECT_URL=http://localhost:8083" vue-connect 
 ```
 
 ## Todo
