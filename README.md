@@ -11,14 +11,23 @@
 - Install new connectors
 - Update connector configuration
 
-![vue-connect ui](assets/ui.png)
+![vue-connect ui](docs/images/ui.png)
 
 ## Components
-vue-connect is build with [Vue.js](https://vuejs.org/p) and [Python](https://www.python.org/).
+vue-connect is build with [Vue.js](https://vuejs.org/) and [Python](https://www.python.org/).
 
 - [vue-connect-api](vue-connect-api) - the backend service project.
 - [vue-connect-ui](vue-connect-ui) - the ui project.
 
+## Build
+
+```
+docker build . -t vue-connect
+```
+
+```
+docker run --rm -it -p 8080:8080 -e "CONNECT_UR=http://localhost:8083" vue-connect 
+```
 
 ## Todo
 - Add Tests
