@@ -1,6 +1,6 @@
 import axios from 'axios'
 
-let connect = {
+const connect = {
     'getInfo': () => {
         return axiosGet('/info')
     },
@@ -57,6 +57,5 @@ function axiosPost(path) {
 function axiosPostWithData(path, data) {
     return axios.post(getApiUrl(path), data)
 }
-
 
 export default connect

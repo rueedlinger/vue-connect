@@ -68,19 +68,16 @@ export default {
 
   // Fetches posts when the component is created.
   created() {
-    this.loadData()
-  },
-
-  methods: {
-    loadData: function() {
-      connect.getAllConnectorStatus()
+    connect.getAllConnectorStatus()
       .then(response => {
         this.data = response.data
       })
       .catch(e => {
         this.errors.push(e)
       })
-    },
+  },
+
+  methods: {
     restart: function (id) {
       connect.restartConnector(id)
       .then(resp => {
