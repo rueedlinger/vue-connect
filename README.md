@@ -43,6 +43,7 @@ Next we can start the Docker image. With `CONNECT_URL`you can set the Rest Endpo
 docker run --rm -it -p 8080:8080 -e "CONNECT_URL=http://localhost:8083" vue-connect 
 ```
 
+### Docker Compose 
 Or you can use the Docker Compose file [docker-compose.yml](docker-compose.yml) which starts a Kafka Connect cluster with the latest vue-connect version from this branch.
 
 ```
