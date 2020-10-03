@@ -19,12 +19,13 @@ vue-connect is build with [Vue.js](https://vuejs.org/) and [Python](https://www.
 - [vue-connect-api](vue-connect-api) - the backend service project.
 - [vue-connect-ui](vue-connect-ui) - the ui project.
 
-## Build
-
+## Build Docker Image
+First build the Docker image. 
 ```
 docker build . -t vue-connect
 ```
 
+Next we can start the Docker image.
 ```
 docker run --rm -it -p 8080:8080 -e "CONNECT_URL=http://localhost:8083" vue-connect 
 ```
