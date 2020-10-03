@@ -10,11 +10,11 @@
       </thead>
       <tbody>
         <tr>
-          <td>Version</td>
+          <td>Connect worker version</td>
           <td>{{ data.version }}</td>
         </tr>
          <tr>
-          <td>Commit</td>
+          <td>Connect git commit ID</td>
           <td>{{ data.commit }}</td>
         </tr>
           <tr>
@@ -22,12 +22,12 @@
           <td>{{ data.kafka_cluster_id }}</td>
         </tr>
         <tr>
-          <td>Endpoint</td>
+          <td>Connect endpoint</td>
           <td>{{ data.endpoint }}</td>
         </tr>
          <tr>
-          <td>Env</td>
-          <td>{{ data.env }}</td>
+          <td>vue-connect version</td>
+          <td>{{ meta.version }}</td>
         </tr>
       </tbody>
     </table>
@@ -36,17 +36,21 @@
 
 <script>
 import connect from '../common/connect'
+import meta from '../../package.json';
+
 
 export default {
   data() {
     return {
       data: [],
+      meta: {},
       errors: []
     }
   },
 
   // Fetches posts when the component is created.
   created() {
+    this.meta = meta
     connect.getInfo()
     .then(response => {
       // JSON responses are automatically parsed.
