@@ -25,13 +25,17 @@
           <td>Endpoint</td>
           <td>{{ data.endpoint }}</td>
         </tr>
+         <tr>
+          <td>Env</td>
+          <td>{{ data.env }}</td>
+        </tr>
       </tbody>
     </table>
   </div>
 </template>
 
 <script>
-import axios from 'axios';
+import connect from '../common/connect'
 
 export default {
   data() {
@@ -43,7 +47,7 @@ export default {
 
   // Fetches posts when the component is created.
   created() {
-    axios.get('http://localhost:5000/api/info')
+    connect.getInfo()
     .then(response => {
       // JSON responses are automatically parsed.
       this.data = response.data

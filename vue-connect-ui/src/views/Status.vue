@@ -54,7 +54,7 @@
 </template>
 
 <script>
-import axios from 'axios';
+import connect from '../common/connect'
 
 export default {
   data() {
@@ -64,20 +64,25 @@ export default {
     }
   },
 
+  
+
   // Fetches posts when the component is created.
   created() {
-    axios.get('http://localhost:5000/api/status')
-    .then(response => {
-      this.data = response.data
-    })
-    .catch(e => {
-      this.errors.push(e)
-    })
+    this.loadData()
   },
 
   methods: {
+    loadData: function() {
+      connect.getAllConnectorStatus()
+      .then(response => {
+        this.data = response.data
+      })
+      .catch(e => {
+        this.errors.push(e)
+      })
+    },
     restart: function (id) {
-      axios.post('http://localhost:5000/api/connectors/' + id + '/restart')
+      connect.restartConnector(id)
       .then(resp => {
         this.data = resp.data
       })
@@ -86,7 +91,7 @@ export default {
       })
     },
     pause: function (id) {
-      axios.post('http://localhost:5000/api/connectors/' + id + '/pause')
+      connect.pauseConnector(id)
       .then(resp => {
         this.data = resp.data
       })
@@ -95,7 +100,7 @@ export default {
       })
     },
     resume: function (id) {
-      axios.post('http://localhost:5000/api/connectors/' + id + '/resume')
+      connect.resumeConnector(id)
       .then(resp => {
         this.data = resp.data
       })
@@ -104,7 +109,7 @@ export default {
       })
     },
     restartTask: function (id, task_id) {
-      axios.post('http://localhost:5000/api/connectors/' + id + '/tasks/' + task_id + '/restart')
+      connect.restartTask(id, task_id)
       .then(resp => {
         this.data = resp.data
       })

@@ -24,7 +24,7 @@
   </div>
 </template>
 <script>
-import axios from 'axios';
+import connect from '../common/connect'
 
 export default {
   data() {
@@ -36,7 +36,7 @@ export default {
 
   // Fetches posts when the component is created.
   created() {
-    axios.get('http://localhost:5000/api/plugins')
+    connect.getPlugins()
     .then(response => {
       // JSON responses are automatically parsed.
       this.data = response.data

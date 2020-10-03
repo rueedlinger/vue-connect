@@ -11,6 +11,7 @@ from requests.exceptions import ConnectionError
 
 DEFAULT_REST_ENDPOINT = 'http://localhost:8083'
 ERROR_MSG_CLSUTER_NOT_REACHABLE = "Cluster {} not reachable!"
+ERROR_MSG_NO_DATA = "Missing data => {}."
 
 #LOGGER = logging.getLogger('whatever')
 
@@ -27,6 +28,10 @@ def get_url():
 def new():
     try:
         data = request.get_json()
+        
+        if data is None:
+            return jsonify({'message': ERROR_MSG_NO_DATA.format('connector configuration')}), 400
+
         if 'name' in data:
             name = data['name']
             del data['name']
@@ -47,6 +52,10 @@ def new():
 def update(id):
     try:
         data = request.get_json()
+
+        if data is None:
+            return jsonify({'message': ERROR_MSG_NO_DATA.format('connector configuration')}), 400
+
         r = requests.put(get_url() + '/connectors/' + id + '/config', json=data)
         status = r.json()
 
@@ -87,6 +96,7 @@ def resume(id):
     try:
         r = requests.put(get_url() + '/connectors/' + id + '/resume')
         return connectors()
+
     except ConnectionError:
         return jsonify({'message': ERROR_MSG_CLSUTER_NOT_REACHABLE.format(get_url()) }), 400
 
@@ -138,7 +148,9 @@ def status(id):
 def validate(name):
     try:
         data = request.get_json()
-        print(data)
+        if data is None:
+            return jsonify({'message': ERROR_MSG_NO_DATA.format('connector configuration')}), 400
+
         r = requests.put(get_url() + '/connector-plugins/' + name + '/config/validate', json=data)
         config = r.json()
 

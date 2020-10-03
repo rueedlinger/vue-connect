@@ -37,7 +37,8 @@
 </template>
 
 <script>
-import axios from 'axios';
+import connect from '../common/connect'
+import axios from 'axios'
 
 export default {
   data() {
@@ -52,14 +53,13 @@ export default {
   // Fetches posts when the component is created.
   created() {
     axios.all([
-      axios.get('http://localhost:5000/api/status/' + this.$route.params.id),
-      axios.get('http://localhost:5000/api/config/' + this.$route.params.id)])
+      connect.getConnectorStatus(this.$route.params.id),
+      connect.getConnectorConfig(this.$route.params.id)])
     .then(respAll => {
       this.status = respAll[0].data
       this.config = respAll[1].data
       this.jsonConfig = JSON.stringify(respAll[1].data, null, 2)
     }).catch(e => {
-      console.log(e)
       this.errors.push(e)
     })
   },
@@ -69,7 +69,7 @@ export default {
       
       try {
           let data = JSON.parse(this.jsonConfig)
-           axios.post('http://localhost:5000/api/connectors/' + id + '/config', data)
+            connect.updateConnector(this.$route.params.id, data)
             .then(() => {
               this.$router.push('/detail/' + id)
             })

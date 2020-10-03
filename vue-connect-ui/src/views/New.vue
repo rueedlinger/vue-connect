@@ -66,7 +66,7 @@
 </template>
 
 <script>
-import axios from 'axios';
+import connect from '../common/connect'
 
 export default {
   data() {
@@ -91,9 +91,8 @@ export default {
       data['topics'] = 'topic' + name.replace(/([A-Z])/g, function (g) { return '-' + g[0].toLowerCase() })
     }
 
-
     let self = this
-    axios.post('http://localhost:5000/api/plugins/' + name + '/config/validate', data)
+    connect.validateConfig(name, data)
     .then(resp => {
       let configs = resp.data.configs
       
@@ -123,13 +122,13 @@ export default {
       
       try {
           let data = JSON.parse(this.jsonConfig)
-           axios.post('http://localhost:5000/api/connectors/', data)
-            .then(() => {
-              this.$router.push('/')
-            })
+          connect.newConnector(data)
+          .then(() => {
+            this.$router.push('/')
+          })
           .catch(error => {
-              this.errors = error.response.data.message
-            })
+            this.errors = error.response.data.message
+          })
       } catch(error) {
         this.errors = error.response.data
       }
