@@ -23,12 +23,13 @@ RUN apk add --update --no-cache nginx python3 supervisor && ln -sf python3 /usr/
 RUN python3 -m ensurepip
 RUN pip3 install --no-cache --upgrade pip setuptools pipenv
 
-COPY /vue-connect-api/Pipfile* /dist/python
+COPY /vue-connect-api/Pipfile /dist/python/Pipfile
+COPY /vue-connect-api/Pipfile.lock /dist/python/Pipfile.lock
 RUN cd /dist/python && pipenv install --system --deploy --ignore-pipfile
 
 
 COPY --from=build-stage /app/dist /dist/html
-COPY /vue-connect-api/Pipfile* /dist/python
+COPY /vue-connect-api/ /dist/python
 
 COPY rootfs /
 
