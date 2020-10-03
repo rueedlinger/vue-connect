@@ -4,7 +4,6 @@ from flask import request
 import requests
 import json
 import os
-#import logging
 from datetime import datetime
 from requests.exceptions import ConnectionError
 
@@ -12,9 +11,6 @@ from requests.exceptions import ConnectionError
 DEFAULT_REST_ENDPOINT = 'http://localhost:8083'
 ERROR_MSG_CLSUTER_NOT_REACHABLE = "Cluster {} not reachable!"
 ERROR_MSG_NO_DATA = "Missing data => {}."
-
-#LOGGER = logging.getLogger('whatever')
-
 
 def get_url(): 
     if os.getenv("CONNECT_URL") is not None:
