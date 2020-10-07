@@ -1,27 +1,32 @@
 <template>
+
+
   <div>
-    <h1>{{$route.name}}</h1>
-    <table v-if="data">
+   <h1>{{$route.name}}</h1>
+
+    <table v-if="data" class="pure-table pure-table-bordered">
       <thead>
         <tr>
           <th>Connector</th>
-          <th>Class</th>
-          <th>Type</th>
-          <th>Version</th>
           <th>Operation</th>
         </tr>
       </thead>
       <tbody>
         <tr v-for="plugin in data" :key="plugin.class">
-          <td>{{ plugin.name }}</td>
-          <td>{{ plugin.class }}</td>
-          <td>{{ plugin.type }}</td>
-          <td>{{ plugin.version }}</td>
-          <td><a class="button" v-on:click="newConnector(plugin.class, plugin.type)">New connector</a></td>
+          <td> 
+             {{ plugin.name }}
+            <ul>
+              <li>Class: {{ plugin.class }}</li>
+              <li>Type: {{ plugin.type  }}</li>
+              <li>Version: {{ plugin.version }}</li>
+            </ul>
+
+          </td>
+          <td><a class="pure-button pure-button-primary" v-on:click="newConnector(plugin.class, plugin.type)"> <font-awesome-icon icon="plus-circle"></font-awesome-icon> New connector</a></td>
         </tr>
       </tbody>
     </table>
-  </div>
+   </div>
 </template>
 <script>
 import connect from '../common/connect'

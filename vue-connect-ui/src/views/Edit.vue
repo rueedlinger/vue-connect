@@ -3,7 +3,7 @@
     <h1>{{$route.name}}</h1>
     <h2>Conector {{ status.name }}</h2>
     
-    <table v-if="status.connector">
+    <table v-if="status.connector" class="pure-table">
       <thead>
         <tr>
           <th>Key</th>

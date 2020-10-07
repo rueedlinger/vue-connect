@@ -1,101 +1,106 @@
 body {
-    margin: 60px;
-    padding: 0px;
-  }
+  font-family: "Avenir", "Helvetica Neue", Arial, sans-serif;
+  margin: 25px;
+}
+
+header {
+  padding-bottom: 10px; 
+}
+
+#app {
+  font-family: Avenir, Helvetica, Arial, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-align: left;
+}
+
+#menu ul {
+  list-style-type: none;
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+
+}
+
+#menu li {
+  float: left;
+  margin-bottom: 0;
+}
+
+#menu li a {
+  display: block;
+  color: black;
+  text-align: center;
+  padding: 10px 25px;
+  font-weight: bold;
+  text-decoration: underline
+}
+
+
+/* Change the link color to #111 (black) on hover */
+#menuli a:hover {
+  background-color: #111;
+}
+
+#menu .router-link-exact-active {
+  color: #4CAF50;
+}
   
-  textarea {
-    height: 400px
-  }
-  
-  a {
-    color: #42b983;
-    font-weight: bold;
-  }
-  
-  .button, button, input[type="button"], input[type="reset"], input[type="submit"] {
-      background-color: #42b983;
-      border: 0.1rem solid #42b983;
-      border-radius: .4rem;
-      color: #fff;
-      cursor: pointer;
-      display: inline-block;
-      font-size: 1.1rem;
-      font-weight: 700;
-      height: 3.8rem;
-      letter-spacing: .1rem;
-      line-height: 3.8rem;
-      padding: 0 3.0rem;
-      text-align: center;
-      text-decoration: none;
-      text-transform: uppercase;
-      white-space: nowrap;
-  }
-  
-  pre {
-      border-left: 0.3rem solid #6b6c6d;
-      padding-left: 5px;
-  }
-  
-  .operation {
-    font-size: 50px;
-  }
-  
-  .content {  
-    overflow-wrap: break-word;
-    word-wrap: break-word;
-  }
-  
-  .error {
-    color: red;
-    font-size: 20px;
-  }
-  
-  .RUNNING {
-    color: #ffffff;
-    background-color: #42b983;
-    font-weight: bold;
-    text-align: center;
-  }
-  
-  .UNASSIGNED {
-    color: #ffffff;
-    background-color: #eec271;
-    font-weight: bold;
-    text-align: center;
-  }
-  
-  .PAUSED {
-    color: #ffffff;
-    background-color:#9aadc0;
-    font-weight: bold;
-    text-align: center;
-  }
-  
-  .FAILED {
-    color: #ffffff;
-    background-color: #e94c4c;
-    font-weight: bold;
-    text-align: center;
-  }
-  
-  
-  
-  #app {
-    font-family: Avenir, Helvetica, Arial, sans-serif;
-    -webkit-font-smoothing: antialiased;
-    -moz-osx-font-smoothing: grayscale;
-    text-align: left;
-  }
-  
-  #nav {
-    font-size: 25px;
-  }
-  
-  #nav a {
-    font-weight: bold;
-  }
-  
-  #nav a.router-link-exact-active {
-    color: #6b6c6d;
-    text-decoration: underline;
-  }
+textarea {
+  height: 400px
+}
+
+pre {
+  display: block; overflow-x: auto; padding: 0.5em; color: rgb(0, 0, 0); background: rgb(248, 248, 255) none repeat scroll 0% 0%;
+
+}
+
+tr .RUNNING {
+  background-color: rgb(28, 184, 65);
+  color: #ffffff;
+  font-weight: bold;
+}
+
+tr .PAUSED {
+  background-color: rgb(66, 184, 221);
+  color: #ffffff;
+  font-weight: bold;
+}
+
+tr .UNASSIGNED {
+  background-color: rgb(223, 117, 20);
+  color: #ffffff;
+  font-weight: bold;
+}
+
+tr .FAILED {
+  background-color: rgb(202, 60, 60);
+  color: #ffffff;
+  font-weight: bold;
+}
+
+.operation td{
+  padding: 0px;
+}
+
+#detail {
+  list-style-type: none;
+  margin: 0;
+  padding: 0;
+}
+
+.info {
+  background: #0078e7;
+  margin: 1em 0;
+  padding: .3em 1em;
+  border-radius: 3px;
+  color: #fff;
+}
+
+.error {
+  background: rgb(202, 60, 60);
+  margin: 1em 0;
+  padding: .3em 1em;
+  border-radius: 3px;
+  color: #fff;
+}

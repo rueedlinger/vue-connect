@@ -1,7 +1,7 @@
 <template>
   <div>
     <h1>{{$route.name}}</h1>
-    <table v-if="data">
+    <table class="pure-table pure-table-bordered" v-if="data">
       <thead>
         <tr>
           <th>Key</th>

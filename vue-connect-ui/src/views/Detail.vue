@@ -1,9 +1,9 @@
 <template>
   <div>
    <h1>{{$route.name}}</h1>
-    <h2>Conector {{ status.name}}</h2>
+    <h2>Connector {{ status.name}}</h2>
 
-      <table v-if="status.connector">
+      <table v-if="status.connector" class="pure-table">
       <thead>
         <tr>
           <th>Key</th>
@@ -39,7 +39,7 @@
         </tr>
          <tr>
           <td></td>
-          <td><a class="button" v-on:click="editConnector($route.params.id)">Edit</a> <a class="button" v-on:click="deleteConnector($route.params.id)">Delete</a></td>
+          <td><a class="pure-button pure-button-primary" v-on:click="editConnector($route.params.id)">Edit</a> <a class="button" v-on:click="deleteConnector($route.params.id)">Delete</a></td>
         </tr>
         <tr v-if="status.connector.trace">
           <td>Trace</td>
@@ -51,7 +51,7 @@
 
     <div v-for="task in status.tasks" :key="task.id">
       <h2>Task ({{ task.id }})</h2>
-      <table class="u-full-width" v-if="status.tasks">
+      <table v-if="status.tasks">
       <thead>
         <tr>
           <th>Key</th>

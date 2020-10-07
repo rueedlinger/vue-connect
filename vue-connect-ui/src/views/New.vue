@@ -2,46 +2,20 @@
   <div>
     <h1>{{$route.name}}</h1>
     <h2>Conector {{ connectorName }}</h2>
-    
-    <table>
-      <thead>
-        <tr>
-          <th>Key</th>
-          <th>Value</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr>
-          <td>Class</td>
-          <td>{{$route.params.id}}</td>
-        </tr>
-        <tr>
-          <td>Type</td>
-          <td>{{$route.params.type}}</td>
-        </tr>
-         <tr>
-          <td>Config</td>
-          <td>
-            <textarea v-model="jsonConfig"></textarea>
-          </td>
-        </tr>
-        <tr v-if="errors">
-          <td>Error</td>
-          <td>
-            <pre>{{errors}}</pre>
-          </td>
-        </tr>
-         <tr>
-          <td></td>
-          <td><a class="button" v-on:click="save($route.params.id)">Save</a></td>
-        </tr>
-      </tbody>
-    </table>
+    <ul>
+      <li>Class: {{$route.params.id}}</li>
+      <li>Type: {{$route.params.type}}</li>
+    </ul>
 
- 
+    <form class="pure-form pure-form-stacked">
+      <fieldset>
+        <textarea class="pure-input-1-2" v-model="jsonConfig"></textarea>
+        <a class="pure-button pure-button-primary" v-on:click="save($route.params.id)"><font-awesome-icon icon="save"></font-awesome-icon> Save</a>
+      </fieldset>
+    </form>
 
   <h2>Configuration Options for {{ connectorName }}</h2>
-  <table>
+  <table class="pure-table pure-table-bordered">
     <thead>
       <tr>
         <th>Name</th>

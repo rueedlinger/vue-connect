@@ -3,7 +3,6 @@ services:
   zookeeper:
     image: confluentinc/cp-zookeeper:6.0.0
     hostname: zookeeper
-    container_name: zookeeper
     ports:
       - "2181:2181"
     environment:
@@ -13,7 +12,6 @@ services:
   broker:
     image: confluentinc/cp-kafka:6.0.0
     hostname: broker
-    container_name: broker
     depends_on:
       - zookeeper
     ports:
@@ -32,7 +30,6 @@ services:
   schema-registry:
     image: confluentinc/cp-schema-registry:6.0.0
     hostname: schema-registry
-    container_name: schema-registry
     depends_on:
       - zookeeper
       - broker
@@ -46,7 +43,6 @@ services:
     build:
       context: connect
     hostname: connect
-    container_name: connect
     depends_on:
       - zookeeper
       - broker
@@ -82,7 +78,6 @@ services:
   vue-connect:
       build: .
       hostname: vue-connect
-      container_name: vue-connect
       depends_on:
         - connect
       ports:

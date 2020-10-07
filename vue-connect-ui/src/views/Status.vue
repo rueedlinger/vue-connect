@@ -7,13 +7,12 @@
 
     
 
-    <table class="u-full-width" v-if="data.length > 0">
+    <table v-if="data.length > 0" class="pure-table pure-table-bordered">
       <thead>
         <tr>
           <th>State</th>
-          <th>Name / Type</th>
+          <th>Connector</th>
           <th>Operation</th>
-          <th>Worker ID</th>
           <th>Task</th>
         </tr>
       </thead>
@@ -21,27 +20,51 @@
         <tr v-for="item in data" :key="item.name">
           <td v-bind:class="item.connector.state">{{ item.connector.state }}</td>
           <td>
-           <a v-bind:href="'/detail/' + item.name">{{ item.name }}</a> ({{ item.type }})
+            <ul id="detail">
+              <li><b>Connector ID:</b> {{ item.name }}</li>
+              <li><b>Type:</b> {{ item.type }}</li>
+              <li><b>Worker ID:</b> {{ item.connector.worker_id }}</li>
+            </ul>
+
+
+           
           </td>
-          <td class="operation"><a v-bind:href="'/detail/' + item.name"><font-awesome-icon icon="info-circle"></font-awesome-icon></a> <a v-on:click="resume(item.name)"> <font-awesome-icon icon="play-circle"></font-awesome-icon> </a> <a v-on:click="pause(item.name)"> <font-awesome-icon icon="pause-circle"></font-awesome-icon></a> <a v-on:click="restart(item.name)"><font-awesome-icon icon="retweet"></font-awesome-icon></a>
-          </td>
-          <td>{{ item.connector.worker_id }}</td>
           <td>
-            <table class="u-full-width">
+            <table class="operation">
+              <tr>
+                <td><button class="pure-button pure-button-primary" v-on:click="detail(item.name)"><font-awesome-icon icon="edit"></font-awesome-icon></button></td>
+                <td><button class="pure-button pure-button-primary" v-on:click="resume(item.name)"> <font-awesome-icon icon="play-circle"></font-awesome-icon></button></td>
+                <td><button class="pure-button pure-button-primary" v-on:click="pause(item.name)"> <font-awesome-icon icon="pause-circle"></font-awesome-icon></button></td>
+                <td><button class="pure-button pure-button-primary" v-on:click="restart(item.name)"><font-awesome-icon icon="retweet"></font-awesome-icon></button></td>
+              </tr>
+            </table>
+            
+               
+          </td>
+          <td>
+            <div class="error" v-if="item.tasks.length == 0">
+              <b>Error:</b> No running tasks.
+            </div>
+            <table class="pure-table pure-table-bordered" v-if="item.tasks.length > 0">
               <thead>
                 <tr>
-                  <th>Task State</th>
-                  <th>Id</th>
-                  <th>Task Worker ID</th>
+                  <th>State</th>
+                  <th>Task</th>
                   <th>Operation</th>
                 </tr>
               </thead>
                <tbody>
                  <tr v-for="task in item.tasks" v-bind:key="task.id">
                   <td v-bind:class="task.state">{{ task.state }}</td>
-                  <td>{{ task.id }}</td>
-                  <td>{{ task.worker_id }}</td>
-                  <td class="operation"><a v-on:click="restartTask(item.name, task.id)"><font-awesome-icon icon="retweet"></font-awesome-icon></a></td>
+                  <td>
+                    <ul id="detail">
+                      <li><b>Task ID:</b> {{ task.id }}</li>
+                      <li><b>Worker ID:</b> {{ task.worker_id }}</li>
+                    </ul>
+                  </td>
+                  <td> 
+                    <button class="pure-button pure-button-primary" v-on:click="restartTask(item.name, task.id)"><font-awesome-icon icon="retweet"></font-awesome-icon></button>
+                  </td>
                  </tr>
                </tbody>
             </table>
@@ -78,6 +101,9 @@ export default {
   },
 
   methods: {
+    detail: function (id) {
+      this.$router.push('/detail/' + id)
+    },
     restart: function (id) {
       connect.restartConnector(id)
       .then(resp => {
