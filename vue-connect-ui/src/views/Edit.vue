@@ -1,6 +1,6 @@
 <template>
   <div>
-    <h1>{{$route.name}}</h1>
+    <h1><font-awesome-icon icon="edit"></font-awesome-icon> {{$route.name}}</h1>
     <h2>Conector {{ status.name }}</h2>
     
     <table v-if="status.connector" class="pure-table">
@@ -29,7 +29,7 @@
         </tr>
          <tr>
           <td></td>
-          <td><a class="button" v-on:click="save($route.params.id)">Save</a></td>
+          <td><button class="pure-button pure-button-primary" v-on:click="save($route.params.id)"><font-awesome-icon icon="edit"></font-awesome-icon> Save</button></td>
         </tr>
       </tbody>
     </table>

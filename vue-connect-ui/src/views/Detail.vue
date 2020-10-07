@@ -1,6 +1,6 @@
 <template>
   <div>
-   <h1>{{$route.name}}</h1>
+   <h1><font-awesome-icon icon="file-alt"></font-awesome-icon> {{$route.name}}</h1>
     <h2>Connector {{ status.name}}</h2>
 
       <table v-if="status.connector" class="pure-table">
@@ -39,7 +39,7 @@
         </tr>
          <tr>
           <td></td>
-          <td><a class="pure-button pure-button-primary" v-on:click="editConnector($route.params.id)">Edit</a> <a class="button" v-on:click="deleteConnector($route.params.id)">Delete</a></td>
+          <td><button class="pure-button pure-button-primary" v-on:click="editConnector($route.params.id)"><font-awesome-icon icon="edit"></font-awesome-icon> Edit</button> <button class="pure-button pure-button-primary" v-on:click="deleteConnector($route.params.id)"><font-awesome-icon icon="trash-alt"></font-awesome-icon> Delete</button></td>
         </tr>
         <tr v-if="status.connector.trace">
           <td>Trace</td>

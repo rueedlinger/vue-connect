@@ -2,7 +2,7 @@
 
 
   <div>
-   <h1>{{$route.name}}</h1>
+   <h1><font-awesome-icon icon="layer-group"></font-awesome-icon> {{$route.name}}</h1>
 
     <table v-if="data" class="pure-table pure-table-bordered">
       <thead>

@@ -10,7 +10,7 @@
     <form class="pure-form pure-form-stacked">
       <fieldset>
         <textarea class="pure-input-1-2" v-model="jsonConfig"></textarea>
-        <a class="pure-button pure-button-primary" v-on:click="save($route.params.id)"><font-awesome-icon icon="save"></font-awesome-icon> Save</a>
+        <button class="pure-button pure-button-primary" v-on:click="save($route.params.id)"><font-awesome-icon icon="save"></font-awesome-icon> Save</button>
       </fieldset>
     </form>
 

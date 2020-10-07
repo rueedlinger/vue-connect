@@ -1,6 +1,6 @@
 <template>
   <div>
-    <h1>{{$route.name}}</h1>
+    <h1><font-awesome-icon icon="info-circle"></font-awesome-icon> {{$route.name}}</h1>
     <table class="pure-table pure-table-bordered" v-if="data">
       <thead>
         <tr>

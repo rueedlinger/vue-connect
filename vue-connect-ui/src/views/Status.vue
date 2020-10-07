@@ -1,6 +1,6 @@
 <template>
   <div>
-    <h1>{{$route.name}}</h1>
+    <h1><font-awesome-icon icon="cogs"></font-awesome-icon> {{$route.name}}</h1>
     <blockquote v-if="data.length == 0">
         <p><em>There are no connectors running...</em></p>
     </blockquote>
@@ -32,7 +32,7 @@
           <td>
             <table class="operation">
               <tr>
-                <td><button class="pure-button pure-button-primary" v-on:click="detail(item.name)"><font-awesome-icon icon="edit"></font-awesome-icon></button></td>
+                <td><button class="pure-button pure-button-primary" v-on:click="detail(item.name)"><font-awesome-icon icon="file-alt"></font-awesome-icon></button></td>
                 <td><button class="pure-button pure-button-primary" v-on:click="resume(item.name)"> <font-awesome-icon icon="play-circle"></font-awesome-icon></button></td>
                 <td><button class="pure-button pure-button-primary" v-on:click="pause(item.name)"> <font-awesome-icon icon="pause-circle"></font-awesome-icon></button></td>
                 <td><button class="pure-button pure-button-primary" v-on:click="restart(item.name)"><font-awesome-icon icon="retweet"></font-awesome-icon></button></td>
