@@ -12,8 +12,9 @@
         <tr>
           <th>State</th>
           <th>Connector</th>
-          <th>Operation</th>
-          <th>Task</th>
+           <th></th>
+          <th></th>
+          <th></th>
         </tr>
       </thead>
       <tbody>
@@ -30,12 +31,20 @@
            
           </td>
           <td>
+             <table class="operation">
+              <tr>
+                <td><a class="pure-button pure-button-primary" v-on:click="detail(item.name)"><font-awesome-icon icon="info-circle"></font-awesome-icon></a></td>
+                <td><a class="pure-button pure-button-primary" v-on:click="edit(item.name)"><font-awesome-icon icon="edit"></font-awesome-icon></a></td>
+                <td><a class="pure-button pure-button-primary" v-on:click="del(item.name)"><font-awesome-icon icon="trash-alt"></font-awesome-icon></a></td>
+               </tr>
+            </table>
+          </td>
+          <td>
             <table class="operation">
               <tr>
-                <td><button class="pure-button pure-button-primary" v-on:click="detail(item.name)"><font-awesome-icon icon="file-alt"></font-awesome-icon></button></td>
-                <td><button class="pure-button pure-button-primary" v-on:click="resume(item.name)"> <font-awesome-icon icon="play-circle"></font-awesome-icon></button></td>
-                <td><button class="pure-button pure-button-primary" v-on:click="pause(item.name)"> <font-awesome-icon icon="pause-circle"></font-awesome-icon></button></td>
-                <td><button class="pure-button pure-button-primary" v-on:click="restart(item.name)"><font-awesome-icon icon="retweet"></font-awesome-icon></button></td>
+                <td><a class="pure-button pure-button-primary" v-on:click="resume(item.name)"> <font-awesome-icon icon="play-circle"></font-awesome-icon></a></td>
+                <td><a class="pure-button pure-button-primary" v-on:click="pause(item.name)"> <font-awesome-icon icon="pause-circle"></font-awesome-icon></a></td>
+                <td><a class="pure-button pure-button-primary" v-on:click="restart(item.name)"><font-awesome-icon icon="retweet"></font-awesome-icon></a></td>
               </tr>
             </table>
             
@@ -50,7 +59,7 @@
                 <tr>
                   <th>State</th>
                   <th>Task</th>
-                  <th>Operation</th>
+                  <th></th>
                 </tr>
               </thead>
                <tbody>
@@ -63,7 +72,7 @@
                     </ul>
                   </td>
                   <td> 
-                    <button class="pure-button pure-button-primary" v-on:click="restartTask(item.name, task.id)"><font-awesome-icon icon="retweet"></font-awesome-icon></button>
+                    <a class="pure-button pure-button-primary" v-on:click="restartTask(item.name, task.id)"><font-awesome-icon icon="retweet"></font-awesome-icon></a>
                   </td>
                  </tr>
                </tbody>
@@ -104,6 +113,18 @@ export default {
     detail: function (id) {
       this.$router.push('/detail/' + id)
     },
+    edit: function (id) {
+      this.$router.push('/edit/' + id)
+    },
+     del: function (id) {
+      connect.deleteConnector(id)
+      .then(resp => {
+        this.data = resp.data
+      })
+     .catch(e => {
+        this.errors.push(e)
+      })
+    },     
     restart: function (id) {
       connect.restartConnector(id)
       .then(resp => {

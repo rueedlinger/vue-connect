@@ -11,9 +11,13 @@
       </nav>
     </header>
 
-    <div>
+    <div id="content">
         <router-view/>
     </div>
+    <footer>
+      <hr>
+      <a href="https://github.com/rueedlinger/vue-connect">vue-connect</a>
+    </footer>
   </div>
     
   

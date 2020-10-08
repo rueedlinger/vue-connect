@@ -8,7 +8,7 @@
       <thead>
         <tr>
           <th>Connector</th>
-          <th>Operation</th>
+          <th></th>
         </tr>
       </thead>
       <tbody>

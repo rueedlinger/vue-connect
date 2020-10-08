@@ -1,88 +1,37 @@
 <template>
   <div>
-   <h1><font-awesome-icon icon="file-alt"></font-awesome-icon> {{$route.name}}</h1>
-    <h2>Connector {{ status.name}}</h2>
+   <h1><font-awesome-icon icon="info-circle"></font-awesome-icon> {{$route.name}}</h1>
+    <h2>Connector {{ status.name }}</h2>
 
-      <table v-if="status.connector" class="pure-table">
-      <thead>
-        <tr>
-          <th>Key</th>
-          <th>Value</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr>
-          <td>Name</td>
-          <td>{{ status.name}}</td>
-        </tr>
-        <tr>
-          <td>Type</td>
-          <td>{{ status.type }}</td>
-        </tr>
-        <!--
-         <tr>
-          <td>Topics</td>
-          <td>{{ topics }}</td>
-        </tr>
-        -->
-        <tr>
-          <td>Worker Id</td>
-          <td>{{ status.connector.worker_id }}</td>
-        </tr>
-         <tr>
-          <td>State</td>
-          <td>{{ status.connector.state }}</td>
-        </tr>
-         <tr>
-          <td>Config</td>
-          <td><pre>{{ config }}</pre></td>
-        </tr>
-         <tr>
-          <td></td>
-          <td><button class="pure-button pure-button-primary" v-on:click="editConnector($route.params.id)"><font-awesome-icon icon="edit"></font-awesome-icon> Edit</button> <button class="pure-button pure-button-primary" v-on:click="deleteConnector($route.params.id)"><font-awesome-icon icon="trash-alt"></font-awesome-icon> Delete</button></td>
-        </tr>
-        <tr v-if="status.connector.trace">
-          <td>Trace</td>
-          <td><pre>{{ status.connector.trace }}</pre></td>
-        </tr>
-      </tbody>
-    </table>
+    <div class="pure-g" v-if="errors">
+        <div class="pure-u-5-5 error">{{errors}}</div>
+      </div>
 
+      <ul>
+        <li>Type: {{ status.type }}</li>
+        <li>Worker Id: {{ status.connector.worker_id }}</li>
+        <li>State: {{ status.connector.state }}</li>
+      </ul>
+
+      <pre>{{ config }}</pre>
+
+      
+      <div class="error">
+      {{ status.connector.trace }}
+      </div>
+      
 
     <div v-for="task in status.tasks" :key="task.id">
-      <h2>Task ({{ task.id }})</h2>
-      <table v-if="status.tasks">
-      <thead>
-        <tr>
-          <th>Key</th>
-          <th>Value</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr>
-          <td>Id</td>
-          <td>{{task.id}}</td>
-        </tr>
-        <tr>
-          <td>Worker Id</td>
-          <td>{{task.worker_id}}</td>
-        </tr>
-         <tr>
-          <td>State</td>
-          <td>{{task.state}}</td>
-        </tr>
-        <tr v-if="task.trace">
-          <td>Trace</td>
-          <td><pre>{{ task.trace }}</pre></td>
-        </tr>
-      </tbody>
-      </table>
+      <h2>Task {{ task.id }}</h2>
+      <ul>
+        <li>Worker Id: {{ task.worker_id }}</li>
+        <li>State: {{ task.state }}</li>
+      </ul>
+       <div class="error">
+      {{ task.trace }}
+      </div>
     </div>
-
-
-
-    
-
+     
   </div>
 </template>
 
@@ -96,7 +45,7 @@ export default {
       status: [],
       config: [],
       topics: [],
-      errors: []
+      errors: ""
     }
   },
 
@@ -111,21 +60,6 @@ export default {
     }).catch(e => {
       this.errors.push(e)
     })
-  },
-  
-  methods: {
-    editConnector: function (id) {
-      this.$router.push({path: '/edit/' + id })
-    },
-    deleteConnector: function (id) {
-      connect.deleteConnector(id)
-      .then(() => {
-        this.$router.push('/')
-      })
-     .catch(e => {
-        this.errors.push(e)
-      })
-    }
   }
 }
 </script>

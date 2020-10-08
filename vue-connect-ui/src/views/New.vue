@@ -7,12 +7,20 @@
       <li>Type: {{$route.params.type}}</li>
     </ul>
 
+    <div class="pure-g" v-if="errors">
+      <div class="pure-u-5-5 error">{{errors}}</div>
+
+    </div>
+    
+
     <form class="pure-form pure-form-stacked">
       <fieldset>
-        <textarea class="pure-input-1-2" v-model="jsonConfig"></textarea>
-        <button class="pure-button pure-button-primary" v-on:click="save($route.params.id)"><font-awesome-icon icon="save"></font-awesome-icon> Save</button>
+        <textarea class="pure-input-1" v-model="jsonConfig"></textarea>
+        <a class="pure-button pure-button-primary" v-on:click="save()"><font-awesome-icon icon="save"></font-awesome-icon> Save</a>
       </fieldset>
     </form>
+
+<!--   
 
   <h2>Configuration Options for {{ connectorName }}</h2>
   <table class="pure-table pure-table-bordered">
@@ -35,6 +43,8 @@
       </tr>
   </tbody>
 </table>
+
+-->
 
   </div>
 </template>
@@ -95,6 +105,7 @@ export default {
     save: function () {
       
       try {
+          
           let data = JSON.parse(this.jsonConfig)
           connect.newConnector(data)
           .then(() => {
@@ -104,7 +115,7 @@ export default {
             this.errors = error.response.data.message
           })
       } catch(error) {
-        this.errors = error.response.data
+        this.errors = error
       }
     }
   }
