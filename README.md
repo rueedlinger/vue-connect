@@ -22,7 +22,19 @@ vue-connect is build with [Vue.js](https://vuejs.org/) and [Python](https://www.
 
 ## Run vue-connect
 
-### Build from Source
+`CONNECT_URL` is the Kafka Connect Rest Endpoint URL which you want to access
+with vue-connect.
+
+```
+docker run --rm -it -p 8080:8080 \
+           -e "CONNECT_URL=http://CONNECT_REST_ENDPOINT:PORT" \
+           rueedlinger/vue-connect:v0.1.0
+```
+
+> The *vue-connect* Web UI will be available at http://localhost:8080
+ 
+
+## Build from Source
 - See [vue-connect-ui](vue-connect-ui/README.md) how you can build the *Vue.js* frontend.
 - See [vue-connect-api](vue-connect-api/README.md) how you can build the *Python* backend.
 
