@@ -1,6 +1,6 @@
 # This is a basic workflow to help you get started with Actions
 
-name: Python Build
+name: Python bild and test
 
 # Controls when the action will run. Triggers the workflow on push or pull request
 # events but only for the master branch
@@ -16,14 +16,23 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+        
       - uses: actions/checkout@v1
       - name: Set up Python 3.7
         uses: actions/setup-python@v1
         with:
           python-version: 3.7
       - name: Install pipenv
+        env:
+          PIPENV_NOSPIN: 'true'
+          WORKON_HOME: ~/.pipenv/virtualenvs
+          PIPENV_CACHE_DIR: ~/.pipenv/pipcache
         run: pip install pipenv
-      - name: Run tests
+      - name: Build and Test
+        env:
+          PIPENV_NOSPIN: 'true'
+          WORKON_HOME: ~/.pipenv/virtualenvs
+          PIPENV_CACHE_DIR: ~/.pipenv/pipcache
         run: |
           cd vue-connect-api
           pipenv install --dev
