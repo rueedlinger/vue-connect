@@ -10,8 +10,11 @@ $ pip install --user pipenv
 Install all the required packages
 
 ```bash
-$ pipenv install
+$ pipenv install --dev
 ```
+
+### Run the Tests
+tbd
 
 ### Run the app
 
