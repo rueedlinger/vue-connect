@@ -16,8 +16,9 @@
 ## Components
 vue-connect is build with [Vue.js](https://vuejs.org/) and [Python](https://www.python.org/).
 
-- [vue-connect-api](vue-connect-api) - the backend service project.
-- [vue-connect-ui](vue-connect-ui) - the ui project.
+- [vue-connect-api](vue-connect-api) - the backend service project. ![Build API](https://github.com/rueedlinger/vue-connect/workflows/Build%20API/badge.svg)
+- [vue-connect-ui](vue-connect-ui) - the ui project. ![Build UI](https://github.com/rueedlinger/vue-connect/workflows/Build%20UI/badge.svg)
+- The UI and API are bundled together in a [Docker](Dockerfile) image. ![Build Docker](https://github.com/rueedlinger/vue-connect/workflows/Build%20Docker/badge.svg)
 
 ## Run vue-connect
 
