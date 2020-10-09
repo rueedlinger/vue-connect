@@ -6,9 +6,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.1.0] - 2020-10-09
+
 ### Added
-- Docker Image to build the application.
-- First version frontend (Vue.js) and backend (Python).
+- First version of the Docker Image with
+  - *vue-connect-ui* - Fontend with Vue.js. 
+  - *vue-connect-api* - Backend API in Python.
 - This CHANGELOG file to hopefully serve as an evolving example of a
   standardized open source project CHANGELOG.
 
