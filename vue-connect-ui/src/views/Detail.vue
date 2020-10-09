@@ -16,7 +16,7 @@
       <pre>{{ config }}</pre>
 
       
-      <div class="error">
+      <div v-if="status.connector.trace" class="error">
       {{ status.connector.trace }}
       </div>
       
@@ -27,7 +27,7 @@
         <li>Worker Id: {{ task.worker_id }}</li>
         <li>State: {{ task.state }}</li>
       </ul>
-       <div class="error">
+       <div v-if="task.trace" class="error">
       {{ task.trace }}
       </div>
     </div>
