@@ -1,4 +1,4 @@
-name: Node Build
+name: JS build and test
 on:
   push:
     branches: [ master ]
@@ -17,6 +17,6 @@ jobs:
         node-version: 12
     - run: |
         cd vue-connect-ui
+        npm ci
         npm run build
         npm test
-      name: Build and Test
