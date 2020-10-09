@@ -96,8 +96,12 @@ export default {
 
       this.jsonConfig = JSON.stringify(data, null, 2)
 
-    }).catch(error => {
-      this.errors = error.response.data
+    }).catch(e => {
+       if(e.response) {
+            this.errors = e.response.data.message
+        } else {
+            this.errors = {'message': e.message}
+        }
     })
   },
   
@@ -111,8 +115,12 @@ export default {
           .then(() => {
             this.$router.push('/')
           })
-          .catch(error => {
-            this.errors = error.response.data.message
+          .catch(e => {
+            if(e.response) {
+              this.errors = e.response.data.message
+            } else {
+              this.errors = {'message': e.message}
+            }
           })
       } catch(error) {
         this.errors = error

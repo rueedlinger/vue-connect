@@ -58,7 +58,11 @@ export default {
       this.status = respAll[0].data
       this.config = respAll[1].data
     }).catch(e => {
-      this.errors = e.response.data.message
+       if(e.response) {
+            this.errors = e.response.data.message
+        } else {
+            this.errors = {'message': e.message}
+        }
     })
   }
 }

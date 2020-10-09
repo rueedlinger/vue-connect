@@ -62,7 +62,11 @@ export default {
       this.data = response.data
     })
     .catch(e => {
-      this.errors = e.response.data.message
+       if(e.response) {
+            this.errors = e.response.data.message
+        } else {
+            this.errors = {'message': e.message}
+        }
     })
   }
 }

@@ -44,7 +44,11 @@ export default {
       this.config = respAll[1].data
       this.jsonConfig = JSON.stringify(respAll[1].data, null, 2)
     }).catch(e => {
-      this.errors.push(e)
+       if(e.response) {
+            this.errors = e.response.data.message
+        } else {
+            this.errors = {'message': e.message}
+        }
     })
   },
   
@@ -53,12 +57,16 @@ export default {
       
       try {
           let data = JSON.parse(this.jsonConfig)
-            connect.updateConnector(this.$route.params.id, data)
+            connect.updateConnector(id, data)
             .then(() => {
               this.$router.push('/')
             })
-          .catch(error => {
-              this.errors = error.response.data.message
+          .catch(e => {
+              if(e.response) {
+                  this.errors = e.response.data.message
+              } else {
+                  this.errors = {'message': e.message}
+              }
             })
       } catch(e) {
         this.errors = e

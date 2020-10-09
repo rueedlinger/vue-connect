@@ -6,6 +6,10 @@
       <div class="pure-u-5-5 error">{{errors}}</div>
     </div>
 
+     <div class="pure-g" v-if="data.length == 0">
+      <div class="pure-u-5-5 info">No running connectors!</div>
+    </div>
+
     <table v-if="data.length > 0" class="pure-table pure-table-bordered">
       <thead>
         <tr>
@@ -104,7 +108,11 @@ export default {
         this.data = response.data
       })
       .catch(e => {
-        this.errors = e.response.data.message
+        if(e.response) {
+            this.errors = e.response.data.message
+        } else {
+            this.errors = {'message': e.message}
+        }
       })
   },
 
@@ -121,7 +129,11 @@ export default {
         this.data = resp.data
       })
      .catch(e => {
-        this.errors = e.response.data.message
+        if(e.response) {
+            this.errors = e.response.data.message
+        } else {
+            this.errors = {'message': e.message}
+        }
       })
     },     
     restart: function (id) {
@@ -130,7 +142,11 @@ export default {
         this.data = resp.data
       })
      .catch(e => {
-        this.errors = e.response.data.message
+        if(e.response) {
+            this.errors = e.response.data.message
+        } else {
+            this.errors = {'message': e.message}
+        }
       })
     },
     pause: function (id) {
@@ -139,7 +155,11 @@ export default {
         this.data = resp.data
       })
       .catch(e => {
-        this.errors = e.response.data.message
+        if(e.response) {
+            this.errors = e.response.data.message
+        } else {
+            this.errors = {'message': e.message}
+        }
       })
     },
     resume: function (id) {
@@ -148,7 +168,11 @@ export default {
         this.data = resp.data
       })
       .catch(e => {
-       this.errors = e.response.data.message
+        if(e.response) {
+            this.errors = e.response.data.message
+        } else {
+            this.errors = {'message': e.message}
+        }
       })
     },
     restartTask: function (id, task_id) {
@@ -157,7 +181,11 @@ export default {
         this.data = resp.data
       })
       .catch(e => {
-        this.errors = e.response.data.message
+        if(e.response) {
+            this.errors = e.response.data.message
+        } else {
+            this.errors = {'message': e.message}
+        }
       })
     }
   }
