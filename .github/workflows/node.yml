@@ -19,4 +19,5 @@ jobs:
         cd vue-connect-ui
         npm ci
         npm run build
-        npm test
+
+
