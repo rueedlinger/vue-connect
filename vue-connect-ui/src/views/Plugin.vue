@@ -4,7 +4,11 @@
   <div>
    <h1><font-awesome-icon icon="layer-group"></font-awesome-icon> {{$route.name}}</h1>
 
-    <table v-if="data" class="pure-table pure-table-bordered">
+    <div class="pure-g" v-if="errors">
+      <div class="pure-u-5-5 error">{{errors}}</div>
+    </div>
+
+    <table v-if="data.length > 0" class="pure-table pure-table-bordered">
       <thead>
         <tr>
           <th>Connector</th>
@@ -35,7 +39,7 @@ export default {
   data() {
     return {
       data: [],
-      errors: []
+      errors: ""
     }
   },
 
@@ -47,7 +51,7 @@ export default {
       this.data = response.data
     })
     .catch(e => {
-      this.errors.push(e)
+      this.errors = e.response.data.message
     })
   },
 

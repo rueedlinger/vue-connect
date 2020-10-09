@@ -1,11 +1,10 @@
 <template>
   <div>
     <h1><font-awesome-icon icon="cogs"></font-awesome-icon> {{$route.name}}</h1>
-    <blockquote v-if="data.length == 0">
-        <p><em>There are no connectors running...</em></p>
-    </blockquote>
-
     
+    <div class="pure-g" v-if="errors">
+      <div class="pure-u-5-5 error">{{errors}}</div>
+    </div>
 
     <table v-if="data.length > 0" class="pure-table pure-table-bordered">
       <thead>
@@ -92,7 +91,7 @@ export default {
   data() {
     return {
       data: [],
-      errors: []
+      errors: ""
     }
   },
 
@@ -105,7 +104,7 @@ export default {
         this.data = response.data
       })
       .catch(e => {
-        this.errors.push(e)
+        this.errors = e.response.data.message
       })
   },
 
@@ -122,7 +121,7 @@ export default {
         this.data = resp.data
       })
      .catch(e => {
-        this.errors.push(e)
+        this.errors = e.response.data.message
       })
     },     
     restart: function (id) {
@@ -131,7 +130,7 @@ export default {
         this.data = resp.data
       })
      .catch(e => {
-        this.errors.push(e)
+        this.errors = e.response.data.message
       })
     },
     pause: function (id) {
@@ -140,7 +139,7 @@ export default {
         this.data = resp.data
       })
       .catch(e => {
-        this.errors.push(e)
+        this.errors = e.response.data.message
       })
     },
     resume: function (id) {
@@ -149,7 +148,7 @@ export default {
         this.data = resp.data
       })
       .catch(e => {
-        this.errors.push(e)
+       this.errors = e.response.data.message
       })
     },
     restartTask: function (id, task_id) {
@@ -158,7 +157,7 @@ export default {
         this.data = resp.data
       })
       .catch(e => {
-        this.errors.push(e)
+        this.errors = e.response.data.message
       })
     }
   }

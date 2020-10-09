@@ -21,10 +21,7 @@ vue-connect is build with [Vue.js](https://vuejs.org/) and [Python](https://www.
 
 ## Run vue-connect
 
-tbd
-
-
-## Build from Source
+### Build from Source
 - See [vue-connect-ui](vue-connect-ui/README.md) how you can build the *Vue.js* frontend.
 - See [vue-connect-api](vue-connect-api/README.md) how you can build the *Python* backend.
 
@@ -50,16 +47,6 @@ Or you can use the Docker Compose file [docker-compose.yml](docker-compose.yml) 
 docker-compose up --build
 ```
 
-
-
-## Todo
-- Add Tests
-- Add build pipeline
-- Add changelog and version
-- Improve error handling
-- Write documentation
-- Provide Docker image
-- Improve UI for multiple workers (Connect Cluster)
 
 ## License
 The project is licensed under the [Apache](LICENSE) license.

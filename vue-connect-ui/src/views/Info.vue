@@ -1,6 +1,11 @@
 <template>
   <div>
     <h1><font-awesome-icon icon="info-circle"></font-awesome-icon> {{$route.name}}</h1>
+
+    <div class="pure-g" v-if="errors">
+      <div class="pure-u-5-5 error">{{errors}}</div>
+    </div>
+
     <table class="pure-table pure-table-bordered" v-if="data">
       <thead>
         <tr>
@@ -44,7 +49,7 @@ export default {
     return {
       data: [],
       meta: {},
-      errors: []
+      errors: ""
     }
   },
 
@@ -57,7 +62,7 @@ export default {
       this.data = response.data
     })
     .catch(e => {
-      this.errors.push(e)
+      this.errors = e.response.data.message
     })
   }
 }
