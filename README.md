@@ -2,7 +2,7 @@
 
 **vue-connect** is a simple and open source Kafka Connect UI for setting up and managing connectors. 
 
-> **Note**: This project is under development and there is no release yet.
+> **Note**: This project is under development and fare away from production ready.
 
 ## Features
 - Connector status overview
