@@ -1,6 +1,6 @@
 # This is a basic workflow to help you get started with Actions
 
-name: CI
+name: Python Build
 
 # Controls when the action will run. Triggers the workflow on push or pull request
 # events but only for the master branch
@@ -31,7 +31,7 @@ jobs:
         run: |
           cd vue-connect-api
           python -m pip install --upgrade pip
-          pip install --user pipenv
+          pip install pipenv
           pipenv install
       - name: Test with pytest
         run: |
