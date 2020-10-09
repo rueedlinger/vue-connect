@@ -1,4 +1,4 @@
-name: JS build and test
+name: Build UI
 on:
   push:
     branches: [ master ]
