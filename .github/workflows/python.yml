@@ -35,4 +35,5 @@ jobs:
           pipenv install --dev
       - name: Test with pytest
         run: |
+          cd vue-connect-api
           pipenv run pytest
