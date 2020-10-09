@@ -1,4 +1,5 @@
 <template>
+
   <div>
     <h1><font-awesome-icon icon="cogs"></font-awesome-icon> {{$route.name}}</h1>
     
@@ -21,7 +22,7 @@
         </tr>
       </thead>
       <tbody>
-        <tr v-for="item in data" :key="item.name">
+        <tr v-for="item in data" v-bind:key="item.hash">
           <td v-bind:class="item.connector.state">{{ item.connector.state }}</td>
           <td>
             <ul id="detail">
@@ -29,9 +30,6 @@
               <li><b>Type:</b> {{ item.type }}</li>
               <li><b>Worker ID:</b> {{ item.connector.worker_id }}</li>
             </ul>
-
-
-           
           </td>
           <td>
              <table class="operation">
@@ -66,7 +64,7 @@
                 </tr>
               </thead>
                <tbody>
-                 <tr v-for="task in item.tasks" v-bind:key="task.id">
+                 <tr v-for="task in item.tasks" v-bind:key="task.state">
                   <td v-bind:class="task.state">{{ task.state }}</td>
                   <td>
                     <ul id="detail">
@@ -81,7 +79,6 @@
                </tbody>
             </table>
           </td>
-         
         </tr>
       </tbody>
     </table>
@@ -95,15 +92,14 @@ export default {
   data() {
     return {
       data: [],
-      errors: ""
+      errors: "",
+      polling: null
     }
   },
 
-  
-
   // Fetches posts when the component is created.
   created() {
-    connect.getAllConnectorStatus()
+     connect.getAllConnectorStatus()
       .then(response => {
         this.data = response.data
       })
@@ -114,16 +110,31 @@ export default {
             this.errors = {'message': e.message}
         }
       })
+
+      
+      this.polling = setInterval(function(){
+        connect.getAllConnectorStatus()
+        .then(response => {
+          this.data = response.data
+        })
+      }.bind(this), 10000)
   },
 
+  beforeDestroy() {
+    clearInterval(this.polling)
+  },
+  
   methods: {
-    detail: function (id) {
-      this.$router.push('/detail/' + id)
-    },
-    edit: function (id) {
-      this.$router.push('/edit/' + id)
-    },
-     del: function (id) {
+      reRender: function() {
+        this.$forceUpdate()
+      },
+      detail: function(id) {
+        this.$router.push('/detail/' + id)
+      },
+      edit: function(id) {
+        this.$router.push('/edit/' + id)
+      },
+     del: function(id){
       connect.deleteConnector(id)
       .then(resp => {
         this.data = resp.data
@@ -162,7 +173,7 @@ export default {
         }
       })
     },
-    resume: function (id) {
+    resume: function(id) {
       connect.resumeConnector(id)
       .then(resp => {
         this.data = resp.data

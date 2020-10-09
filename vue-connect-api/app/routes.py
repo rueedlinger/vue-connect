@@ -127,7 +127,9 @@ def connectors():
 
         for connector in connectors:
             r = requests.get(get_url() + '/connectors/' + connector + '/status')
-            state.append(r.json())
+            connector_status = r.json()
+            connector_status['hash'] = hash(json.dumps(connector_status))
+            state.append(connector_status)
 
         return jsonify(state)
 
@@ -137,8 +139,9 @@ def connectors():
 @app.route('/api/status/<id>')
 def status(id):
     r = requests.get(get_url() + '/connectors/' + id + '/status')
+
     status = r.json()
-    return jsonify(status)
+    return jsonify(status), r.status_code
 
 @app.route('/api/plugins/<name>/config/validate', methods=['POST'])
 def validate(name):

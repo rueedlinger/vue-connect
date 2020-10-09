@@ -18,7 +18,7 @@
       <tbody>
         <tr v-for="plugin in data" :key="plugin.class">
           <td> 
-             {{ plugin.name }}
+             <b>{{ plugin.name }}</b>
             <ul>
               <li>Class: {{ plugin.class }}</li>
               <li>Type: {{ plugin.type  }}</li>

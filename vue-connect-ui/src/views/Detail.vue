@@ -7,24 +7,25 @@
         <div class="pure-u-5-5 error">{{errors}}</div>
       </div>
 
-      <ul>
-        <li>Type: {{ status.type }}</li>
-        <li>Worker Id: {{ status.connector.worker_id }}</li>
-        <li>State: {{ status.connector.state }}</li>
-      </ul>
+      <div v-if="status.connector">
+        <ul>
+          <li>Type: {{ status.type }}</li>
+          <li>Worker ID: {{ status.connector.worker_id }}</li>
+          <li>State: {{ status.connector.state }}</li>
+        </ul>
 
-      <pre>{{ config }}</pre>
-
+        <pre>{{ config }}</pre>
       
-      <div v-if="status.connector.trace" class="error">
-      {{ status.connector.trace }}
+        <div v-if="status.connector.trace" class="error">
+        {{ status.connector.trace }}
+        </div>
       </div>
       
 
     <div v-for="task in status.tasks" :key="task.id">
       <h2>Task {{ task.id }}</h2>
       <ul>
-        <li>Worker Id: {{ task.worker_id }}</li>
+        <li>Worker ID: {{ task.worker_id }}</li>
         <li>State: {{ task.state }}</li>
       </ul>
        <div v-if="task.trace" class="error">
