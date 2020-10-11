@@ -57,7 +57,6 @@ def test_api_post_with_data(client):
     assert b'{"message":"Missing configuration property \'name\'."}' in resp.data
     assert 400 == resp.status_code
 
-
 @pytest.mark.parametrize("path", path_get)
 def test_api_get(client, path):
     resp = client.get(path)
