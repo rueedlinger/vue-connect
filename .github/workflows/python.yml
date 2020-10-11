@@ -1,22 +1,13 @@
-# This is a basic workflow to help you get started with Actions
-
 name: Build API
-
-# Controls when the action will run. Triggers the workflow on push or pull request
-# events but only for the master branch
 on:
   push:
-    branches: [ master ]
+    branches: [ master, fix/*, feature/* ]
   pull_request:
     branches: [ master ]
-
-# A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
   build:
     runs-on: ubuntu-latest
-
     steps:
-        
       - uses: actions/checkout@v1
       - name: Set up Python 3.7
         uses: actions/setup-python@v1
