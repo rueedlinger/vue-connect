@@ -23,7 +23,7 @@ const connect = {
         return axiosPostWithData('/plugins/' + pluginName + '/config/validate', config)
     },
     'newConnector': (config) => {
-        return axiosPostWithData('/connectors/', config)
+        return axiosPostWithData('/connectors', config)
     },
     'restartConnector': (connectorName) => {
         return axiosPost('/connectors/' + connectorName + '/restart')
