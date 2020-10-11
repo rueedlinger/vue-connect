@@ -1,7 +1,7 @@
 name: Build UI
 on:
   push:
-    branches: [ aster, fix/*, feature/* ]
+    branches: [ master, fix/*, feature/* ]
   pull_request:
     branches: [ master ]
 jobs:
