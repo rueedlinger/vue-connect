@@ -33,6 +33,19 @@ docker run --rm -it -p 8080:8080 \
 
 > The *vue-connect* Web UI will be available at http://localhost:8080
  
+You can modify the Compose file [docker-compose.yml](docker-compose.yml) and use a prebuilt vue-connect image from Docker Hub.
+```
+vue-connect:
+    image: rueedlinger/vue-connect:v0.1.0
+    hostname: vue-connect
+    depends_on:
+    - connect
+    ports:
+    - "8080:8080"
+    environment:
+    CONNECT_URL: "http://connect:8083"
+```
+
 
 ## Build from Source
 - See [vue-connect-ui](vue-connect-ui/README.md) how you can build the *Vue.js* frontend.
@@ -59,7 +72,6 @@ Or you can use the Docker Compose file [docker-compose.yml](docker-compose.yml) 
 ```
 docker-compose up --build
 ```
-
 
 ## License
 The project is licensed under the [Apache](LICENSE) license.

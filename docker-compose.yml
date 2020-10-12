@@ -76,6 +76,7 @@ services:
       #CONNECT_ACCESS_CONTROL_ALLOW_METHODS: "GET,OPTIONS,HEAD,POST,PUT,DELETE"
 
   vue-connect:
+      #image: rueedlinger/vue-connect:v0.1.0
       build: .
       hostname: vue-connect
       depends_on:

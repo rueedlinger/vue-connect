@@ -174,6 +174,7 @@ def plugins():
         r = requests.get(get_url() + '/connector-plugins')
         plugins = r.json()
 
+
         for plugin in plugins:
             plugin['name'] = plugin['class'].split('.')[-1]
 
