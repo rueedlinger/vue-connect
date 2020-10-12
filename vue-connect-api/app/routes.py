@@ -66,7 +66,7 @@ def update(id):
 @app.route('/api/connectors/<id>/restart', strict_slashes=False, methods = ['POST'])
 def restart(id):
     try:
-        r = requests.post(get_url() + '/connectors/' + id + '/restart')
+        requests.post(get_url() + '/connectors/' + id + '/restart')
         return connectors()
     
     except ConnectionError:
@@ -75,7 +75,7 @@ def restart(id):
 @app.route('/api/connectors/<id>/delete', strict_slashes=False, methods = ['POST'])
 def delete(id):
     try:
-        r = requests.delete(get_url() + '/connectors/' + id)
+        requests.delete(get_url() + '/connectors/' + id)
         return connectors()
     
     except ConnectionError:
@@ -84,7 +84,7 @@ def delete(id):
 @app.route('/api/connectors/<id>/pause', strict_slashes=False, methods = ['POST'])
 def pause(id):
     try:
-        r = requests.put(get_url() + '/connectors/' + id + '/pause')
+        requests.put(get_url() + '/connectors/' + id + '/pause')
         return connectors()
     
     except ConnectionError:
@@ -93,7 +93,7 @@ def pause(id):
 @app.route('/api/connectors/<id>/resume', strict_slashes=False, methods = ['POST'])
 def resume(id):
     try:
-        r = requests.put(get_url() + '/connectors/' + id + '/resume')
+        requests.put(get_url() + '/connectors/' + id + '/resume')
         return connectors()
 
     except ConnectionError:
@@ -102,7 +102,7 @@ def resume(id):
 @app.route('/api/connectors/<id>/tasks/<task_id>/restart', strict_slashes=False, methods = ['POST'])
 def task_restart(id, task_id):
     try:
-        r = requests.post(get_url() + '/connectors/' + id + '/tasks/' + task_id + '/restart')
+        requests.post(get_url() + '/connectors/' + id + '/tasks/' + task_id + '/restart')
         return connectors()
     
     except ConnectionError:
