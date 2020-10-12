@@ -14,7 +14,10 @@ $ pipenv install --dev
 ```
 
 ### Run the Tests
-tbd
+
+```bash
+pipenv run pytest
+```
 
 ### Run the app
 
