@@ -38,12 +38,15 @@ You can modify the Compose file [docker-compose.yml](docker-compose.yml) and use
 vue-connect:
     image: rueedlinger/vue-connect:v0.1.0
     hostname: vue-connect
+    
     depends_on:
     - connect
+    
     ports:
     - "8080:8080"
+    
     environment:
-    CONNECT_URL: "http://connect:8083"
+           CONNECT_URL: "http://connect:8083"
 ```
 
 
