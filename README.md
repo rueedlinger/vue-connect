@@ -36,17 +36,17 @@ docker run --rm -it -p 8080:8080 \
 You can modify the Compose file [docker-compose.yml](docker-compose.yml) and use a prebuilt vue-connect image from Docker Hub.
 ```
 vue-connect:
-    image: rueedlinger/vue-connect:v0.1.0
-    hostname: vue-connect
+  image: rueedlinger/vue-connect:v0.1.0
+  hostname: vue-connect
     
-    depends_on:
+  depends_on:
     - connect
-    
-    ports:
+  
+  ports:
     - "8080:8080"
-    
-    environment:
-           CONNECT_URL: "http://connect:8083"
+  
+  environment:
+    CONNECT_URL: "http://connect:8083"
 ```
 
 
