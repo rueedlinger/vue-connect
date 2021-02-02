@@ -1,6 +1,6 @@
 {
   "name": "vue-connect-ui",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "private": true,
   "scripts": {
     "serve": "vue-cli-service serve",
@@ -11,7 +11,8 @@
     "@fortawesome/fontawesome-svg-core": "^1.2.31",
     "@fortawesome/free-solid-svg-icons": "^5.15.0",
     "@fortawesome/vue-fontawesome": "^0.1.5",
-    "axios": "^0.20.0",
+    "axios": "^0.21.1",
+    "bulma": "^0.9.2",
     "core-js": "^3.6.5",
     "normalize.css": "^8.0.1",
     "purecss": "^2.0.3",

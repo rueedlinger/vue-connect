@@ -1,17 +1,22 @@
 <template>
 
 
-  <div>
-   <h1><font-awesome-icon icon="layer-group"></font-awesome-icon> {{$route.name}}</h1>
+  <div class="box">
 
-    <div class="pure-g" v-if="errors">
-      <div class="pure-u-5-5 error">{{errors}}</div>
+    <article class="message is-danger" v-if="errors">
+    <div class="message-header">
+      <p>Error</p>
+     </div>
+    <div class="message-body">
+      {{errors}}
     </div>
+  </article>
+   
 
-    <table v-if="data.length > 0" class="pure-table pure-table-bordered">
+    <table v-if="data.length > 0" class="table is-hoverable">
       <thead>
         <tr>
-          <th>Connector</th>
+          <th></th>
           <th></th>
         </tr>
       </thead>
@@ -26,7 +31,7 @@
             </ul>
 
           </td>
-          <td><a class="pure-button pure-button-primary" v-on:click="newConnector(plugin.class, plugin.type)"> <font-awesome-icon icon="plus-circle"></font-awesome-icon> New connector</a></td>
+          <td><a class="button is-primary is-small" v-on:click="newConnector(plugin.class, plugin.type)"><font-awesome-icon icon="plus-circle"></font-awesome-icon><span class="pl-1">New connector</span></a></td>
         </tr>
       </tbody>
     </table>

@@ -1,16 +1,20 @@
 <template>
-  <div>
-    <h1><font-awesome-icon icon="info-circle"></font-awesome-icon> {{$route.name}}</h1>
+  <div class="box">
 
-    <div class="pure-g" v-if="errors">
-      <div class="pure-u-5-5 error">{{errors}}</div>
+  <article class="message is-danger" v-if="errors">
+    <div class="message-header">
+      <p>Error</p>
+     </div>
+    <div class="message-body">
+      {{errors}}
     </div>
+  </article>
 
-    <table class="pure-table pure-table-bordered" v-if="data">
+    <table class="table is-hoverable" v-if="data">
       <thead>
         <tr>
-          <th>Key</th>
-          <th>Value</th>
+          <th></th>
+          <th></th>
         </tr>
       </thead>
       <tbody>
@@ -28,7 +32,7 @@
         </tr>
         <tr>
           <td>Connect endpoint</td>
-          <td>{{ data.endpoint }}</td>
+          <td><a v-bind:href="data.endpoint">{{ data.endpoint }}</a></td>
         </tr>
          <tr>
           <td>vue-connect version</td>

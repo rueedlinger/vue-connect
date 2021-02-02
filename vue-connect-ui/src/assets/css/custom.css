@@ -1,135 +1,27 @@
-body {
-  font-family: "Avenir", "Helvetica Neue", Arial, sans-serif;
-  margin: 0px;
-  padding: 0px;
+textarea,
+.textarea {
+  height: 400px;
 }
 
-header {
-  min-height: 100%;
-  padding-bottom: 10px;
-  background-color: #323d47;
-  font-size: 20px;
+.RUNNING {
+  background-color: hsl(153, 53%, 53%);
+  font-weight: 900;
+  color: white;
+}
+.PAUSED {
+  background-color: hsl(0, 0%, 86%);
+  font-weight: 900;
+  color: white;
 }
 
-#content {
-  margin: 25px;
+.UNASSIGNED {
+  background-color: hsl(44, 100%, 77%);
+  font-weight: 900;
+  color: white;
 }
 
-footer {
-  font-size: 10px;
-  margin: 25px;
-  color: #4587c5;
-}
-
-footer a {
-  color: #4587c5;
-}
-
-
-
-
-#app {
-  display: table;
-  width: 100%;
-}
-
-#menu ul {
-  list-style-type: none;
-  margin: 0;
-  padding: 0;
-  overflow: hidden;
-
-}
-
-#menu li {
-  float: left;
-  margin-bottom: 0;
-}
-
-#menu li a {
-  display: block;
-  color: #fff;
-  text-align: center;
-  padding: 10px 25px;
-  font-weight: bold;
-  text-decoration: underline
-}
-
-h1 {
-  color: #0078e7;
-}
-
-hr {
-  border-top: 0.5px solid #323d47;
-}
-
-.pure-table thead {
-  background-color: #323d47;
-  color: #fff;
-  text-align: left;
-  vertical-align: bottom;
-}
-
-/* Change the link color to #111 (black) on hover */
-#menuli a:hover {
-  background-color: rgb(223, 223, 223);
-}
-
-textarea {
-    height: 400px;
-}
-
-pre {
-  display: block; overflow-x: auto; padding: 0.5em; color: rgb(0, 0, 0); background: rgb(248, 248, 255) none repeat scroll 0% 0%;
-
-}
-
-tr .RUNNING {
-  background-color: rgb(28, 184, 65);
-  color: #ffffff;
-  font-weight: bold;
-}
-
-tr .PAUSED {
-  background-color: rgb(66, 184, 221);
-  color: #ffffff;
-  font-weight: bold;
-}
-
-tr .UNASSIGNED {
-  background-color: rgb(223, 117, 20);
-  color: #ffffff;
-  font-weight: bold;
-}
-
-tr .FAILED {
-  background-color: rgb(202, 60, 60);
-  color: #ffffff;
-  font-weight: bold;
-}
-
-.operation td{
-  padding: 0px;
-}
-
-#detail {
-  list-style-type: none;
-  margin: 0;
-  padding: 0;
-}
-
-.info {
-  background: #0078e7;
-  margin: 1em 0;
-  padding: .3em 1em;
-  border-radius: 3px;
-  color: #fff;
-}
-
-.error {
-  background: rgb(202, 60, 60);
-  margin: 1em 0;
-  padding: .3em 1em;
-  border-radius: 3px;
-  color: #fff;
+.FAILED {
+  background-color: hsl(348, 86%, 61%);
+  font-weight: 900;
+  color: white;
 }

@@ -1,23 +1,53 @@
 <template>
   <div id="app">
 
-    <header>
-      <nav id="menu">
-        <ul>
-          <li><router-link to="/">Status</router-link></li>
-          <li><router-link to="/plugins" >Plugins</router-link></li>
-          <li><router-link to="/info">Info</router-link></li>
-        </ul>
-      </nav>
-    </header>
+     <header class="container is-fluid is-size-4 mt-4 mb-2">
+        <router-link class="has-text-primary pr-5" to="/">
+            <span class="mr-1">
+              <font-awesome-icon icon="cogs"></font-awesome-icon>
+            </span>
+            <span>Status</span>
+          </router-link>
 
-    <div id="content">
-        <router-view/>
+          <router-link class="has-text-primary pr-5" to="/plugins">
+            <span class="mr-1">
+              <font-awesome-icon icon="layer-group"></font-awesome-icon>
+            </span>
+            <span>Plugins</span>
+          </router-link>
+
+          <router-link class="has-text-primary pr-5" to="/info">
+             <span class="mr-1">
+              <font-awesome-icon icon="info-circle"></font-awesome-icon>
+            </span>
+            <span>Info</span>
+          </router-link>
+    </header>
+    
+    <div class="pb-5">
+    <section class="hero is-small is-primary">
+      <div class="hero-body ml-2">
+        <p class="title">
+          {{$route.name}}
+        </p>
+      </div>
+    </section>
     </div>
-    <footer>
-      <hr>
-      <a href="https://github.com/rueedlinger/vue-connect">vue-connect</a>
-    </footer>
+    
+    <div class="container is-fluid">
+      <router-view/>
+    </div>
+
+  <footer class="footer">
+  <div class="content has-text-centered">
+    <p>
+      <a class="has-text-primary" href="https://github.com/rueedlinger/vue-connect">
+        <strong>vue-connect</strong></a>  - 
+      Apache License
+    </p>
+  </div>
+</footer>
+
   </div>
     
   
@@ -25,7 +55,6 @@
 
 
 <style>
-@import '../node_modules/normalize.css';
-@import '../node_modules/purecss';
+@import '../node_modules/bulma/css/bulma.css';
 @import './assets/css/custom.css';
 </style>
