@@ -14,7 +14,7 @@
 ![vue-connect ui](docs/images/ui.png)
 
 ## Todo / Improvments
-- #3
+- [#3][i3]
 - #4
 - #5
 - #6
