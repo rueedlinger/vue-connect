@@ -125,7 +125,7 @@ def connectors():
     try:
 
         state = []
-        r = requests.get(get_url() + '/connectors/?expand=info&expand=status')
+        r = requests.get(get_url() + '/connectors?expand=info&expand=status')
         connectors = r.json()
 
         for name in connectors:
