@@ -13,11 +13,18 @@
 
 ![vue-connect ui](docs/images/ui.png)
 
-## Todo / Improvments
-- [#3][i3]
-- #4
-- #5
-- #6
+## Todo / Improvement
+- Feature Request: Optimize the implementation of obtaining the status of connectors ([#3][i3])
+- Feature Request: Display the failure details of the connector task ([#4][i4])
+- Feature Request: Multiple connect clusters support ([#5][i5])
+- Improvement: Create reusable vuejs components for displaying erros ([#5][i5])
+
+[i3]: https://github.com/rueedlinger/vue-connect/issues/3
+[i4]: https://github.com/rueedlinger/vue-connect/issues/4
+[i5]: https://github.com/rueedlinger/vue-connect/issues/5
+[i6]: https://github.com/rueedlinger/vue-connect/issues/6
+
+
 ## Components
 vue-connect is build with [Vue.js](https://vuejs.org/) and [Python](https://www.python.org/).
 
