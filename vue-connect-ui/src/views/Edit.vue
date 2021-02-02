@@ -1,22 +1,32 @@
 <template>
-  <div>
-    <h1><font-awesome-icon icon="edit"></font-awesome-icon> {{$route.name}}</h1>
+  <div class="content box">
     <h2>Conector {{ status.name }}</h2>
     <ul>
       <li>Class: {{config['connector.class']}}</li>
       <li>Type: {{status.type}}</li>
     </ul>
 
-    <div class="pure-g" v-if="errors">
-      <div class="pure-u-5-5 error">{{errors}}</div>
+    <article class="message is-danger" v-if="errors">
+    <div class="message-header">
+      <p>Error</p>
+     </div>
+    <div class="message-body">
+      {{errors}}
+    </div>
+    </article>
+
+    <div class="field">
+      <label class="label">Configuration</label>
+      <div class="control">
+        <textarea class="textarea is-small is-primary" placeholder="" v-model="jsonConfig"></textarea>
+      </div>
     </div>
 
-     <form class="pure-form pure-form-stacked">
-      <fieldset>
-        <textarea class="pure-input-1" v-model="jsonConfig"></textarea>
-        <a class="pure-button pure-button-primary" v-on:click="save($route.params.id)"><font-awesome-icon icon="edit"></font-awesome-icon> Save</a>
-       </fieldset>
-    </form>
+    <div class="control">
+      <button class="button is-primary is-small" v-on:click="save($route.params.id)"><font-awesome-icon icon="edit"></font-awesome-icon><span class="pl-1">Save</span></button>
+    </div>
+
+     
   </div>
 </template>
 

@@ -1,50 +1,63 @@
 <template>
-  <div>
-    <h1>{{$route.name}}</h1>
-    <h2>Conector {{ connectorName }}</h2>
+  <div class="content">
+
+    <div class="box">
+
+
+    <h2>Connector {{ connectorName }}</h2>
     <ul>
       <li>Class: {{$route.params.id}}</li>
       <li>Type: {{$route.params.type}}</li>
     </ul>
 
-    <div class="pure-g" v-if="errors">
-      <div class="pure-u-5-5 error">{{errors}}</div>
+    <article class="message is-danger" v-if="errors">
+    <div class="message-header">
+      <p>Error</p>
+     </div>
+    <div class="message-body">
+      {{errors}}
+    </div>
+    </article>
+    
+    <div class="field">
+      <label class="label">Configuration</label>
+      <div class="control">
+        <textarea class="textarea is-small is-primary" placeholder="" v-model="jsonConfig"></textarea>
+      </div>
+    </div>
+
+    <div class="control">
+      <button class="button is-primary is-small" v-on:click="save()"><font-awesome-icon icon="save"></font-awesome-icon><span class="pl-1">Save</span></button>
+    </div>
 
     </div>
-    
 
-    <form class="pure-form pure-form-stacked">
-      <fieldset>
-        <textarea class="pure-input-1" v-model="jsonConfig"></textarea>
-        <a class="pure-button pure-button-primary" v-on:click="save()"><font-awesome-icon icon="save"></font-awesome-icon> Save</a>
-      </fieldset>
-    </form>
 
-<!--   
+    <div class="box">
 
-  <h2>Configuration Options for {{ connectorName }}</h2>
-  <table class="pure-table pure-table-bordered">
-    <thead>
-      <tr>
-        <th>Name</th>
-        <th>Type</th>
-        <th>Required</th>
-        <th>Default Value</th>
-        <th>Documentaion</th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr v-for="cfg in configParams" :key="cfg.name">
-        <td>{{ cfg.name }}</td>
-        <td>{{ cfg.type }}</td>
-        <td>{{ cfg.required }}</td>
-        <td>{{ cfg.default_value }}</td>
-        <td>{{ cfg.documentation }}</td>
-      </tr>
-  </tbody>
-</table>
+      <h2>Configuration Options for {{ connectorName }}</h2>
+      <table class="table is-hoverable is-size-7">
+        <thead>
+          <tr>
+            <th>Name</th>
+            <th>Type</th>
+            <th>Required</th>
+            <th>Default Value</th>
+            <th>Documentaion</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr v-for="cfg in configParams" :key="cfg.name">
+            <td>{{ cfg.name }}</td>
+            <td>{{ cfg.type }}</td>
+            <td>{{ cfg.required }}</td>
+            <td>{{ cfg.default_value }}</td>
+            <td>{{ cfg.documentation }}</td>
+          </tr>
+      </tbody>
+    </table>
+    </div>
 
--->
 
   </div>
 </template>
