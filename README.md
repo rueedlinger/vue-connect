@@ -13,6 +13,11 @@
 
 ![vue-connect ui](docs/images/ui.png)
 
+## Todo / Improvments
+- #3
+- #4
+- #5
+- #6
 ## Components
 vue-connect is build with [Vue.js](https://vuejs.org/) and [Python](https://www.python.org/).
 
