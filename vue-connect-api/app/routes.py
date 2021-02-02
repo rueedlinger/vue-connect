@@ -123,16 +123,14 @@ def config(id):
 @app.route('/api/status', strict_slashes=False)
 def connectors():
     try:
-        r = requests.get(get_url() + '/connectors')
-        connectors = r.json()
 
         state = []
+        r = requests.get(get_url() + '/connectors?expand=info&expand=status')
+        connectors = r.json()
 
-        for connector in connectors:
-            r = requests.get(get_url() + '/connectors/' + connector + '/status')
-            connector_status = r.json()
-            connector_status['hash'] = hash(json.dumps(connector_status))
-            state.append(connector_status)
+        for name in connectors:
+            connector = connectors[name]
+            state.append(connector['status'])
 
         return jsonify(state)
 
@@ -174,7 +172,6 @@ def plugins():
         r = requests.get(get_url() + '/connector-plugins')
         plugins = r.json()
 
-
         for plugin in plugins:
             plugin['name'] = plugin['class'].split('.')[-1]
 
@@ -190,7 +187,6 @@ def plugins():
 @app.route('/api/info', strict_slashes=False)
 def info():
     try:
-        #LOGGER.info("info ddd")
         r = requests.get(get_url())
 
         info = r.json()

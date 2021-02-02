@@ -8,11 +8,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - Removed unused npm dependencies
 
+### Fixed
+- Optimize the implementation of obtaining the status of connectors ([#3][i3])
+
+[i3]: https://github.com/rueedlinger/vue-connect/issues/3
+
 ## [0.2.0] - 2021-02-02
 ### Changed
 - Replaced Pure CSS with Bulma
-## [0.1.0] - 2020-10-09
 
+## [0.1.0] - 2020-10-09
 ### Added
 - First version of the Docker Image with
   - *vue-connect-ui* - Fontend with Vue.js. 

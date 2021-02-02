@@ -69,10 +69,10 @@ def test_connectors(mocker):
             self.url = url
 
         def json(self):
-            if 'status' in self.url:
+            if '/status' in self.url:
                 return {'name': 'foo'}
             else:
-                return ['foo', 'bar']
+                return {'foo': {'status': 1} , 'bar': {'status': 1}}
 
     class Req:
         called = []
@@ -87,10 +87,8 @@ def test_connectors(mocker):
 
     routes.connectors()
 
-    assert len(mock.called) == 3
-    assert 'http://localhost:8083/connectors/foo/status' in mock.called
-    assert 'http://localhost:8083/connectors/bar/status' in mock.called
-    assert 'http://localhost:8083/connectors' in mock.called
+    assert len(mock.called) == 1
+    assert 'http://localhost:8083/connectors?expand=info&expand=status' in mock.called
 
 def test_status(mocker):
     req = mock_request(mocker)
