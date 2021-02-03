@@ -14,7 +14,7 @@
 ![vue-connect ui](docs/images/ui.png)
 
 ## Releases & Docker Images
-The Docker images are published in Docker Hub.
+The Docker images are published in Docker Hub. 
 
 - See https://hub.docker.com/r/rueedlinger/vue-connect
 
@@ -25,6 +25,7 @@ The Docker images are published in Docker Hub.
 
 ## Issues / Improvements / Feature Requests
 - See https://github.com/rueedlinger/vue-connect/issues
+
 
 
 ## Components
