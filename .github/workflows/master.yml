@@ -1,8 +1,8 @@
-name: Publish Docker image
+name: Publish Master
 on:
   push:
-    tags:
-      - 'v*'
+    branches:
+      - 'master'
 jobs:
   docker:
       runs-on: ubuntu-latest
@@ -16,7 +16,7 @@ jobs:
           uses: crazy-max/ghaction-docker-meta@v1
           with:
             images: rueedlinger/kafka-connect
-            tag-latest: true
+            tag-latest: false
             tag-semver: "{{version}}"
         -
           name: Set up QEMU
