@@ -13,16 +13,19 @@
 
 ![vue-connect ui](docs/images/ui.png)
 
-## Todo / Improvement
-- Feature Request: Optimize the implementation of obtaining the status of connectors ([#3][i3])
-- Feature Request: Display the failure details of the connector task ([#4][i4])
-- Feature Request: Multiple connect clusters support ([#5][i5])
-- Improvement: Create reusable vuejs components for displaying erros ([#5][i5])
+## Releases & Docker Images
+The Docker images are published in Docker Hub. 
 
-[i3]: https://github.com/rueedlinger/vue-connect/issues/3
-[i4]: https://github.com/rueedlinger/vue-connect/issues/4
-[i5]: https://github.com/rueedlinger/vue-connect/issues/5
-[i6]: https://github.com/rueedlinger/vue-connect/issues/6
+- See https://hub.docker.com/r/rueedlinger/vue-connect
+
+| Docker Tag  | Description  |
+|---|---|
+| `master` | This is the current release of the master branch. |
+| `<major>.<minor>.<patch>` | For example Docker tag `0.1.0` corresponds to the git tag `v0.1.0` |
+
+## Issues / Improvements / Feature Requests
+- See https://github.com/rueedlinger/vue-connect/issues
+
 
 
 ## Components
@@ -43,7 +46,7 @@ with vue-connect.
 ```
 docker run --rm -it -p 8080:8080 \
            -e "CONNECT_URL=http://CONNECT_REST_ENDPOINT:PORT" \
-           rueedlinger/vue-connect:v0.2.0
+           rueedlinger/vue-connect:master
 ```
 
 The *vue-connect* Web UI will be available at http://localhost:8080
@@ -53,7 +56,7 @@ The *vue-connect* Web UI will be available at http://localhost:8080
 You can modify the Docker Compose file [docker-compose.yml](docker-compose.yml) and use the latest vue-connect Docker image version from Docker Hub.
 ```
 vue-connect:
-  image: rueedlinger/vue-connect:v0.2.0
+  image: rueedlinger/vue-connect:master
   hostname: vue-connect
     
   depends_on:
