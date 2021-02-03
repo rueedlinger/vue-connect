@@ -15,7 +15,7 @@ jobs:
           id: docker_meta
           uses: crazy-max/ghaction-docker-meta@v1
           with:
-            images: rueedlinger/kafka-connect
+            images: rueedlinger/vue-connect
             tag-latest: false
             tag-semver: "{{version}}"
         -
