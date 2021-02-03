@@ -13,7 +13,7 @@
 
 ![vue-connect ui](docs/images/ui.png)
 
-# Releases & Docker Images
+## Releases & Docker Images
 The Docker images are published in Docker Hub.
 
 - See https://hub.docker.com/r/rueedlinger/vue-connect
