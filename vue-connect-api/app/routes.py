@@ -13,21 +13,21 @@ ERROR_MSG_CLSUTER_NOT_REACHABLE = "Cluster {} not reachable!"
 ERROR_MSG_NOT_FOUND = "Resource not found."
 ERROR_MSG_NOT_ALLOWED = "The method is not allowed for this resource."
 ERROR_MSG_INTERNAL_SERVER_ERROR = "Internal server error."
-ERROR_MSG_NO_DATA = "Missing data. {}."
+ERROR_MSG_NO_DATA = "Missing data. {}."pipenv install - -dev
 
-def get_url(): 
+
+def get_url():
     if os.getenv("CONNECT_URL") is not None:
         return os.getenv("CONNECT_URL")
     else:
         return DEFAULT_REST_ENDPOINT
 
 
-
-@app.route('/api/connectors', strict_slashes=False, methods = ['POST'])
+@app.route('/api/connectors', strict_slashes=False, methods=['POST'])
 def new():
     try:
         data = request.get_json()
-        
+
         if data is None:
             return jsonify({'message': ERROR_MSG_NO_DATA.format('There was no connector configuration provided')}), 400
 
@@ -39,15 +39,16 @@ def new():
 
             r = requests.post(get_url() + '/connectors/', json=cfg)
             status = r.json()
-            
+
             return jsonify(status), r.status_code
         else:
-            return jsonify({'message': 'Missing configuration property \'name\'.' }), 400
-    
-    except ConnectionError:
-        return jsonify({'message': ERROR_MSG_CLSUTER_NOT_REACHABLE.format(get_url()) }), 400
+            return jsonify({'message': 'Missing configuration property \'name\'.'}), 400
 
-@app.route('/api/connectors/<id>/config', strict_slashes=False, methods = ['POST'])
+    except ConnectionError:
+        return jsonify({'message': ERROR_MSG_CLSUTER_NOT_REACHABLE.format(get_url())}), 400
+
+
+@app.route('/api/connectors/<id>/config', strict_slashes=False, methods=['POST'])
 def update(id):
     try:
         data = request.get_json()
@@ -55,58 +56,65 @@ def update(id):
         if data is None:
             return jsonify({'message': ERROR_MSG_NO_DATA.format('There is no connector configuration for \'' + id + '\'')}), 400
 
-        r = requests.put(get_url() + '/connectors/' + id + '/config', json=data)
+        r = requests.put(get_url() + '/connectors/' +
+                         id + '/config', json=data)
         status = r.json()
 
         return jsonify(status), r.status_code
 
     except ConnectionError:
-        return jsonify({'message': ERROR_MSG_CLSUTER_NOT_REACHABLE.format(get_url()) }), 400
+        return jsonify({'message': ERROR_MSG_CLSUTER_NOT_REACHABLE.format(get_url())}), 400
 
-@app.route('/api/connectors/<id>/restart', strict_slashes=False, methods = ['POST'])
+
+@app.route('/api/connectors/<id>/restart', strict_slashes=False, methods=['POST'])
 def restart(id):
     try:
         requests.post(get_url() + '/connectors/' + id + '/restart')
         return connectors()
-    
-    except ConnectionError:
-        return jsonify({'message': ERROR_MSG_CLSUTER_NOT_REACHABLE.format(get_url()) }), 400
 
-@app.route('/api/connectors/<id>/delete', strict_slashes=False, methods = ['POST'])
+    except ConnectionError:
+        return jsonify({'message': ERROR_MSG_CLSUTER_NOT_REACHABLE.format(get_url())}), 400
+
+
+@app.route('/api/connectors/<id>/delete', strict_slashes=False, methods=['POST'])
 def delete(id):
     try:
         requests.delete(get_url() + '/connectors/' + id)
         return connectors()
-    
-    except ConnectionError:
-        return jsonify({'message': ERROR_MSG_CLSUTER_NOT_REACHABLE.format(get_url()) }), 400
 
-@app.route('/api/connectors/<id>/pause', strict_slashes=False, methods = ['POST'])
+    except ConnectionError:
+        return jsonify({'message': ERROR_MSG_CLSUTER_NOT_REACHABLE.format(get_url())}), 400
+
+
+@app.route('/api/connectors/<id>/pause', strict_slashes=False, methods=['POST'])
 def pause(id):
     try:
         requests.put(get_url() + '/connectors/' + id + '/pause')
         return connectors()
-    
-    except ConnectionError:
-        return jsonify({'message': ERROR_MSG_CLSUTER_NOT_REACHABLE.format(get_url()) }), 400
 
-@app.route('/api/connectors/<id>/resume', strict_slashes=False, methods = ['POST'])
+    except ConnectionError:
+        return jsonify({'message': ERROR_MSG_CLSUTER_NOT_REACHABLE.format(get_url())}), 400
+
+
+@app.route('/api/connectors/<id>/resume', strict_slashes=False, methods=['POST'])
 def resume(id):
     try:
         requests.put(get_url() + '/connectors/' + id + '/resume')
         return connectors()
 
     except ConnectionError:
-        return jsonify({'message': ERROR_MSG_CLSUTER_NOT_REACHABLE.format(get_url()) }), 400
+        return jsonify({'message': ERROR_MSG_CLSUTER_NOT_REACHABLE.format(get_url())}), 400
 
-@app.route('/api/connectors/<id>/tasks/<task_id>/restart', strict_slashes=False, methods = ['POST'])
+
+@app.route('/api/connectors/<id>/tasks/<task_id>/restart', strict_slashes=False, methods=['POST'])
 def task_restart(id, task_id):
     try:
-        requests.post(get_url() + '/connectors/' + id + '/tasks/' + task_id + '/restart')
+        requests.post(get_url() + '/connectors/' + id +
+                      '/tasks/' + task_id + '/restart')
         return connectors()
-    
+
     except ConnectionError:
-        return jsonify({'message': ERROR_MSG_CLSUTER_NOT_REACHABLE.format(get_url()) }), 400
+        return jsonify({'message': ERROR_MSG_CLSUTER_NOT_REACHABLE.format(get_url())}), 400
 
 
 @app.route('/api/config/<id>', strict_slashes=False)
@@ -117,7 +125,7 @@ def config(id):
         return jsonify(config)
 
     except ConnectionError:
-        return jsonify({'message': ERROR_MSG_CLSUTER_NOT_REACHABLE.format(get_url()) }), 400
+        return jsonify({'message': ERROR_MSG_CLSUTER_NOT_REACHABLE.format(get_url())}), 400
 
 
 @app.route('/api/status', strict_slashes=False)
@@ -135,7 +143,8 @@ def connectors():
         return jsonify(state)
 
     except ConnectionError:
-        return jsonify({'message': ERROR_MSG_CLSUTER_NOT_REACHABLE.format(get_url()) }), 400
+        return jsonify({'message': ERROR_MSG_CLSUTER_NOT_REACHABLE.format(get_url())}), 400
+
 
 @app.route('/api/status/<id>', strict_slashes=False)
 def status(id):
@@ -146,7 +155,7 @@ def status(id):
         return jsonify(status), r.status_code
 
     except ConnectionError:
-        return jsonify({'message': ERROR_MSG_CLSUTER_NOT_REACHABLE.format(get_url()) }), 400
+        return jsonify({'message': ERROR_MSG_CLSUTER_NOT_REACHABLE.format(get_url())}), 400
 
 
 @app.route('/api/plugins/<name>/config/validate', strict_slashes=False, methods=['POST'])
@@ -156,19 +165,20 @@ def validate(name):
         if data is None:
             return jsonify({'message': ERROR_MSG_NO_DATA.format('connector configuration')}), 400
 
-        r = requests.put(get_url() + '/connector-plugins/' + name + '/config/validate', json=data)
+        r = requests.put(get_url() + '/connector-plugins/' +
+                         name + '/config/validate', json=data)
         config = r.json()
 
         return jsonify(config), r.status_code
 
     except ConnectionError:
-        return jsonify({'message': ERROR_MSG_CLSUTER_NOT_REACHABLE.format(get_url()) }), 400
+        return jsonify({'message': ERROR_MSG_CLSUTER_NOT_REACHABLE.format(get_url())}), 400
 
 
 @app.route('/api/plugins', strict_slashes=False)
 def plugins():
     try:
-        
+
         r = requests.get(get_url() + '/connector-plugins')
         plugins = r.json()
 
@@ -182,7 +192,8 @@ def plugins():
         return jsonify(plugins)
 
     except ConnectionError:
-        return jsonify({'message': ERROR_MSG_CLSUTER_NOT_REACHABLE.format(get_url()) }), 400
+        return jsonify({'message': ERROR_MSG_CLSUTER_NOT_REACHABLE.format(get_url())}), 400
+
 
 @app.route('/api/info', strict_slashes=False)
 def info():
@@ -194,15 +205,18 @@ def info():
         info['endpoint'] = get_url()
         return jsonify(info)
     except ConnectionError:
-        return jsonify({'message': ERROR_MSG_CLSUTER_NOT_REACHABLE.format(get_url()) }), 400
+        return jsonify({'message': ERROR_MSG_CLSUTER_NOT_REACHABLE.format(get_url())}), 400
+
 
 @app.errorhandler(404)
 def page_not_found(e):
     return jsonify({'message': ERROR_MSG_NOT_FOUND}), 404
 
+
 @app.errorhandler(405)
 def method_not_allowed(e):
     return jsonify({'message': ERROR_MSG_NOT_ALLOWED}), 405
+
 
 @app.errorhandler(500)
 def internal_error(e):
