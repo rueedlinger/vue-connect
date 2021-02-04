@@ -1,64 +1,114 @@
 <template>
   <div class="box">
-
     <article class="message is-danger" v-if="errors">
-    <div class="message-header">
-      <p>Error</p>
-     </div>
-    <div class="message-body">
-      {{errors}}
-    </div>
+      <div class="message-header">
+        <p>Error</p>
+      </div>
+      <div class="message-body">
+        {{ errors }}
+      </div>
     </article>
 
     <article class="message is-info" v-if="data.length == 0">
-    <div class="message-header">
-      <p>Info</p>
-     </div>
-    <div class="message-body">
-      <strong>No running connectors!</strong>
-    </div>
-  </article>
+      <div class="message-header">
+        <p>Info</p>
+      </div>
+      <div class="message-body">
+        <strong>No running connectors!</strong>
+      </div>
+    </article>
 
     <div class="table-container is-size-7">
-    <table v-if="data.length > 0" class="table is-hoverable ">
-      <thead>
-        <tr>
-          <th>State</th>
-          <th>Connector</th>
-          <th></th>
-          <th></th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr v-for="item in data" v-bind:key="item.hash">
-          
-          
-
-          <td>
-            <button v-bind:class="item.connector.state" class="button is-rounded is-small is-fullwidth">{{ item.connector.state }}</button>
-          </td>
-          <td>
-            <ul id="detail">
-              <li><b>Connector ID:</b> {{ item.name }}</li>
-              <li><b>Type:</b> {{ item.type }}</li>
-              <li><b>Worker ID:</b> {{ item.connector.worker_id }}</li>
-            </ul>
-          </td>
-          <td>
-             <table class="table">
-              <tr>
-                <td><a class="button is-primary is-small" v-on:click="detail(item.name)"><font-awesome-icon icon="info-circle"></font-awesome-icon></a></td>
-                <td><a class="button is-primary is-small" v-on:click="edit(item.name)"><font-awesome-icon icon="edit"></font-awesome-icon></a></td>
-                <td><a class="button is-primary is-small" v-on:click="del(item.name)"><font-awesome-icon icon="trash-alt"></font-awesome-icon></a></td>
-                 <td><a class="button is-primary is-small" v-on:click="resume(item.name)"> <font-awesome-icon icon="play-circle"></font-awesome-icon></a></td>
-                <td><a class="button is-primary is-small" v-on:click="pause(item.name)"> <font-awesome-icon icon="pause-circle"></font-awesome-icon></a></td>
-                <td><a class="button is-primary is-small" v-on:click="restart(item.name)"><font-awesome-icon icon="retweet"></font-awesome-icon></a></td>
-               </tr>
-            </table>
-          </td>
-          <td>
-            
-              <article class="message is-warning is-small" v-if="item.tasks.length == 0">
+      <table v-if="data.length > 0" class="table is-hoverable">
+        <thead>
+          <tr>
+            <th>State</th>
+            <th>Connector</th>
+            <th></th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr v-for="item in data" v-bind:key="item.hash">
+            <td>
+              <button
+                v-bind:class="item.connector.state"
+                class="button is-rounded is-small is-fullwidth"
+              >
+                {{ item.connector.state }}
+              </button>
+            </td>
+            <td>
+              <ul id="detail">
+                <li><b>Connector ID:</b> {{ item.name }}</li>
+                <li><b>Type:</b> {{ item.type }}</li>
+                <li><b>Worker ID:</b> {{ item.connector.worker_id }}</li>
+              </ul>
+            </td>
+            <td>
+              <table class="table">
+                <tr>
+                  <td>
+                    <a
+                      class="button is-primary is-small"
+                      v-on:click="detail(item.name)"
+                      ><font-awesome-icon icon="info-circle"></font-awesome-icon
+                    ></a>
+                  </td>
+                  <td>
+                    <a
+                      class="button is-primary is-small"
+                      v-on:click="edit(item.name)"
+                      ><font-awesome-icon icon="edit"></font-awesome-icon
+                    ></a>
+                  </td>
+                  <td>
+                    <a
+                      class="button is-primary is-small"
+                      v-on:click="del(item.name)"
+                      ><font-awesome-icon icon="trash-alt"></font-awesome-icon
+                    ></a>
+                  </td>
+                  <td>
+                    <a
+                      class="button is-primary is-small"
+                      :class="
+                        isloading == `resume-${item.name}` ? 'is-loading' : ''
+                      "
+                      v-on:click="resume(`resume-${item.name}`)"
+                    >
+                      <font-awesome-icon icon="play-circle"></font-awesome-icon
+                    ></a>
+                  </td>
+                  <td>
+                    <a
+                      class="button is-primary is-small"
+                      :class="
+                        isloading == `pause-${item.name}` ? 'is-loading' : ''
+                      "
+                      v-on:click="pause(`pause-${item.name}`)"
+                    >
+                      <font-awesome-icon icon="pause-circle"></font-awesome-icon
+                    ></a>
+                  </td>
+                  <td>
+                    <a
+                      class="button is-primary is-small"
+                      :class="
+                        isloading == `restart-${item.name}` ? 'is-loading' : ''
+                      "
+                      v-on:click="restart(`restart-${item.name}`)"
+                      ><font-awesome-icon icon="retweet"></font-awesome-icon
+                    ></a>
+                  </td>
+                </tr>
+              </table>
+            </td>
+            <td>
+              <article
+                class="message is-warning is-small"
+                v-if="item.tasks.length == 0"
+              >
                 <div class="message-header">
                   <p>Warning</p>
                 </div>
@@ -67,37 +117,47 @@
                 </div>
               </article>
 
-
-           
-            <table class="pure-table pure-table-bordered" v-if="item.tasks.length > 0">
-              <thead>
-                <tr>
-                  <th>State</th>
-                  <th>Task</th>
-                  <th></th>
-                </tr>
-              </thead>
-               <tbody>
-                 <tr v-for="task in item.tasks" v-bind:key="task.state">
-                  <td>
-                     <button v-bind:class="task.state" class="button is-rounded is-small is-fullwidth">{{ task.state }}</button>
-                  </td>
-                  <td>
-                    <ul id="detail">
-                      <li><b>Task ID:</b> {{ task.id }}</li>
-                      <li><b>Worker ID:</b> {{ task.worker_id }}</li>
-                    </ul>
-                  </td>
-                  <td> 
-                    <a class="button is-primary is-small" v-on:click="restartTask(item.name, task.id)"><font-awesome-icon icon="retweet"></font-awesome-icon></a>
-                  </td>
-                 </tr>
-               </tbody>
-            </table>
-          </td>
-        </tr>
-      </tbody>
-    </table>
+              <table
+                class="pure-table pure-table-bordered"
+                v-if="item.tasks.length > 0"
+              >
+                <thead>
+                  <tr>
+                    <th>State</th>
+                    <th>Task</th>
+                    <th></th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr v-for="task in item.tasks" v-bind:key="task.state">
+                    <td>
+                      <button
+                        v-bind:class="task.state"
+                        class="button is-rounded is-small is-fullwidth"
+                      >
+                        {{ task.state }}
+                      </button>
+                    </td>
+                    <td>
+                      <ul id="detail">
+                        <li><b>Task ID:</b> {{ task.id }}</li>
+                        <li><b>Worker ID:</b> {{ task.worker_id }}</li>
+                      </ul>
+                    </td>
+                    <td>
+                      <a
+                        class="button is-primary is-small"
+                        v-on:click="restartTask(item.name, task.id)"
+                        ><font-awesome-icon icon="retweet"></font-awesome-icon
+                      ></a>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </td>
+          </tr>
+        </tbody>
+      </table>
     </div>
   </div>
 </template>
@@ -109,113 +169,130 @@ export default {
   data() {
     return {
       data: [],
-      errors: "",
-      polling: null
+      errors: '',
+      polling: null,
+      isloading: '',
     }
   },
 
   // Fetches posts when the component is created.
   created() {
-     connect.getAllConnectorStatus()
-      .then(response => {
+    connect
+      .getAllConnectorStatus()
+      .then((response) => {
         this.data = response.data
       })
-      .catch(e => {
-        if(e.response) {
-            this.errors = e.response.data.message
+      .catch((e) => {
+        if (e.response) {
+          this.errors = e.response.data.message
         } else {
-            this.errors = {'message': e.message}
+          this.errors = { message: e.message }
         }
       })
 
-      
-      this.polling = setInterval(function(){
-        connect.getAllConnectorStatus()
-        .then(response => {
+    this.polling = setInterval(
+      function () {
+        connect.getAllConnectorStatus().then((response) => {
           this.data = response.data
         })
-      }.bind(this), 10000)
+      }.bind(this),
+      10000
+    )
   },
 
   beforeDestroy() {
     clearInterval(this.polling)
   },
-  
+
   methods: {
-      reRender: function() {
-        this.$forceUpdate()
-      },
-      detail: function(id) {
-        this.$router.push('/detail/' + id)
-      },
-      edit: function(id) {
-        this.$router.push('/edit/' + id)
-      },
-     del: function(id){
-      connect.deleteConnector(id)
-      .then(resp => {
-        this.data = resp.data
-      })
-     .catch(e => {
-        if(e.response) {
+    reRender: function () {
+      this.$forceUpdate()
+    },
+    detail: function (id) {
+      this.$router.push('/detail/' + id)
+    },
+    edit: function (id) {
+      this.$router.push('/edit/' + id)
+    },
+    del: function (id) {
+      connect
+        .deleteConnector(id)
+        .then((resp) => {
+          this.data = resp.data
+        })
+        .catch((e) => {
+          if (e.response) {
             this.errors = e.response.data.message
-        } else {
-            this.errors = {'message': e.message}
-        }
-      })
-    },     
+          } else {
+            this.errors = { message: e.message }
+          }
+        })
+    },
     restart: function (id) {
-      connect.restartConnector(id)
-      .then(resp => {
-        this.data = resp.data
-      })
-     .catch(e => {
-        if(e.response) {
+      this.isloading = id
+      connect
+        .restartConnector(id)
+        .then((resp) => {
+          this.data = resp.data
+          this.isloading = ''
+        })
+        .catch((e) => {
+          if (e.response) {
             this.errors = e.response.data.message
-        } else {
-            this.errors = {'message': e.message}
-        }
-      })
+          } else {
+            this.errors = { message: e.message }
+          }
+          this.isloading = ''
+        })
     },
     pause: function (id) {
-      connect.pauseConnector(id)
-      .then(resp => {
-        this.data = resp.data
-      })
-      .catch(e => {
-        if(e.response) {
+      this.isloading = id
+      connect
+        .pauseConnector(id)
+        .then((resp) => {
+          this.data = resp.data
+          this.isloading = ''
+        })
+        .catch((e) => {
+          if (e.response) {
             this.errors = e.response.data.message
-        } else {
-            this.errors = {'message': e.message}
-        }
-      })
+          } else {
+            this.errors = { message: e.message }
+          }
+          this.isloading = ''
+        })
     },
-    resume: function(id) {
-      connect.resumeConnector(id)
-      .then(resp => {
-        this.data = resp.data
-      })
-      .catch(e => {
-        if(e.response) {
+    resume: function (id) {
+      this.isloading = id
+      connect
+        .resumeConnector(id)
+        .then((resp) => {
+          this.data = resp.data
+          this.isloading = ''
+        })
+        .catch((e) => {
+          if (e.response) {
             this.errors = e.response.data.message
-        } else {
-            this.errors = {'message': e.message}
-        }
-      })
+          } else {
+            this.errors = { message: e.message }
+          }
+          this.isloading = ''
+        })
     },
     restartTask: function (id, task_id) {
-      connect.restartTask(id, task_id)
-      .then(resp => {
-        this.data = resp.data
-      })
-      .catch(e => {
-        if(e.response) {
+      connect
+        .restartTask(id, task_id)
+        .then((resp) => {
+          this.data = resp.data
+        })
+        .catch((e) => {
+          if (e.response) {
             this.errors = e.response.data.message
-        } else {
-            this.errors = {'message': e.message}
-        }
-      })
-    }
-  }
+          } else {
+            this.errors = { message: e.message }
+          }
+        })
+    },
+  },
 }
 </script>
