@@ -44,5 +44,3 @@ jobs:
             build-args: |
               IMAGE_VERSION=${{ steps.docker_meta.outputs.version }}
               IMAGE_TAGS=${{ steps.docker_meta.outputs.tags }}
-              IMAGE_LABELS=${{ steps.docker_meta.outputs.labels }}
-              IMAGE_DIGEST=${{ steps.docker_build.outputs.digest }}
