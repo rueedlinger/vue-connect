@@ -29,10 +29,11 @@
           </tr>
         </thead>
         <tbody>
-          <tr v-for="item in data" v-bind:key="item.hash">
+          <tr v-for="item in data" v-bind:key="item.name">
             <td>
               <button
                 v-bind:class="item.connector.state"
+                v-on:click="load()"
                 class="button is-rounded is-small is-fullwidth"
               >
                 {{ item.connector.state }}
@@ -134,6 +135,7 @@
                       <button
                         v-bind:class="task.state"
                         class="button is-rounded is-small is-fullwidth"
+                        v-on:click="load()"
                       >
                         {{ task.state }}
                       </button>
@@ -217,8 +219,19 @@ export default {
   },
 
   methods: {
-    reRender: function() {
-      this.$forceUpdate();
+    load: function() {
+       connect
+      .getAllConnectorStatus()
+      .then((response) => {
+        this.data = response.data;
+      })
+      .catch((e) => {
+        if (e.response) {
+          this.errors = e.response.data.message;
+        } else {
+          this.errors = { message: e.message };
+        }
+      });
     },
     detail: function(id) {
       this.$router.push("/detail/" + id);
