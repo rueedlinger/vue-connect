@@ -13,8 +13,7 @@ ERROR_MSG_CLSUTER_NOT_REACHABLE = "Cluster {} not reachable!"
 ERROR_MSG_NOT_FOUND = "Resource not found."
 ERROR_MSG_NOT_ALLOWED = "The method is not allowed for this resource."
 ERROR_MSG_INTERNAL_SERVER_ERROR = "Internal server error."
-ERROR_MSG_NO_DATA = "Missing data. {}."pipenv install - -dev
-
+ERROR_MSG_NO_DATA = "Missing data. {}."
 
 def get_url():
     if os.getenv("CONNECT_URL") is not None:
