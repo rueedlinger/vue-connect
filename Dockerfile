@@ -7,6 +7,16 @@ RUN npm run build
 
 FROM alpine:3.12.0 as production-stage
 
+ARG IMAGE_VERSION=latest
+ARG IMAGE_TAGS
+ARG IMAGE_LABELS
+ARG IMAGE_DIGEST
+
+ENV VC_VERSION=$IMAGE_VERSION
+ENV VC_LABELS=$IMAGE_LABELS
+ENV VC_TAGS=$IMAGE_TAGS
+ENV VC_DIGEST=$IMAGE_DIGEST
+
 RUN apk add --update --no-cache nginx python3 supervisor
 RUN python3 -m ensurepip
 RUN pip3 install --no-cache --upgrade pip setuptools pipenv
