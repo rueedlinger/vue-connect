@@ -9,7 +9,7 @@
       </div>
     </article>
 
-    <article class="message is-info" v-if="data.length == 0">
+    <article class="message is-info" v-if="data.length == 0 && !errors">
       <div class="message-header">
         <p>Info</p>
       </div>
@@ -198,7 +198,15 @@ export default {
         connect.getAllConnectorStatus().then((response) => {
           this.data = response.data;
           this.isLoading = "";
-        });
+          this.errors = "";
+        })
+        .catch((e) => {
+        if (e.response) {
+          this.errors = e.response.data.message;
+        } else {
+          this.errors = { message: e.message };
+        }
+      });
       }.bind(this),
       5000
     );
