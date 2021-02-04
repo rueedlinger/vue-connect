@@ -49,7 +49,7 @@
           <p>Error</p>
         </div>
         <div class="message-body">
-          {{ status.connector.trace }}
+          <pre>{{ status.connector.trace }}</pre>
         </div>
       </article>
     </div>
@@ -87,7 +87,7 @@
           <p>Error</p>
         </div>
         <div class="message-body">
-          {{ task.trace }}
+          <pre>{{ task.trace }}</pre>
         </div>
       </article>
     </div>
