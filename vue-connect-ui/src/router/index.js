@@ -1,51 +1,51 @@
-import Vue from 'vue'
-import VueRouter from 'vue-router'
-import Status from '../views/Status.vue'
-import Plugin from '../views/Plugin.vue'
-import Detail from '../views/Detail.vue'
-import Edit from '../views/Edit.vue'
-import New from '../views/New.vue'
-import Info from '../views/Info.vue'
+import Vue from "vue";
+import VueRouter from "vue-router";
+import Status from "../views/Status.vue";
+import Plugin from "../views/Plugin.vue";
+import Detail from "../views/Detail.vue";
+import Edit from "../views/Edit.vue";
+import New from "../views/New.vue";
+import Info from "../views/Info.vue";
 
-Vue.use(VueRouter)
+Vue.use(VueRouter);
 
 const routes = [
   {
-    path: '/',
-    name: 'Status',
-    component: Status
+    path: "/",
+    name: "Status",
+    component: Status,
   },
   {
-    path: '/plugins',
-    name: 'Plugins',
-    component: Plugin
+    path: "/plugins",
+    name: "Plugins",
+    component: Plugin,
   },
   {
-    path: '/detail/:id',
-    name: 'Detail',
-    component: Detail
+    path: "/detail/:id",
+    name: "Detail",
+    component: Detail,
   },
   {
-    path: '/edit/:id',
-    name: 'Edit',
-    component: Edit
+    path: "/edit/:id",
+    name: "Edit",
+    component: Edit,
   },
   {
-    path: '/new/:id/:type',
-    name: 'New',
-    component: New
+    path: "/new/:id/:type",
+    name: "New",
+    component: New,
   },
   {
-    path: '/info',
-    name: 'Info',
-    component: Info
-  }
-]
+    path: "/info",
+    name: "Info",
+    component: Info,
+  },
+];
 
 const router = new VueRouter({
-  mode: 'history',
+  mode: "history",
   base: process.env.BASE_URL,
-  routes
-})
+  routes,
+});
 
-export default router
+export default router;
