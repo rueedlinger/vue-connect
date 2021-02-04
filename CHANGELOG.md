@@ -9,7 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Removed unused npm dependencies
 - Supports icon state switching after clicking ([#12][i12])
 - Maintain a container image of the latest version ([#9][i9])
-- Changed polling interval to 5 sec
+- Changed polling interval to 5 sec and catch errors.
 
 [i9]: https://github.com/rueedlinger/vue-connect/issues/9
 [i12]: https://github.com/rueedlinger/vue-connect/issues/12
