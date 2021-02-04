@@ -73,6 +73,9 @@
                     <a
                       class="button is-primary is-small"
                       v-on:click="resume(item.name)"
+                      v-bind:class="[
+                        isLoading == item.name ? `is-loading` : ``,
+                      ]"
                     >
                       <font-awesome-icon icon="play-circle"></font-awesome-icon
                     ></a>
@@ -81,6 +84,9 @@
                     <a
                       class="button is-primary is-small"
                       v-on:click="pause(item.name)"
+                      v-bind:class="[
+                        isLoading == item.name ? `is-loading` : ``,
+                      ]"
                     >
                       <font-awesome-icon icon="pause-circle"></font-awesome-icon
                     ></a>
@@ -89,6 +95,9 @@
                     <a
                       class="button is-primary is-small"
                       v-on:click="restart(item.name)"
+                      v-bind:class="[
+                        isLoading == item.name ? `is-loading` : ``,
+                      ]"
                       ><font-awesome-icon icon="retweet"></font-awesome-icon
                     ></a>
                   </td>
@@ -139,6 +148,9 @@
                       <a
                         class="button is-primary is-small"
                         v-on:click="restartTask(item.name, task.id)"
+                        v-bind:class="[
+                        isLoading == item.name ? `is-loading` : ``,
+                      ]"
                         ><font-awesome-icon icon="retweet"></font-awesome-icon
                       ></a>
                     </td>
@@ -162,6 +174,7 @@ export default {
       data: [],
       errors: "",
       polling: null,
+      isLoading: "",
     };
   },
 
@@ -184,9 +197,10 @@ export default {
       function() {
         connect.getAllConnectorStatus().then((response) => {
           this.data = response.data;
+          this.isLoading = "";
         });
       }.bind(this),
-      10000
+      5000
     );
   },
 
@@ -219,6 +233,7 @@ export default {
         });
     },
     restart: function(id) {
+      this.isLoading = id;
       connect
         .restartConnector(id)
         .then((resp) => {
@@ -230,9 +245,11 @@ export default {
           } else {
             this.errors = { message: e.message };
           }
+          this.isloading = "";
         });
     },
     pause: function(id) {
+      this.isLoading = id;
       connect
         .pauseConnector(id)
         .then((resp) => {
@@ -244,9 +261,11 @@ export default {
           } else {
             this.errors = { message: e.message };
           }
+          this.isloading = "";
         });
     },
     resume: function(id) {
+      this.isLoading = id;
       connect
         .resumeConnector(id)
         .then((resp) => {
@@ -258,9 +277,11 @@ export default {
           } else {
             this.errors = { message: e.message };
           }
+          this.isloading = "";
         });
     },
     restartTask: function(id, task_id) {
+      this.isLoading = id;
       connect
         .restartTask(id, task_id)
         .then((resp) => {
@@ -272,6 +293,7 @@ export default {
           } else {
             this.errors = { message: e.message };
           }
+          this.isloading = "";
         });
     },
   },
