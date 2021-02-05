@@ -72,7 +72,7 @@
                   <td>
                     <a
                       class="button is-primary is-small"
-                      v-on:click="resume(`resume-${item.name}`)"
+                      v-on:click="resume(item.name)"
                       v-bind:class="[
                         isLoading == `resume-${item.name}` ? `is-loading` : ``,
                       ]"
@@ -83,7 +83,7 @@
                   <td>
                     <a
                       class="button is-primary is-small"
-                      v-on:click="pause(`pause-${item.name}`)"
+                      v-on:click="pause(item.name)"
                       v-bind:class="[
                         isLoading == `pause-${item.name}` ? `is-loading` : ``,
                       ]"
@@ -94,7 +94,7 @@
                   <td>
                     <a
                       class="button is-primary is-small"
-                      v-on:click="restart(`restart-${item.name}`)"
+                      v-on:click="restart(item.name)"
                       v-bind:class="[
                         isLoading == `restart-${item.name}` ? `is-loading` : ``,
                       ]"
@@ -149,7 +149,7 @@
                         class="button is-primary is-small"
                         v-on:click="restartTask(item.name, task.id)"
                         v-bind:class="[
-                        isLoading == item.name ? `is-loading` : ``,
+                        isLoading == `restart-${item.name}-${task.id}` ? `is-loading` : ``,
                       ]"
                         ><font-awesome-icon icon="retweet"></font-awesome-icon
                       ></a>
@@ -274,7 +274,7 @@ export default {
         });
     },
     restart: function(id) {
-      this.isLoading = id;
+      this.isLoading = `restart-${id}`;
       connect
         .restartConnector(id)
         .then((resp) => {
@@ -291,7 +291,7 @@ export default {
         });
     },
     pause: function(id) {
-      this.isLoading = id;
+      this.isLoading = `pause-${id}`;
       connect
         .pauseConnector(id)
         .then((resp) => {
@@ -308,7 +308,7 @@ export default {
         });
     },
     resume: function(id) {
-      this.isLoading = id;
+      this.isLoading = `resume-${id}`;
       connect
         .resumeConnector(id)
         .then((resp) => {
@@ -325,7 +325,7 @@ export default {
         });
     },
     restartTask: function(id, task_id) {
-      this.isLoading = id;
+      this.isLoading = `restart-${id}-${task_id}`;
       connect
         .restartTask(id, task_id)
         .then((resp) => {
