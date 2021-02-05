@@ -45,7 +45,10 @@
                 <li><b>Connector ID:</b> {{ item.name }}</li>
                 <li><b>Type:</b> {{ item.type }}</li>
                 <li><b>Worker ID:</b> {{ item.connector.worker_id }}</li>
-                <li class="has-text-danger" v-if="item.connector.traceException">
+                <li
+                  class="has-text-danger"
+                  v-if="item.connector.traceException"
+                >
                   <b>Exception:</b> {{ item.connector.traceException }}
                 </li>
               </ul>
@@ -79,7 +82,7 @@
                       class="button is-primary is-small"
                       v-on:click="resume(item.name)"
                       v-bind:class="[
-                        isLoading == item.name ? `is-loading` : ``,
+                        isLoading == `resume-${item.name}` ? `is-loading` : ``,
                       ]"
                     >
                       <font-awesome-icon icon="play-circle"></font-awesome-icon
@@ -90,7 +93,7 @@
                       class="button is-primary is-small"
                       v-on:click="pause(item.name)"
                       v-bind:class="[
-                        isLoading == item.name ? `is-loading` : ``,
+                        isLoading == `pause-${item.name}` ? `is-loading` : ``,
                       ]"
                     >
                       <font-awesome-icon icon="pause-circle"></font-awesome-icon
@@ -101,7 +104,7 @@
                       class="button is-primary is-small"
                       v-on:click="restart(item.name)"
                       v-bind:class="[
-                        isLoading == item.name ? `is-loading` : ``,
+                        isLoading == `restart-${item.name}` ? `is-loading` : ``,
                       ]"
                       ><font-awesome-icon icon="retweet"></font-awesome-icon
                     ></a>
@@ -159,7 +162,9 @@
                         class="button is-primary is-small"
                         v-on:click="restartTask(item.name, task.id)"
                         v-bind:class="[
-                          isLoading == item.name ? `is-loading` : ``,
+                          isLoading == `restart-${item.name}-${task.id}`
+                            ? `is-loading`
+                            : ``,
                         ]"
                         ><font-awesome-icon icon="retweet"></font-awesome-icon
                       ></a>
@@ -178,6 +183,39 @@
 <script>
 import connect from "../common/connect";
 
+/**
+ * return sorted connector list
+ * @param {*} connectors
+ */
+function sortedConnectors(connectors) {
+  let failedCollection = [],
+    runningCollection = [],
+    pausedCollection = [];
+
+  for (let e of connectors) {
+    let isFailed = e.connector.state.toUpperCase() == "FAILED",
+      isPaused = e.connector.state.toUpperCase() == "PAUSED";
+
+    for (let t of e.tasks) {
+      isFailed = isFailed || t.state.toUpperCase() == "FAILED";
+      isPaused = isPaused && t.state.toUpperCase() == "PAUSED";
+    }
+    // First show failed
+    if (isFailed) {
+      failedCollection.push(e);
+      continue;
+    }
+    // Last show paused
+    if (isPaused) {
+      pausedCollection.push(e);
+      continue;
+    }
+    runningCollection.push(e);
+  }
+
+  return [...failedCollection, ...runningCollection, ...pausedCollection];
+}
+
 export default {
   data() {
     return {
@@ -193,7 +231,7 @@ export default {
     connect
       .getAllConnectorStatus()
       .then((response) => {
-        this.data = response.data;
+        this.data = sortedConnectors(response.data);
       })
       .catch((e) => {
         if (e.response) {
@@ -208,7 +246,7 @@ export default {
         connect
           .getAllConnectorStatus()
           .then((response) => {
-            this.data = response.data;
+            this.data = sortedConnectors(response.data);
             this.isLoading = "";
             this.errors = "";
           })
@@ -220,7 +258,7 @@ export default {
             }
           });
       }.bind(this),
-      5000
+      60000
     );
   },
 
@@ -253,7 +291,7 @@ export default {
       connect
         .deleteConnector(id)
         .then((resp) => {
-          this.data = resp.data;
+          this.data = sortedConnectors(resp.data);
         })
         .catch((e) => {
           if (e.response) {
@@ -264,11 +302,12 @@ export default {
         });
     },
     restart: function(id) {
-      this.isLoading = id;
+      this.isLoading = `restart-${id}`;
       connect
         .restartConnector(id)
         .then((resp) => {
-          this.data = resp.data;
+          this.data = sortedConnectors(resp.data);
+          this.isLoading = "";
         })
         .catch((e) => {
           if (e.response) {
@@ -276,15 +315,16 @@ export default {
           } else {
             this.errors = { message: e.message };
           }
-          this.isloading = "";
+          this.isLoading = "";
         });
     },
     pause: function(id) {
-      this.isLoading = id;
+      this.isLoading = `pause-${id}`;
       connect
         .pauseConnector(id)
         .then((resp) => {
-          this.data = resp.data;
+          this.data = sortedConnectors(resp.data);
+          this.isLoading = "";
         })
         .catch((e) => {
           if (e.response) {
@@ -292,15 +332,16 @@ export default {
           } else {
             this.errors = { message: e.message };
           }
-          this.isloading = "";
+          this.isLoading = "";
         });
     },
     resume: function(id) {
-      this.isLoading = id;
+      this.isLoading = `resume-${id}`;
       connect
         .resumeConnector(id)
         .then((resp) => {
-          this.data = resp.data;
+          this.data = sortedConnectors(resp.data);
+          this.isLoading = "";
         })
         .catch((e) => {
           if (e.response) {
@@ -308,15 +349,16 @@ export default {
           } else {
             this.errors = { message: e.message };
           }
-          this.isloading = "";
+          this.isLoading = "";
         });
     },
     restartTask: function(id, task_id) {
-      this.isLoading = id;
+      this.isLoading = `restart-${id}-${task_id}`;
       connect
         .restartTask(id, task_id)
         .then((resp) => {
-          this.data = resp.data;
+          this.data = sortedConnectors(resp.data);
+          this.isLoading = "";
         })
         .catch((e) => {
           if (e.response) {
@@ -324,7 +366,7 @@ export default {
           } else {
             this.errors = { message: e.message };
           }
-          this.isloading = "";
+          this.isLoading = "";
         });
     },
   },
