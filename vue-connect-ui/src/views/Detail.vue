@@ -31,12 +31,9 @@
           <tr>
             <td>State</td>
             <td>
-              <button
-                v-bind:class="status.connector.state"
-                class="button is-rounded is-small"
-              >
+              <span v-bind:class="status.connector.state">
                 {{ status.connector.state }}
-              </button>
+              </span>
             </td>
           </tr>
         </tbody>
@@ -49,7 +46,7 @@
           <p>Error</p>
         </div>
         <div class="message-body">
-          {{ status.connector.trace }}
+          <pre>{{ status.connector.trace }}</pre>
         </div>
       </article>
     </div>
@@ -87,7 +84,7 @@
           <p>Error</p>
         </div>
         <div class="message-body">
-          {{ task.trace }}
+          <pre>{{ task.trace }}</pre>
         </div>
       </article>
     </div>

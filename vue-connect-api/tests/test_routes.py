@@ -89,7 +89,10 @@ def test_connectors(mocker):
             if '/status' in self.url:
                 return {'name': 'foo'}
             else:
-                return {'foo': {'status': 1}, 'bar': {'status': 1}}
+                return {
+                    'foo': {'status': {'connector': {}, 'tasks': []}}, 
+                    'bar': {'status': {'connector': {}, 'tasks': []}}
+                    }
 
     class Req:
         called = []

@@ -13,6 +13,7 @@
     "@fortawesome/vue-fontawesome": "^0.1.5",
     "axios": "^0.21.1",
     "bulma": "^0.9.2",
+    "bulma-tooltip": "^3.0.2",
     "core-js": "^3.6.5",
     "vue": "^2.6.11",
     "vue-axios": "^2.1.5",

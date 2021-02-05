@@ -158,7 +158,19 @@ def connectors():
 
         for name in connectors:
             connector = connectors[name]
-            state.append(connector['status'])
+                        
+            connectorState = connector['status']
+            if 'trace' in connectorState['connector']:
+                connectorState['connector']['traceShort'] = connectorState['connector']['trace'].split('\n')[0]
+                connectorState['connector']['traceException'] = connectorState['connector']['trace'].split(':')[0]
+
+            for task in connectorState['tasks']:
+                if 'trace' in task:
+                   task['traceShort'] = task['trace'].split('\n')[0]
+                   task['traceException'] = task['trace'].split(':')[0]
+
+            
+            state.append(connectorState)
 
         return jsonify(state)
 

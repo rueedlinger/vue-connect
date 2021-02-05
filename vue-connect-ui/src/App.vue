@@ -55,5 +55,6 @@
 
 <style>
 @import "../node_modules/bulma/css/bulma.css";
+@import "../node_modules/bulma-tooltip";
 @import "./assets/css/custom.css";
 </style>

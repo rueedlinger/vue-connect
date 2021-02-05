@@ -29,11 +29,13 @@
           </tr>
         </thead>
         <tbody>
-          <tr v-for="item in data" v-bind:key="item.hash">
+          <tr v-for="item in data" v-bind:key="item.name">
             <td>
               <button
                 v-bind:class="item.connector.state"
-                class="button is-rounded is-small is-fullwidth"
+                v-on:click="detail(item.name)"
+                v-bind:data-tooltip="item.connector.traceShort"
+                class="button is-rounded is-small is-fullwidth has-tooltip-right has-tooltip-multiline has-tooltip-danger"
               >
                 {{ item.connector.state }}
               </button>
@@ -43,6 +45,12 @@
                 <li><b>Connector ID:</b> {{ item.name }}</li>
                 <li><b>Type:</b> {{ item.type }}</li>
                 <li><b>Worker ID:</b> {{ item.connector.worker_id }}</li>
+                <li
+                  class="has-text-danger"
+                  v-if="item.connector.traceException"
+                >
+                  <b>Exception:</b> {{ item.connector.traceException }}
+                </li>
               </ul>
             </td>
             <td>
@@ -133,7 +141,9 @@
                     <td>
                       <button
                         v-bind:class="task.state"
-                        class="button is-rounded is-small is-fullwidth"
+                        v-bind:data-tooltip="task.traceShort"
+                        class="button is-rounded is-small is-fullwidth  has-tooltip-multiline has-tooltip-danger has-tooltip-left"
+                        v-on:click="detail(item.name)"
                       >
                         {{ task.state }}
                       </button>
@@ -142,6 +152,9 @@
                       <ul id="detail">
                         <li><b>Task ID:</b> {{ task.id }}</li>
                         <li><b>Worker ID:</b> {{ task.worker_id }}</li>
+                        <li class="has-text-danger" v-if="task.traceException">
+                          <b>Exception:</b> {{ task.traceException }}
+                        </li>
                       </ul>
                     </td>
                     <td>
@@ -149,8 +162,10 @@
                         class="button is-primary is-small"
                         v-on:click="restartTask(item.name, task.id)"
                         v-bind:class="[
-                        isLoading == `restart-${item.name}-${task.id}` ? `is-loading` : ``,
-                      ]"
+                          isLoading == `restart-${item.name}-${task.id}`
+                            ? `is-loading`
+                            : ``,
+                        ]"
                         ><font-awesome-icon icon="retweet"></font-awesome-icon
                       ></a>
                     </td>
@@ -170,22 +185,22 @@ import connect from "../common/connect";
 
 /**
  * return sorted connector list
- * @param {*} connectors 
+ * @param {*} connectors
  */
 function sortedConnectors(connectors) {
   let failedCollection = [],
-      runningCollection = [],
-      pausedCollection = [];
+    runningCollection = [],
+    pausedCollection = [];
 
   for (let e of connectors) {
-    let isFailed = (e.connector.state.toUpperCase() == "FAILED"),
-      isPaused = (e.connector.state.toUpperCase() == "PAUSED");
+    let isFailed = e.connector.state.toUpperCase() == "FAILED",
+      isPaused = e.connector.state.toUpperCase() == "PAUSED";
 
     for (let t of e.tasks) {
-      isFailed = (isFailed || t.state.toUpperCase() == "FAILED");
-      isPaused = (isPaused && t.state.toUpperCase() == "PAUSED")
+      isFailed = isFailed || t.state.toUpperCase() == "FAILED";
+      isPaused = isPaused && t.state.toUpperCase() == "PAUSED";
     }
-    // First show failed 
+    // First show failed
     if (isFailed) {
       failedCollection.push(e);
       continue;
@@ -198,7 +213,7 @@ function sortedConnectors(connectors) {
     runningCollection.push(e);
   }
 
-  return [...failedCollection, ...runningCollection, ...pausedCollection]
+  return [...failedCollection, ...runningCollection, ...pausedCollection];
 }
 
 export default {
@@ -228,18 +243,20 @@ export default {
 
     this.polling = setInterval(
       function() {
-        connect.getAllConnectorStatus().then((response) => {
-          this.data = sortedConnectors(response.data);
-          this.isLoading = "";
-          this.errors = "";
-        })
-        .catch((e) => {
-          if (e.response) {
-            this.errors = e.response.data.message;
-          } else {
-            this.errors = { message: e.message };
-          }
-        });
+        connect
+          .getAllConnectorStatus()
+          .then((response) => {
+            this.data = sortedConnectors(response.data);
+            this.isLoading = "";
+            this.errors = "";
+          })
+          .catch((e) => {
+            if (e.response) {
+              this.errors = e.response.data.message;
+            } else {
+              this.errors = { message: e.message };
+            }
+          });
       }.bind(this),
       60000
     );
@@ -250,8 +267,19 @@ export default {
   },
 
   methods: {
-    reRender: function() {
-      this.$forceUpdate();
+    load: function() {
+      connect
+        .getAllConnectorStatus()
+        .then((response) => {
+          this.data = response.data;
+        })
+        .catch((e) => {
+          if (e.response) {
+            this.errors = e.response.data.message;
+          } else {
+            this.errors = { message: e.message };
+          }
+        });
     },
     detail: function(id) {
       this.$router.push("/detail/" + id);
