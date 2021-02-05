@@ -72,9 +72,9 @@
                   <td>
                     <a
                       class="button is-primary is-small"
-                      v-on:click="resume(item.name)"
+                      v-on:click="resume(`resume-${item.name}`)"
                       v-bind:class="[
-                        isLoading == item.name ? `is-loading` : ``,
+                        isLoading == `resume-${item.name}` ? `is-loading` : ``,
                       ]"
                     >
                       <font-awesome-icon icon="play-circle"></font-awesome-icon
@@ -83,9 +83,9 @@
                   <td>
                     <a
                       class="button is-primary is-small"
-                      v-on:click="pause(item.name)"
+                      v-on:click="pause(`pause-${item.name}`)"
                       v-bind:class="[
-                        isLoading == item.name ? `is-loading` : ``,
+                        isLoading == `pause-${item.name}` ? `is-loading` : ``,
                       ]"
                     >
                       <font-awesome-icon icon="pause-circle"></font-awesome-icon
@@ -94,9 +94,9 @@
                   <td>
                     <a
                       class="button is-primary is-small"
-                      v-on:click="restart(item.name)"
+                      v-on:click="restart(`restart-${item.name}`)"
                       v-bind:class="[
-                        isLoading == item.name ? `is-loading` : ``,
+                        isLoading == `restart-${item.name}` ? `is-loading` : ``,
                       ]"
                       ><font-awesome-icon icon="retweet"></font-awesome-icon
                     ></a>
@@ -168,6 +168,39 @@
 <script>
 import connect from "../common/connect";
 
+/**
+ * return sorted connector list
+ * @param {*} connectors 
+ */
+function sortedConnectors(connectors) {
+  let failedCollection = [],
+      runningCollection = [],
+      pausedCollection = [];
+
+  for (let e of connectors) {
+    let isFailed = (e.connector.state.toUpperCase() == "FAILED"),
+      isPaused = (e.connector.state.toUpperCase() == "PAUSED");
+
+    for (let t of e.tasks) {
+      isFailed = (isFailed || t.state.toUpperCase() == "FAILED");
+      isPaused = (isPaused && t.state.toUpperCase() == "PAUSED")
+    }
+    // First show failed 
+    if (isFailed) {
+      failedCollection.push(e);
+      continue;
+    }
+    // Last show paused
+    if (isPaused) {
+      pausedCollection.push(e);
+      continue;
+    }
+    runningCollection.push(e);
+  }
+
+  return [...failedCollection, ...runningCollection, ...pausedCollection]
+}
+
 export default {
   data() {
     return {
@@ -183,7 +216,7 @@ export default {
     connect
       .getAllConnectorStatus()
       .then((response) => {
-        this.data = response.data;
+        this.data = sortedConnectors(response.data);
       })
       .catch((e) => {
         if (e.response) {
@@ -196,19 +229,19 @@ export default {
     this.polling = setInterval(
       function() {
         connect.getAllConnectorStatus().then((response) => {
-          this.data = response.data;
+          this.data = sortedConnectors(response.data);
           this.isLoading = "";
           this.errors = "";
         })
         .catch((e) => {
-        if (e.response) {
-          this.errors = e.response.data.message;
-        } else {
-          this.errors = { message: e.message };
-        }
-      });
+          if (e.response) {
+            this.errors = e.response.data.message;
+          } else {
+            this.errors = { message: e.message };
+          }
+        });
       }.bind(this),
-      5000
+      60000
     );
   },
 
@@ -230,7 +263,7 @@ export default {
       connect
         .deleteConnector(id)
         .then((resp) => {
-          this.data = resp.data;
+          this.data = sortedConnectors(resp.data);
         })
         .catch((e) => {
           if (e.response) {
@@ -245,7 +278,8 @@ export default {
       connect
         .restartConnector(id)
         .then((resp) => {
-          this.data = resp.data;
+          this.data = sortedConnectors(resp.data);
+          this.isLoading = "";
         })
         .catch((e) => {
           if (e.response) {
@@ -253,7 +287,7 @@ export default {
           } else {
             this.errors = { message: e.message };
           }
-          this.isloading = "";
+          this.isLoading = "";
         });
     },
     pause: function(id) {
@@ -261,7 +295,8 @@ export default {
       connect
         .pauseConnector(id)
         .then((resp) => {
-          this.data = resp.data;
+          this.data = sortedConnectors(resp.data);
+          this.isLoading = "";
         })
         .catch((e) => {
           if (e.response) {
@@ -269,7 +304,7 @@ export default {
           } else {
             this.errors = { message: e.message };
           }
-          this.isloading = "";
+          this.isLoading = "";
         });
     },
     resume: function(id) {
@@ -277,7 +312,8 @@ export default {
       connect
         .resumeConnector(id)
         .then((resp) => {
-          this.data = resp.data;
+          this.data = sortedConnectors(resp.data);
+          this.isLoading = "";
         })
         .catch((e) => {
           if (e.response) {
@@ -285,7 +321,7 @@ export default {
           } else {
             this.errors = { message: e.message };
           }
-          this.isloading = "";
+          this.isLoading = "";
         });
     },
     restartTask: function(id, task_id) {
@@ -293,7 +329,8 @@ export default {
       connect
         .restartTask(id, task_id)
         .then((resp) => {
-          this.data = resp.data;
+          this.data = sortedConnectors(resp.data);
+          this.isLoading = "";
         })
         .catch((e) => {
           if (e.response) {
@@ -301,7 +338,7 @@ export default {
           } else {
             this.errors = { message: e.message };
           }
-          this.isloading = "";
+          this.isLoading = "";
         });
     },
   },
