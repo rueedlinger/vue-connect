@@ -34,7 +34,8 @@
               <button
                 v-bind:class="item.connector.state"
                 v-on:click="load()"
-                class="button is-rounded is-small is-fullwidth"
+                v-bind:data-tooltip="item.connector.traceShort"
+                class="button is-rounded is-small is-fullwidth has-tooltip-right has-tooltip-multiline has-tooltip-danger"
               >
                 {{ item.connector.state }}
               </button>
@@ -44,6 +45,9 @@
                 <li><b>Connector ID:</b> {{ item.name }}</li>
                 <li><b>Type:</b> {{ item.type }}</li>
                 <li><b>Worker ID:</b> {{ item.connector.worker_id }}</li>
+                <li class="has-text-danger" v-if="item.connector.traceException">
+                  <b>Exception:</b> {{ item.connector.traceException }}
+                </li>
               </ul>
             </td>
             <td>
@@ -134,7 +138,8 @@
                     <td>
                       <button
                         v-bind:class="task.state"
-                        class="button is-rounded is-small is-fullwidth"
+                        v-bind:data-tooltip="task.traceShort"
+                        class="button is-rounded is-small is-fullwidth  has-tooltip-multiline has-tooltip-danger has-tooltip-left"
                         v-on:click="load()"
                       >
                         {{ task.state }}
@@ -144,6 +149,9 @@
                       <ul id="detail">
                         <li><b>Task ID:</b> {{ task.id }}</li>
                         <li><b>Worker ID:</b> {{ task.worker_id }}</li>
+                        <li class="has-text-danger" v-if="task.traceException">
+                          <b>Exception:</b> {{ task.traceException }}
+                        </li>
                       </ul>
                     </td>
                     <td>
@@ -151,8 +159,8 @@
                         class="button is-primary is-small"
                         v-on:click="restartTask(item.name, task.id)"
                         v-bind:class="[
-                        isLoading == item.name ? `is-loading` : ``,
-                      ]"
+                          isLoading == item.name ? `is-loading` : ``,
+                        ]"
                         ><font-awesome-icon icon="retweet"></font-awesome-icon
                       ></a>
                     </td>
@@ -197,18 +205,20 @@ export default {
 
     this.polling = setInterval(
       function() {
-        connect.getAllConnectorStatus().then((response) => {
-          this.data = response.data;
-          this.isLoading = "";
-          this.errors = "";
-        })
-        .catch((e) => {
-        if (e.response) {
-          this.errors = e.response.data.message;
-        } else {
-          this.errors = { message: e.message };
-        }
-      });
+        connect
+          .getAllConnectorStatus()
+          .then((response) => {
+            this.data = response.data;
+            this.isLoading = "";
+            this.errors = "";
+          })
+          .catch((e) => {
+            if (e.response) {
+              this.errors = e.response.data.message;
+            } else {
+              this.errors = { message: e.message };
+            }
+          });
       }.bind(this),
       5000
     );
@@ -220,18 +230,18 @@ export default {
 
   methods: {
     load: function() {
-       connect
-      .getAllConnectorStatus()
-      .then((response) => {
-        this.data = response.data;
-      })
-      .catch((e) => {
-        if (e.response) {
-          this.errors = e.response.data.message;
-        } else {
-          this.errors = { message: e.message };
-        }
-      });
+      connect
+        .getAllConnectorStatus()
+        .then((response) => {
+          this.data = response.data;
+        })
+        .catch((e) => {
+          if (e.response) {
+            this.errors = e.response.data.message;
+          } else {
+            this.errors = { message: e.message };
+          }
+        });
     },
     detail: function(id) {
       this.$router.push("/detail/" + id);

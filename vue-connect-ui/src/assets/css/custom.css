@@ -3,6 +3,10 @@ textarea,
   height: 400px;
 }
 
+.table {
+  overflow: visible
+}
+
 .RUNNING {
   background-color: hsl(153, 53%, 53%);
   font-weight: 900;
