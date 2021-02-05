@@ -4,6 +4,44 @@ on:
     branches:
       - 'master'
 jobs:
+  test-api:
+    runs-on: ubuntu-latest
+    name: Test Backend
+    steps:
+      - uses: actions/checkout@v1
+      - name: Set up Python 3.7
+        uses: actions/setup-python@v1
+        with:
+          python-version: 3.7
+      - name: Install pipenv
+        env:
+          PIPENV_NOSPIN: 'true'
+          WORKON_HOME: ~/.pipenv/virtualenvs
+          PIPENV_CACHE_DIR: ~/.pipenv/pipcache
+        run: pip install pipenv
+      - name: Build and Test
+        env:
+          PIPENV_NOSPIN: 'true'
+          WORKON_HOME: ~/.pipenv/virtualenvs
+          PIPENV_CACHE_DIR: ~/.pipenv/pipcache
+        run: |
+          cd vue-connect-api
+          pipenv install --dev
+          pipenv run pytest
+  test-ui:
+    runs-on: ubuntu-latest
+    name: Test Frontend
+    steps:
+    - uses: actions/checkout@v2
+      name: Check out repository
+    - uses: actions/setup-node@v1
+      name: Set up Node.js
+      with:
+        node-version: 12
+    - run: |
+        cd vue-connect-ui
+        npm ci
+        npm run lint
   docker:
       runs-on: ubuntu-latest
       steps:
