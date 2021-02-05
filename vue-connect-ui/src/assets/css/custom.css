@@ -3,29 +3,29 @@ textarea,
   height: 400px;
 }
 
-.table {
-  overflow: visible
-}
-
 .RUNNING {
   background-color: hsl(153, 53%, 53%);
   font-weight: 900;
   color: white;
+  padding: 5px;
 }
 .PAUSED {
   background-color: hsl(0, 0%, 86%);
   font-weight: 900;
   color: white;
+  padding: 5px;
 }
 
 .UNASSIGNED {
   background-color: hsl(44, 100%, 77%);
   font-weight: 900;
   color: white;
+  padding: 5px;
 }
 
 .FAILED {
   background-color: hsl(348, 86%, 61%);
   font-weight: 900;
   color: white;
+  padding: 5px;
 }

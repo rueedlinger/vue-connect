@@ -33,7 +33,7 @@
             <td>
               <button
                 v-bind:class="item.connector.state"
-                v-on:click="load()"
+                v-on:click="detail(item.name)"
                 v-bind:data-tooltip="item.connector.traceShort"
                 class="button is-rounded is-small is-fullwidth has-tooltip-right has-tooltip-multiline has-tooltip-danger"
               >
@@ -143,7 +143,7 @@
                         v-bind:class="task.state"
                         v-bind:data-tooltip="task.traceShort"
                         class="button is-rounded is-small is-fullwidth  has-tooltip-multiline has-tooltip-danger has-tooltip-left"
-                        v-on:click="load()"
+                        v-on:click="detail(item.name)"
                       >
                         {{ task.state }}
                       </button>
