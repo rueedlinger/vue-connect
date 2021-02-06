@@ -266,12 +266,12 @@ export default {
       })
       .catch((e) => {
         if (e.response) {
-          if( e.response.data.cache.state) {
+          if (e.response.data.cache.state) {
             this.data = e.response.data.cache.state;
           }
           this.errors = e.response.data.message;
         } else {
-          if( e.response.data.cache.state) {
+          if (e.response.data.cache.state) {
             this.data = e.response.data.cache.state;
           }
           this.errors = { message: e.message };
@@ -285,7 +285,15 @@ export default {
           .then((response) => {
             if (response.data.state != null && response.data.state.length > 0) {
               this.data = sortedConnectors(response.data.state);
-              this.isLoading = "";
+              this.isLoading = "";              
+              if (response.data.isConnectUp) {
+                // connect is running again
+                this.errors = "";
+              }
+              if(!response.data.isConnectUp && this.errors == "" ) {
+                // set error from cache
+                this.errors = response.data.message
+              }
             }
           })
           .catch((e) => {

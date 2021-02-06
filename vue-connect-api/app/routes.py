@@ -23,6 +23,7 @@ ERROR_MSG_NO_DATA = "Missing data. {}."
 cache = {
     'loadtime': 0,
     'state': None,
+    'isConnectUp': False
 }
 
 request_timeout_sec = util.get_request_timeout()
@@ -170,14 +171,17 @@ def connectors():
         return jsonify(state)
 
     except ConnectionError:
+
         return jsonify({
             'message': ERROR_MSG_CLUSTER_NOT_REACHABLE.format(connect_url),
-            'cache': cache
+            'cache': cache,
+            'isConnectUp': False
         }), 503
     except Timeout:
         return jsonify({
             'message': ERROR_MSG_CLUSTER_TIMEOUT.format(connect_url),
-            'cache': cache
+            'cache': cache,
+            'isConnectUp': False
         }), 504
 
 
@@ -291,8 +295,10 @@ def info():
 
         return jsonify(info)
     except ConnectionError:
+        cache['message'] = ERROR_MSG_CLUSTER_NOT_REACHABLE.format(connect_url)
         return jsonify({'message': ERROR_MSG_CLUSTER_NOT_REACHABLE.format(connect_url)}), 503
     except Timeout:
+        cache['message'] = ERROR_MSG_CLUSTER_TIMEOUT.format(connect_url)
         return jsonify({'message': ERROR_MSG_CLUSTER_TIMEOUT.format(connect_url)}), 504
 
 
@@ -316,14 +322,26 @@ def update_cache(state):
     logging.info('updating cache')
     cache['state'] = state
     cache['loadtime'] = time.time()
+    cache['isConnectUp'] = True
+    cache['message'] = None
 
 
 def job_update_cache():
     try:
         state = load_state()
         update_cache(state)
+    except ConnectionError:
+        cache['isConnectUp'] = False
+        cache['message'] = ERROR_MSG_CLUSTER_NOT_REACHABLE.format(connect_url)
+        logging.info(ERROR_MSG_CLUSTER_NOT_REACHABLE.format(connect_url))
+    except Timeout:
+        cache['message'] = ERROR_MSG_CLUSTER_TIMEOUT.format(connect_url)
+        cache['isConnectUp'] = False
+        logging.info(ERROR_MSG_CLUSTER_TIMEOUT.format(connect_url))
     except Exception as e:
-        logging.warn('Could not update cache: %s', e)
+        cache['isConnectUp'] = False
+        cache['message'] = ERROR_MSG_INTERNAL_SERVER_ERROR
+        logging.error('Could not update cache: %s', e)
 
 
 if poll_intervall_sec > 0:
