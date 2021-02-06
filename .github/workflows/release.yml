@@ -48,4 +48,5 @@ jobs:
               IMAGE_VERSION=${{ steps.docker_meta.outputs.version }}
               IMAGE_TAGS=${{ steps.docker_meta.outputs.tags }}              
               IMAGE_BUILD_TIME=${{ steps.current-time.outputs.time }}
-              IMAGE_GITHUB_SHA=${GITHUB_SHA}
+              IMAGE_GITHUB_SHA=${{ github.sha }}
+              IMAGE_GITHUB_REPO=${{ github.repository }}
