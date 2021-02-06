@@ -6,7 +6,6 @@ from app import app
 path_get = [
     '/api/info',
     '/api/plugins',
-    '/api/status',
     '/api/status/foo',
     '/api/config/foo'
 ]
@@ -69,9 +68,13 @@ def test_api_post_with_data(client):
 
 def test_api_polling(client):
     resp = client.get('/api/polling')
-    assert b'{"loadtime":0,"state":null}' in resp.data
+    assert b'{"isConnectUp":false,"loadtime":0,"message":null,"state":null}' in resp.data
     assert 200 == resp.status_code
 
+def test_api_status(client):
+    resp = client.get('/api/status')
+    assert b'{"cache":null,"message":"Cluster http://localhost:8083 not reachable!"}' in resp.data
+    assert 503 == resp.status_code
 
 @pytest.mark.parametrize("path", path_get)
 def test_api_get(client, path):

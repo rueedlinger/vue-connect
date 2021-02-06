@@ -23,7 +23,8 @@ ERROR_MSG_NO_DATA = "Missing data. {}."
 cache = {
     'loadtime': 0,
     'state': None,
-    'isConnectUp': False
+    'isConnectUp': False,
+    'message': None
 }
 
 request_timeout_sec = util.get_request_timeout()
@@ -172,16 +173,21 @@ def connectors():
 
     except ConnectionError:
 
+        cache['message'] = ERROR_MSG_CLUSTER_NOT_REACHABLE.format(connect_url)
+        cache['isConnectUp'] = False
+
         return jsonify({
-            'message': ERROR_MSG_CLUSTER_NOT_REACHABLE.format(connect_url),
-            'cache': cache,
-            'isConnectUp': False
+            'message':  cache['message'],
+            'cache': cache['state']
         }), 503
     except Timeout:
+
+        cache['message'] = ERROR_MSG_CLUSTER_TIMEOUT.format(connect_url)
+        cache['isConnectUp'] = False
+
         return jsonify({
-            'message': ERROR_MSG_CLUSTER_TIMEOUT.format(connect_url),
-            'cache': cache,
-            'isConnectUp': False
+            'message':  cache['message'],
+            'cache': cache['state'],
         }), 504
 
 
