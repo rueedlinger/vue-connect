@@ -3,7 +3,6 @@
     <div class="box">
       <button
         v-on:click="reload()"
-        data-tooltip="Reload"
         class="button is-small"
       >
         <font-awesome-icon icon="sync-alt"></font-awesome-icon>
@@ -69,8 +68,7 @@
                   <tr>
                     <td>
                       <a
-                        class="button is-primary is-small"
-                        v-bind:data-tooltip="'Show details ' + item.name"
+                        class="button is-primary is-small"                        
                         v-on:click="detail(item.name)"
                         ><font-awesome-icon
                           icon="info-circle"
@@ -79,8 +77,7 @@
                     </td>
                     <td>
                       <a
-                        class="button is-primary is-small"
-                        v-bind:data-tooltip="'Edit ' + item.name"
+                        class="button is-primary is-small"                        
                         v-on:click="edit(item.name)"
                         ><font-awesome-icon icon="edit"></font-awesome-icon
                       ></a>
@@ -88,7 +85,6 @@
                     <td>
                       <a
                         class="button is-primary is-small"
-                        v-bind:data-tooltip="'Delete ' + item.name"
                         v-on:click="del(item.name)"
                         ><font-awesome-icon icon="trash-alt"></font-awesome-icon
                       ></a>
@@ -96,7 +92,6 @@
                     <td>
                       <a
                         class="button is-primary is-small"
-                        v-bind:data-tooltip="'Resume ' + item.name"
                         v-on:click="resume(item.name)"
                         v-bind:class="[
                           isLoading == `resume-${item.name}`
@@ -111,8 +106,7 @@
                     </td>
                     <td>
                       <a
-                        class="button is-primary is-small"
-                        v-bind:data-tooltip="'Pause ' + item.name"
+                        class="button is-primary is-small"                       
                         v-on:click="pause(item.name)"
                         v-bind:class="[
                           isLoading == `pause-${item.name}` ? `is-loading` : ``,
@@ -125,8 +119,7 @@
                     </td>
                     <td>
                       <a
-                        class="button is-primary is-small"
-                        v-bind:data-tooltip="'Restart ' + item.name"
+                        class="button is-primary is-small"                       
                         v-on:click="restart(item.name)"
                         v-bind:class="[
                           isLoading == `restart-${item.name}`
@@ -186,10 +179,7 @@
                       </td>
                       <td>
                         <a
-                          class="button is-primary is-small"
-                          v-bind:data-tooltip="
-                            'Restart Task ' + item.name + ':' + task.id
-                          "
+                          class="button is-primary is-small"                       
                           v-on:click="restartTask(item.name, task.id)"
                           v-bind:class="[
                             isLoading == `restart-${item.name}-${task.id}`

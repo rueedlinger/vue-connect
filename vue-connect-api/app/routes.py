@@ -333,7 +333,7 @@ def internal_error(e):
 
 
 def update_cache(state):
-    logging.info('updating cache')
+    
     cache['state'] = state
     cache['loadtime'] = time.time()
     cache['isConnectUp'] = True
@@ -341,7 +341,7 @@ def update_cache(state):
 
 
 def job_update_cache():
-    logging.info('Updating cache')
+    logging.info('updating cache')
     try:
         state = load_state()
         update_cache(state)
