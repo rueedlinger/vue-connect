@@ -265,11 +265,15 @@ export default {
         this.data = sortedConnectors(response.data);
       })
       .catch((e) => {
-        if (e.response.data.cache) {
-          this.data = sortedConnectors(e.response.data.cache);
-        }
-        if (e.response.data.message) {
-          this.errors = e.response.data.message;
+        if (e.response) {
+          if (e.response.data.cache) {
+            this.data = sortedConnectors(e.response.data.cache);
+          }
+          if (e.response.data.message) {
+            this.errors = e.response.data.message;
+          }
+        } else {
+          this.errors = { message: e.message };
         }
       });
 
@@ -317,11 +321,15 @@ export default {
           this.isLoading = "";
         })
         .catch((e) => {
-          if (e.response.data.cache) {
-            this.data = sortedConnectors(e.response.data.cache);
-          }
-          if (e.response.data.message) {
-            this.errors = e.response.data.message;
+          if (e.response) {
+            if (e.response.data.cache) {
+              this.data = sortedConnectors(e.response.data.cache);
+            }
+            if (e.response.data.message) {
+              this.errors = e.response.data.message;
+            }
+          } else {
+            this.errors = { message: e.message };
           }
         });
     },
