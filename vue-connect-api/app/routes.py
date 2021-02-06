@@ -341,6 +341,7 @@ def update_cache(state):
 
 
 def job_update_cache():
+    logging.info('Updating cache')
     try:
         state = load_state()
         update_cache(state)
@@ -358,7 +359,9 @@ def job_update_cache():
         logging.error('Could not update cache: %s', e)
 
 
+
 if poll_intervall_sec > 0:
+    job_update_cache()
     scheduler = BackgroundScheduler(daemon=True)
     scheduler.add_job(func=job_update_cache, trigger="interval",
                       seconds=poll_intervall_sec)

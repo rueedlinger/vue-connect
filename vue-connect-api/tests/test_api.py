@@ -72,7 +72,7 @@ def test_api_post_with_data(client):
 
 def test_api_polling(client):
     resp = client.get('/api/polling')
-    assert b'{"isConnectUp":false,"loadtime":0,"message":null,"state":null}' in resp.data
+    assert b'{"isConnectUp":false,"loadtime":0,"message":"Cluster http://localhost:8083 not reachable!","state":null}' in resp.data
     assert 200 == resp.status_code
 
 
