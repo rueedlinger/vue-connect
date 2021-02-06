@@ -75,6 +75,7 @@ export default {
       .catch((e) => {
         if (e.response) {
           this.errors = e.response.data.message;
+          this.data = e.response.data.cache;
         } else {
           this.errors = { message: e.message };
         }

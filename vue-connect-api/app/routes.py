@@ -289,23 +289,31 @@ def plugins():
 
 @app.route('/api/info', strict_slashes=False)
 def info():
+
+    app_info = {}
+    app_info['endpoint'] = connect_url
+    app_info['vc_version'] = util.get_str_config('VC_VERSION', 'dev')
+    app_info['tags'] = util.get_str_config('VC_TAGS', None)
+    app_info['sha'] = util.get_str_config('VC_IMAGE_GITHUB_SHA', None)
+    app_info['build_time'] = util.get_str_config('VC_IMAGE_BUILD_TIME', None)
+
     try:
         r = requests.get(connect_url, timeout=request_timeout_sec)
 
         info = r.json()
-        info['endpoint'] = connect_url
-        info['vc_version'] = util.get_str_config('VC_VERSION', 'dev')
-        info['tags'] = util.get_str_config('VC_TAGS', None)
-        info['sha'] = util.get_str_config('VC_IMAGE_GITHUB_SHA', None)
-        info['build_time'] = util.get_str_config('VC_IMAGE_BUILD_TIME', None)
+        info.update(app_info)
 
         return jsonify(info)
     except ConnectionError:
-        cache['message'] = ERROR_MSG_CLUSTER_NOT_REACHABLE.format(connect_url)
-        return jsonify({'message': ERROR_MSG_CLUSTER_NOT_REACHABLE.format(connect_url)}), 503
+        return jsonify({
+            'message': ERROR_MSG_CLUSTER_NOT_REACHABLE.format(connect_url),
+            'cache': app_info
+        }), 503
     except Timeout:
-        cache['message'] = ERROR_MSG_CLUSTER_TIMEOUT.format(connect_url)
-        return jsonify({'message': ERROR_MSG_CLUSTER_TIMEOUT.format(connect_url)}), 504
+        return jsonify({
+            'message': ERROR_MSG_CLUSTER_TIMEOUT.format(connect_url),
+            'cache': app_info
+        }), 504
 
 
 @app.errorhandler(404)
