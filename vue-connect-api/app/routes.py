@@ -1,16 +1,16 @@
 from app import app
+from app import util
+
 from flask import jsonify
 from flask import request
-import requests
-import json
-import os
 from datetime import datetime
 from requests.exceptions import ConnectionError
 from requests.exceptions import Timeout
+from apscheduler.schedulers.background import BackgroundScheduler
 
-# TODO make settimsg dynamic
-DEFAULT_REST_ENDPOINT = 'http://localhost:8083'
-DEFAULT_REQUEST_TIMEOUT_SEC = 5
+import time
+import logging
+import requests
 
 ERROR_MSG_CLUSTER_NOT_REACHABLE = "Cluster {} not reachable!"
 ERROR_MSG_CLUSTER_TIMEOUT = "Request timeout cluster {} was not reachable!"
@@ -20,11 +20,14 @@ ERROR_MSG_INTERNAL_SERVER_ERROR = "Internal server error."
 ERROR_MSG_NO_DATA = "Missing data. {}."
 
 
-def get_url():
-    if os.getenv("CONNECT_URL") is not None:
-        return os.getenv("CONNECT_URL")
-    else:
-        return DEFAULT_REST_ENDPOINT
+cache = {
+    'loadtime': 0,
+    'state': None,
+}
+
+request_timeout_sec = util.get_request_timeout()
+poll_intervall_sec = util.get_poll_intervall()
+connect_url = util.get_url()
 
 
 @app.route('/api/connectors', strict_slashes=False, methods=['POST'])
@@ -41,8 +44,8 @@ def new():
 
             cfg = {'name': name, 'config': data}
 
-            r = requests.post(get_url() + '/connectors/',
-                              json=cfg, timeout=DEFAULT_REQUEST_TIMEOUT_SEC)
+            r = requests.post(connect_url + '/connectors/',
+                              json=cfg, timeout=request_timeout_sec)
             status = r.json()
 
             return jsonify(status), r.status_code
@@ -50,9 +53,10 @@ def new():
             return jsonify({'message': 'Missing configuration property \'name\'.'}), 400
 
     except ConnectionError:
-        return jsonify({'message': ERROR_MSG_CLUSTER_NOT_REACHABLE.format(get_url())}), 400
+        return jsonify({'message': ERROR_MSG_CLUSTER_NOT_REACHABLE.format(connect_url)}), 503
     except Timeout:
-        return jsonify({'message': ERROR_MSG_CLUSTER_TIMEOUT.format(get_url())}), 408
+        return jsonify({'message': ERROR_MSG_CLUSTER_TIMEOUT.format(connect_url)}), 504
+
 
 @app.route('/api/connectors/<id>/config', strict_slashes=False, methods=['POST'])
 def update(id):
@@ -62,136 +66,168 @@ def update(id):
         if data is None:
             return jsonify({'message': ERROR_MSG_NO_DATA.format('There is no connector configuration for \'' + id + '\'')}), 400
 
-        r = requests.put(get_url() + '/connectors/' +
-                         id + '/config', json=data, timeout=DEFAULT_REQUEST_TIMEOUT_SEC)
+        r = requests.put(connect_url + '/connectors/' +
+                         id + '/config', json=data, timeout=request_timeout_sec)
         status = r.json()
 
         return jsonify(status), r.status_code
 
     except ConnectionError:
-        return jsonify({'message': ERROR_MSG_CLUSTER_NOT_REACHABLE.format(get_url())}), 400
+        return jsonify({'message': ERROR_MSG_CLUSTER_NOT_REACHABLE.format(connect_url)}), 503
     except Timeout:
-        return jsonify({'message': ERROR_MSG_CLUSTER_TIMEOUT.format(get_url())}), 408
+        return jsonify({'message': ERROR_MSG_CLUSTER_TIMEOUT.format(connect_url)}), 504
 
 
 @app.route('/api/connectors/<id>/restart', strict_slashes=False, methods=['POST'])
 def restart(id):
     try:
-        requests.post(get_url() + '/connectors/' + id +
-                      '/restart', timeout=DEFAULT_REQUEST_TIMEOUT_SEC)
+        requests.post(connect_url + '/connectors/' + id +
+                      '/restart', timeout=request_timeout_sec)
         return connectors()
 
     except ConnectionError:
-        return jsonify({'message': ERROR_MSG_CLUSTER_NOT_REACHABLE.format(get_url())}), 400
+        return jsonify({'message': ERROR_MSG_CLUSTER_NOT_REACHABLE.format(connect_url)}), 503
     except Timeout:
-        return jsonify({'message': ERROR_MSG_CLUSTER_TIMEOUT.format(get_url())}), 408
+        return jsonify({'message': ERROR_MSG_CLUSTER_TIMEOUT.format(connect_url)}), 504
+
 
 @app.route('/api/connectors/<id>/delete', strict_slashes=False, methods=['POST'])
 def delete(id):
     try:
-        requests.delete(get_url() + '/connectors/' + id,
-                        timeout=DEFAULT_REQUEST_TIMEOUT_SEC)
+        requests.delete(connect_url + '/connectors/' + id,
+                        timeout=request_timeout_sec)
         return connectors()
 
     except ConnectionError:
-        return jsonify({'message': ERROR_MSG_CLUSTER_NOT_REACHABLE.format(get_url())}), 400
+        return jsonify({'message': ERROR_MSG_CLUSTER_NOT_REACHABLE.format(connect_url)}), 503
     except Timeout:
-        return jsonify({'message': ERROR_MSG_CLUSTER_TIMEOUT.format(get_url())}), 408
+        return jsonify({'message': ERROR_MSG_CLUSTER_TIMEOUT.format(connect_url)}), 504
+
 
 @app.route('/api/connectors/<id>/pause', strict_slashes=False, methods=['POST'])
 def pause(id):
     try:
-        requests.put(get_url() + '/connectors/' + id + '/pause',
-                     timeout=DEFAULT_REQUEST_TIMEOUT_SEC)
+        requests.put(connect_url + '/connectors/' + id + '/pause',
+                     timeout=request_timeout_sec)
         return connectors()
 
     except ConnectionError:
-        return jsonify({'message': ERROR_MSG_CLUSTER_NOT_REACHABLE.format(get_url())}), 400
+        return jsonify({'message': ERROR_MSG_CLUSTER_NOT_REACHABLE.format(connect_url)}), 503
     except Timeout:
-        return jsonify({'message': ERROR_MSG_CLUSTER_TIMEOUT.format(get_url())}), 408
+        return jsonify({'message': ERROR_MSG_CLUSTER_TIMEOUT.format(connect_url)}), 504
+
 
 @app.route('/api/connectors/<id>/resume', strict_slashes=False, methods=['POST'])
 def resume(id):
     try:
-        requests.put(get_url() + '/connectors/' + id + '/resume',
-                     timeout=DEFAULT_REQUEST_TIMEOUT_SEC)
+        requests.put(connect_url + '/connectors/' + id + '/resume',
+                     timeout=request_timeout_sec)
         return connectors()
 
     except ConnectionError:
-        return jsonify({'message': ERROR_MSG_CLUSTER_NOT_REACHABLE.format(get_url())}), 400
+        return jsonify({'message': ERROR_MSG_CLUSTER_NOT_REACHABLE.format(connect_url)}), 503
     except Timeout:
-        return jsonify({'message': ERROR_MSG_CLUSTER_TIMEOUT.format(get_url())}), 408
+        return jsonify({'message': ERROR_MSG_CLUSTER_TIMEOUT.format(connect_url)}), 504
+
 
 @app.route('/api/connectors/<id>/tasks/<task_id>/restart', strict_slashes=False, methods=['POST'])
 def task_restart(id, task_id):
     try:
-        requests.post(get_url() + '/connectors/' + id +
-                      '/tasks/' + task_id + '/restart', timeout=DEFAULT_REQUEST_TIMEOUT_SEC)
+        requests.post(connect_url + '/connectors/' + id +
+                      '/tasks/' + task_id + '/restart', timeout=request_timeout_sec)
         return connectors()
 
     except ConnectionError:
-        return jsonify({'message': ERROR_MSG_CLUSTER_NOT_REACHABLE.format(get_url())}), 400
+        return jsonify({'message': ERROR_MSG_CLUSTER_NOT_REACHABLE.format(connect_url)}), 503
     except Timeout:
-        return jsonify({'message': ERROR_MSG_CLUSTER_TIMEOUT.format(get_url())}), 408
+        return jsonify({'message': ERROR_MSG_CLUSTER_TIMEOUT.format(connect_url)}), 504
+
 
 @app.route('/api/config/<id>', strict_slashes=False)
 def config(id):
     try:
-        r = requests.get(get_url() + '/connectors/' + id +
-                         '/config', timeout=DEFAULT_REQUEST_TIMEOUT_SEC)
+        r = requests.get(connect_url + '/connectors/' + id +
+                         '/config', timeout=request_timeout_sec)
         config = r.json()
         return jsonify(config)
 
     except ConnectionError:
-        return jsonify({'message': ERROR_MSG_CLUSTER_NOT_REACHABLE.format(get_url())}), 400
+        return jsonify({'message': ERROR_MSG_CLUSTER_NOT_REACHABLE.format(connect_url)}), 503
     except Timeout:
-        return jsonify({'message': ERROR_MSG_CLUSTER_TIMEOUT.format(get_url())}), 408
+        return jsonify({'message': ERROR_MSG_CLUSTER_TIMEOUT.format(connect_url)}), 504
+
+
+@app.route('/api/polling', strict_slashes=False)
+def polling():
+    return jsonify(cache)
+
 
 @app.route('/api/status', strict_slashes=False)
 def connectors():
     try:
-
-        state = []
-        r = requests.get(get_url() + '/connectors?expand=info&expand=status',
-                         timeout=DEFAULT_REQUEST_TIMEOUT_SEC)
-        connectors = r.json()
-
-        for name in connectors:
-            connector = connectors[name]
-                        
-            connectorState = connector['status']
-            if 'trace' in connectorState['connector']:
-                connectorState['connector']['traceShort'] = connectorState['connector']['trace'].split('\n')[0]
-                connectorState['connector']['traceException'] = connectorState['connector']['trace'].split(':')[0]
-
-            for task in connectorState['tasks']:
-                if 'trace' in task:
-                   task['traceShort'] = task['trace'].split('\n')[0]
-                   task['traceException'] = task['trace'].split(':')[0]
-
-            
-            state.append(connectorState)
-
+        state = load_state()
+        update_cache(state)
         return jsonify(state)
 
     except ConnectionError:
-        return jsonify({'message': ERROR_MSG_CLUSTER_NOT_REACHABLE.format(get_url())}), 400
+        return jsonify({'message': ERROR_MSG_CLUSTER_NOT_REACHABLE.format(connect_url)}), 503
     except Timeout:
-        return jsonify({'message': ERROR_MSG_CLUSTER_TIMEOUT.format(get_url())}), 408
+        return jsonify({'message': ERROR_MSG_CLUSTER_TIMEOUT.format(connect_url)}), 504
+
+
+def load_state():
+    state = []
+    r = requests.get(connect_url + '/connectors?expand=info&expand=status',
+                     timeout=request_timeout_sec)
+    connectors = r.json()
+    for name in connectors:
+        connector = connectors[name]
+        connectorState = connector['status']
+
+        if 'trace' in connectorState['connector']:
+            trace_short_connector = connectorState['connector']['trace'].split(
+                '\n')
+            if len(trace_short_connector) > 0:
+                connectorState['connector']['traceShort'] = trace_short_connector[0]
+
+                short_task_connectors = trace_short_connector[0].split(':')
+
+                if len(short_task_connectors) > 1:
+                    connectorState['connector']['traceException'] = short_task_connectors[0].strip(
+                    )
+                    connectorState['connector']['traceMessage'] = short_task_connectors[1].strip(
+                    )
+
+        for task in connectorState['tasks']:
+            if 'trace' in task:
+                trace_short_task = task['trace'].split('\n')
+                if len(trace_short_task) > 0:
+                    task['traceShort'] = trace_short_task[0]
+
+                    short_task_parts = trace_short_task[0].split(':')
+
+                    if len(short_task_parts) > 1:
+                        task['traceException'] = short_task_parts[0].strip()
+                        task['traceMessage'] = short_task_parts[1].strip()
+
+        state.append(connectorState)
+    return state
+
 
 @app.route('/api/status/<id>', strict_slashes=False)
 def status(id):
     try:
-        r = requests.get(get_url() + '/connectors/' + id +
-                         '/status', timeout=DEFAULT_REQUEST_TIMEOUT_SEC)
+        r = requests.get(connect_url + '/connectors/' + id +
+                         '/status', timeout=request_timeout_sec)
 
         status = r.json()
         return jsonify(status), r.status_code
 
     except ConnectionError:
-        return jsonify({'message': ERROR_MSG_CLUSTER_NOT_REACHABLE.format(get_url())}), 400
+        return jsonify({'message': ERROR_MSG_CLUSTER_NOT_REACHABLE.format(connect_url)}), 503
     except Timeout:
-        return jsonify({'message': ERROR_MSG_CLUSTER_TIMEOUT.format(get_url())}), 408
+        return jsonify({'message': ERROR_MSG_CLUSTER_TIMEOUT.format(connect_url)}), 504
+
 
 @app.route('/api/plugins/<name>/config/validate', strict_slashes=False, methods=['POST'])
 def validate(name):
@@ -200,23 +236,24 @@ def validate(name):
         if data is None:
             return jsonify({'message': ERROR_MSG_NO_DATA.format('connector configuration')}), 400
 
-        r = requests.put(get_url() + '/connector-plugins/' +
-                         name + '/config/validate', json=data, timeout=DEFAULT_REQUEST_TIMEOUT_SEC)
+        r = requests.put(connect_url + '/connector-plugins/' +
+                         name + '/config/validate', json=data, timeout=request_timeout_sec)
         config = r.json()
 
         return jsonify(config), r.status_code
 
     except ConnectionError:
-        return jsonify({'message': ERROR_MSG_CLUSTER_NOT_REACHABLE.format(get_url())}), 400
+        return jsonify({'message': ERROR_MSG_CLUSTER_NOT_REACHABLE.format(connect_url)}), 503
     except Timeout:
-        return jsonify({'message': ERROR_MSG_CLUSTER_TIMEOUT.format(get_url())}), 408
+        return jsonify({'message': ERROR_MSG_CLUSTER_TIMEOUT.format(connect_url)}), 504
+
 
 @app.route('/api/plugins', strict_slashes=False)
 def plugins():
     try:
 
-        r = requests.get(get_url() + '/connector-plugins',
-                         timeout=DEFAULT_REQUEST_TIMEOUT_SEC)
+        r = requests.get(connect_url + '/connector-plugins',
+                         timeout=request_timeout_sec)
         plugins = r.json()
 
         for plugin in plugins:
@@ -229,23 +266,30 @@ def plugins():
         return jsonify(plugins)
 
     except ConnectionError:
-        return jsonify({'message': ERROR_MSG_CLUSTER_NOT_REACHABLE.format(get_url())}), 400
+        return jsonify({'message': ERROR_MSG_CLUSTER_NOT_REACHABLE.format(connect_url)}), 503
     except Timeout:
-        return jsonify({'message': ERROR_MSG_CLUSTER_TIMEOUT.format(get_url())}), 408
+        return jsonify({'message': ERROR_MSG_CLUSTER_TIMEOUT.format(connect_url)}), 504
+
 
 @app.route('/api/info', strict_slashes=False)
 def info():
     try:
-        r = requests.get(get_url(), timeout=DEFAULT_REQUEST_TIMEOUT_SEC)
+        r = requests.get(connect_url, timeout=request_timeout_sec)
 
         info = r.json()
-        info['last_update'] = datetime.now()
-        info['endpoint'] = get_url()
+        info['endpoint'] = connect_url
+        info['version'] = util.get_str_config('VC_VERSION', None)
+        info['tags'] = util.get_str_config('VC_TAGS', None)
+        info['sha'] = util.get_str_config('VC_IMAGE_GITHUB_SHA', None)
+        info['build_time'] = util.get_str_config('VC_IMAGE_BUILD_TIME', None)
+        info['re'] = util.get_str_config('VC_IMAGE_BUILD_TIME', None)
+
         return jsonify(info)
     except ConnectionError:
-        return jsonify({'message': ERROR_MSG_CLUSTER_NOT_REACHABLE.format(get_url())}), 400
+        return jsonify({'message': ERROR_MSG_CLUSTER_NOT_REACHABLE.format(connect_url)}), 503
     except Timeout:
-        return jsonify({'message': ERROR_MSG_CLUSTER_TIMEOUT.format(get_url())}), 408
+        return jsonify({'message': ERROR_MSG_CLUSTER_TIMEOUT.format(connect_url)}), 504
+
 
 @app.errorhandler(404)
 def page_not_found(e):
@@ -259,5 +303,25 @@ def method_not_allowed(e):
 
 @app.errorhandler(500)
 def internal_error(e):
-    # TODO: log error
+    logging.error(e)
     return jsonify({'message': ERROR_MSG_INTERNAL_SERVER_ERROR}), 500
+
+
+def update_cache(state):
+    logging.info('updating cache')
+    cache['state'] = state
+    cache['loadtime'] = time.time()
+
+
+def job_update_cache():
+    try:
+        state = load_state()
+        update_cache(state)
+    except Exception as e:
+        logging.warn('Could not update cache: %s', e)
+
+if poll_intervall_sec > 0:
+    scheduler = BackgroundScheduler(daemon=True)
+    scheduler.add_job(func=job_update_cache, trigger="interval",
+                  seconds=poll_intervall_sec)
+    scheduler.start()

@@ -67,6 +67,12 @@ def test_api_post_with_data(client):
     assert 400 == resp.status_code
 
 
+def test_api_polling(client):
+    resp = client.get('/api/polling')
+    assert b'{"loadtime":0,"state":null}' in resp.data
+    assert 200 == resp.status_code
+
+
 @pytest.mark.parametrize("path", path_get)
 def test_api_get(client, path):
     resp = client.get(path)
@@ -81,4 +87,4 @@ def test_api_post(client, path):
 
 def assertNotReachable(response):
     assert b'{"message":"Cluster http://localhost:8083 not reachable!"}' in response.data
-    assert 400 == response.status_code
+    assert 503 == response.status_code

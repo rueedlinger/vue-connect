@@ -23,7 +23,7 @@
       </router-link>
     </header>
 
-    <div class="pb-5">
+    <div class="pb-1">
       <section class="hero is-small is-primary">
         <div class="hero-body ml-2">
           <p class="title">
