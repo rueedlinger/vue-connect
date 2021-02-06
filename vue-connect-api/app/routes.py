@@ -170,9 +170,15 @@ def connectors():
         return jsonify(state)
 
     except ConnectionError:
-        return jsonify({'message': ERROR_MSG_CLUSTER_NOT_REACHABLE.format(connect_url)}), 503
+        return jsonify({
+            'message': ERROR_MSG_CLUSTER_NOT_REACHABLE.format(connect_url),
+            'cache': cache
+        }), 503
     except Timeout:
-        return jsonify({'message': ERROR_MSG_CLUSTER_TIMEOUT.format(connect_url)}), 504
+        return jsonify({
+            'message': ERROR_MSG_CLUSTER_TIMEOUT.format(connect_url),
+            'cache': cache
+        }), 504
 
 
 def load_state():
@@ -278,11 +284,10 @@ def info():
 
         info = r.json()
         info['endpoint'] = connect_url
-        info['version'] = util.get_str_config('VC_VERSION', None)
+        info['vc_version'] = util.get_str_config('VC_VERSION', 'dev')
         info['tags'] = util.get_str_config('VC_TAGS', None)
         info['sha'] = util.get_str_config('VC_IMAGE_GITHUB_SHA', None)
         info['build_time'] = util.get_str_config('VC_IMAGE_BUILD_TIME', None)
-        info['re'] = util.get_str_config('VC_IMAGE_BUILD_TIME', None)
 
         return jsonify(info)
     except ConnectionError:
@@ -320,8 +325,9 @@ def job_update_cache():
     except Exception as e:
         logging.warn('Could not update cache: %s', e)
 
+
 if poll_intervall_sec > 0:
     scheduler = BackgroundScheduler(daemon=True)
     scheduler.add_job(func=job_update_cache, trigger="interval",
-                  seconds=poll_intervall_sec)
+                      seconds=poll_intervall_sec)
     scheduler.start()

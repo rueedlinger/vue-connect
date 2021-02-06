@@ -19,7 +19,7 @@
       <tbody>
         <tr>
           <td>Version</td>
-          <td>{{ data.version }}</td>
+          <td>{{ data.vc_version }}</td>
         </tr>
         <tr>
           <td>Connect worker version</td>

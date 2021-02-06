@@ -164,7 +164,7 @@
                     </tr>
                   </thead>
                   <tbody>
-                    <tr v-for="task in item.tasks" v-bind:key="task.state">
+                    <tr v-for="task in item.tasks" v-bind:key="task.id">
                       <td>
                         <button
                           v-bind:class="task.state"
@@ -266,8 +266,14 @@ export default {
       })
       .catch((e) => {
         if (e.response) {
+          if( e.response.data.cache.state) {
+            this.data = e.response.data.cache.state;
+          }
           this.errors = e.response.data.message;
         } else {
+          if( e.response.data.cache.state) {
+            this.data = e.response.data.cache.state;
+          }
           this.errors = { message: e.message };
         }
       });
