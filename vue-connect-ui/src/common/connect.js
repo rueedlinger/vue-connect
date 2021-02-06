@@ -7,6 +7,9 @@ const connect = {
   getAllConnectorStatus: () => {
     return axiosGet("/status");
   },
+  pollConnectorStatus: () => {
+    return axiosGet("/polling");
+  },
   getConnectorStatus: (connectorName) => {
     return axiosGet("/status/" + connectorName);
   },

@@ -4,11 +4,14 @@ import json
 from app import app
 
 path_get = [
-    '/api/info',
     '/api/plugins',
-    '/api/status',
     '/api/status/foo',
     '/api/config/foo'
+]
+
+cache_get = [
+    '/api/info',
+    '/api/status'
 ]
 
 path_post = [
@@ -67,6 +70,20 @@ def test_api_post_with_data(client):
     assert 400 == resp.status_code
 
 
+def test_api_polling(client):
+    resp = client.get('/api/polling')
+    assert b'{"isConnectUp":false,"loadtime":0,"message":"Cluster http://localhost:8083 not reachable!","state":null}' in resp.data
+    assert 200 == resp.status_code
+
+
+@pytest.mark.parametrize("path", cache_get)
+def test_api_cache(client, path):
+    resp = client.get(path)
+    assert b'"cache":' in resp.data
+    assert b'"message":"Cluster http://localhost:8083 not reachable!"' in resp.data
+    assert 503 == resp.status_code
+
+
 @pytest.mark.parametrize("path", path_get)
 def test_api_get(client, path):
     resp = client.get(path)
@@ -81,4 +98,4 @@ def test_api_post(client, path):
 
 def assertNotReachable(response):
     assert b'{"message":"Cluster http://localhost:8083 not reachable!"}' in response.data
-    assert 400 == response.status_code
+    assert 503 == response.status_code

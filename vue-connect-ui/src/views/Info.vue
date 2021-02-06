@@ -18,6 +18,10 @@
       </thead>
       <tbody>
         <tr>
+          <td>Version</td>
+          <td>{{ data.vc_version }}</td>
+        </tr>
+        <tr>
           <td>Connect worker version</td>
           <td>{{ data.version }}</td>
         </tr>
@@ -30,14 +34,18 @@
           <td>{{ data.kafka_cluster_id }}</td>
         </tr>
         <tr>
-          <td>Connect endpoint</td>
+          <td>Connect API endpoint</td>
           <td>
             <a v-bind:href="data.endpoint">{{ data.endpoint }}</a>
           </td>
         </tr>
         <tr>
-          <td>vue-connect version</td>
-          <td>{{ meta.version }}</td>
+          <td>Build time</td>
+          <td>{{ data.build_time }}</td>
+        </tr>
+        <tr>
+          <td>GIT SHA</td>
+          <td>{{ data.sha }}</td>
         </tr>
       </tbody>
     </table>
@@ -46,7 +54,6 @@
 
 <script>
 import connect from "../common/connect";
-import meta from "../../package.json";
 
 export default {
   data() {
@@ -59,7 +66,6 @@ export default {
 
   // Fetches posts when the component is created.
   created() {
-    this.meta = meta;
     connect
       .getInfo()
       .then((response) => {
@@ -69,6 +75,7 @@ export default {
       .catch((e) => {
         if (e.response) {
           this.errors = e.response.data.message;
+          this.data = e.response.data.cache;
         } else {
           this.errors = { message: e.message };
         }

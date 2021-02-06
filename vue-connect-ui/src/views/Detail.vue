@@ -68,12 +68,9 @@
           <tr>
             <td>State</td>
             <td>
-              <button
-                v-bind:class="task.state"
-                class="button is-rounded is-small"
-              >
-                {{ task.state }}
-              </button>
+              <span v-bind:class="task.state">
+                {{ status.connector.state }}
+              </span>
             </td>
           </tr>
         </tbody>

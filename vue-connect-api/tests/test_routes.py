@@ -6,14 +6,6 @@ from pytest_mock import mocker
 
 timeout = TIMEOUT = 5
 
-
-def test_get_url(monkeypatch):
-    assert routes.get_url() == 'http://localhost:8083'
-
-    monkeypatch.setenv('CONNECT_URL', 'http://connect:8083')
-    assert routes.get_url() == 'http://connect:8083'
-
-
 def test_new(mocker):
     req = req = mock_request(mocker)
 

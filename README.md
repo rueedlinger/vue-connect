@@ -28,14 +28,24 @@ The Docker images are published in Docker Hub.
 
 
 
-## Components
+## Architecture
+### Components
 vue-connect is build with [Vue.js](https://vuejs.org/) and [Python](https://www.python.org/).
 
 - [vue-connect-api](vue-connect-api) - the backend service project. ![Build API](https://github.com/rueedlinger/vue-connect/workflows/Build%20API/badge.svg)
 - [vue-connect-ui](vue-connect-ui) - the ui project. ![Build UI](https://github.com/rueedlinger/vue-connect/workflows/Build%20UI/badge.svg)
 - The UI and API are bundled together in a [Docker](Dockerfile) image with the nginx  web server. ![Build Docker](https://github.com/rueedlinger/vue-connect/workflows/Build%20Docker/badge.svg)
 
-![vue-connect ui](docs/images/architecture.png)
+
+![architecture](docs/images/architecture.png)
+
+### Syncing Cluster State and UI State
+- The *API scheduler* constantly keeps the cache in sync with the cluster state when the Connect API is available. By default every minute the cache is synced with the cluster state.
+- The *UI scheduler* is responsible to keep the client state in sync with the cached cluster state from the backend service (API). 
+- Frontend operations communicate through the backend service directly with Connect API. The cache is only used when Connect API is down.
+
+
+![cache](docs/images/cache.png)
 
 
 ## Run vue-connect
@@ -68,7 +78,14 @@ vue-connect:
   environment:
     CONNECT_URL: "http://connect:8083"
 ```
+## Configuration Options
+The following environment variables can be used to configure *vue-connect*.
 
+| Environment Variable  | Description  | Default Value  |
+|---|---|---|
+| `CONNECT_URL` | The URL of the Connect API. | http://localhost:8083 |
+| `VC_POLLING_INTERVAL_SEC` | The Connect API polling interval in seconds. If the value is smaller than 1 the polling is deactivated.  | 60 seconds  |
+| `VC_REQUEST_TIMEOUT_SEC` | The default request timeout when communicating with the Connect API.  | 5 seconds  |
 
 ## Build from scratch
 - See [vue-connect-ui](vue-connect-ui/README.md) how to build the *Vue.js* frontend.
