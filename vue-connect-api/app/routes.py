@@ -45,7 +45,7 @@ def new():
         cfg = {'name': name, 'config': data}
 
         r = requests.post(connect_url + '/connectors/',
-                            json=cfg, timeout=request_timeout_sec)
+                          json=cfg, timeout=request_timeout_sec)
         status = r.json()
 
         return jsonify(status), r.status_code
@@ -61,7 +61,7 @@ def update(id):
         return jsonify({'message': ERROR_MSG_NO_DATA.format('There is no connector configuration for \'' + id + '\'')}), 400
 
     r = requests.put(connect_url + '/connectors/' +
-                        id + '/config', json=data, timeout=request_timeout_sec)
+                     id + '/config', json=data, timeout=request_timeout_sec)
     status = r.json()
     return jsonify(status), r.status_code
 
@@ -69,42 +69,42 @@ def update(id):
 @app.route('/api/connectors/<id>/restart', strict_slashes=False, methods=['POST'])
 def restart(id):
     requests.post(connect_url + '/connectors/' + id +
-                    '/restart', timeout=request_timeout_sec)
+                  '/restart', timeout=request_timeout_sec)
     return connectors()
 
 
 @app.route('/api/connectors/<id>/delete', strict_slashes=False, methods=['POST'])
 def delete(id):
     requests.delete(connect_url + '/connectors/' + id,
-                        timeout=request_timeout_sec)
+                    timeout=request_timeout_sec)
     return connectors()
 
 
 @app.route('/api/connectors/<id>/pause', strict_slashes=False, methods=['POST'])
 def pause(id):
     requests.put(connect_url + '/connectors/' + id + '/pause',
-                    timeout=request_timeout_sec)
+                 timeout=request_timeout_sec)
     return connectors()
 
 
 @app.route('/api/connectors/<id>/resume', strict_slashes=False, methods=['POST'])
 def resume(id):
     requests.put(connect_url + '/connectors/' + id + '/resume',
-                    timeout=request_timeout_sec)
+                 timeout=request_timeout_sec)
     return connectors()
 
 
 @app.route('/api/connectors/<id>/tasks/<task_id>/restart', strict_slashes=False, methods=['POST'])
 def task_restart(id, task_id):
     requests.post(connect_url + '/connectors/' + id +
-                    '/tasks/' + task_id + '/restart', timeout=request_timeout_sec)
+                  '/tasks/' + task_id + '/restart', timeout=request_timeout_sec)
     return connectors()
 
 
 @app.route('/api/config/<id>', strict_slashes=False)
 def config(id):
     r = requests.get(connect_url + '/connectors/' + id +
-                        '/config', timeout=request_timeout_sec)
+                     '/config', timeout=request_timeout_sec)
     config = r.json()
     return jsonify(config)
 
@@ -182,7 +182,7 @@ def load_state():
 @app.route('/api/status/<id>', strict_slashes=False)
 def status(id):
     r = requests.get(connect_url + '/connectors/' + id +
-                        '/status', timeout=request_timeout_sec)
+                     '/status', timeout=request_timeout_sec)
 
     status = r.json()
     return jsonify(status), r.status_code
@@ -195,7 +195,7 @@ def validate(name):
         return jsonify({'message': ERROR_MSG_NO_DATA.format('connector configuration')}), 400
 
     r = requests.put(connect_url + '/connector-plugins/' +
-                        name + '/config/validate', json=data, timeout=request_timeout_sec)
+                     name + '/config/validate', json=data, timeout=request_timeout_sec)
     config = r.json()
 
     return jsonify(config), r.status_code
@@ -204,7 +204,7 @@ def validate(name):
 @app.route('/api/plugins', strict_slashes=False)
 def plugins():
     r = requests.get(connect_url + '/connector-plugins',
-                        timeout=request_timeout_sec)
+                     timeout=request_timeout_sec)
     plugins = r.json()
 
     for plugin in plugins:
