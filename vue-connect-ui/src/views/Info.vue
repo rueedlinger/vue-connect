@@ -10,7 +10,7 @@
       </button>
     </div>
 
-    <div class="box">
+    <div class="box content">
       <article class="message is-danger" v-if="errors">
         <div class="message-header">
           <p>Error</p>
@@ -19,6 +19,8 @@
           {{ errors }}
         </div>
       </article>
+
+      <h2>Application Info</h2>
 
       <table class="table is-hoverable" v-if="data">
         <thead>
@@ -32,6 +34,27 @@
             <td>Version</td>
             <td>{{ data.vc_version }}</td>
           </tr>
+          <tr>
+            <td>Build time</td>
+            <td>{{ data.build_time }}</td>
+          </tr>
+          <tr>
+            <td>GIT SHA</td>
+            <td>{{ data.sha }}</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <h2>Cluster Info</h2>
+
+      <table class="table is-hoverable" v-if="data">
+        <thead>
+          <tr>
+            <th></th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody>
           <tr>
             <td>Connect worker version</td>
             <td>{{ data.version }}</td>
@@ -49,14 +72,6 @@
             <td>
               <a v-bind:href="data.endpoint">{{ data.endpoint }}</a>
             </td>
-          </tr>
-          <tr>
-            <td>Build time</td>
-            <td>{{ data.build_time }}</td>
-          </tr>
-          <tr>
-            <td>GIT SHA</td>
-            <td>{{ data.sha }}</td>
           </tr>
         </tbody>
       </table>
