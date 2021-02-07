@@ -1,9 +1,10 @@
 <template>
-  <div class="">
+  <div>
     <div class="box">
       <button
         v-on:click="reload()"
-        class="button is-small"
+        v-bind:class="[isLoading != `` ? `is-loading` : ``]"
+        class="button"
       >
         <font-awesome-icon icon="sync-alt"></font-awesome-icon>
       </button>
@@ -16,15 +17,6 @@
         </div>
         <div class="message-body">
           {{ errors }}
-        </div>
-      </article>
-
-      <article class="message is-info" v-if="data.length == 0 && !errors">
-        <div class="message-header">
-          <p>Info</p>
-        </div>
-        <div class="message-body">
-          There are no connectors deployed!
         </div>
       </article>
 
@@ -68,7 +60,7 @@
                   <tr>
                     <td>
                       <a
-                        class="button is-primary is-small"                        
+                        class="button is-primary is-small"
                         v-on:click="detail(item.name)"
                         ><font-awesome-icon
                           icon="info-circle"
@@ -77,7 +69,7 @@
                     </td>
                     <td>
                       <a
-                        class="button is-primary is-small"                        
+                        class="button is-primary is-small"
                         v-on:click="edit(item.name)"
                         ><font-awesome-icon icon="edit"></font-awesome-icon
                       ></a>
@@ -86,6 +78,11 @@
                       <a
                         class="button is-primary is-small"
                         v-on:click="del(item.name)"
+                        v-bind:class="[
+                          isLoading == `delete-${item.name}`
+                            ? `is-loading`
+                            : ``,
+                        ]"
                         ><font-awesome-icon icon="trash-alt"></font-awesome-icon
                       ></a>
                     </td>
@@ -106,7 +103,7 @@
                     </td>
                     <td>
                       <a
-                        class="button is-primary is-small"                       
+                        class="button is-primary is-small"
                         v-on:click="pause(item.name)"
                         v-bind:class="[
                           isLoading == `pause-${item.name}` ? `is-loading` : ``,
@@ -119,7 +116,7 @@
                     </td>
                     <td>
                       <a
-                        class="button is-primary is-small"                       
+                        class="button is-primary is-small"
                         v-on:click="restart(item.name)"
                         v-bind:class="[
                           isLoading == `restart-${item.name}`
@@ -179,7 +176,7 @@
                       </td>
                       <td>
                         <a
-                          class="button is-primary is-small"                       
+                          class="button is-primary is-small"
                           v-on:click="restartTask(item.name, task.id)"
                           v-bind:class="[
                             isLoading == `restart-${item.name}-${task.id}`
@@ -249,10 +246,12 @@ export default {
 
   // Fetches posts when the component is created.
   created() {
+    this.isLoading = "reload";
     connect
       .getAllConnectorStatus()
       .then((response) => {
         this.data = sortedConnectors(response.data);
+        this.isLoading = "";
       })
       .catch((e) => {
         if (e.response) {
@@ -265,6 +264,7 @@ export default {
         } else {
           this.errors = { message: e.message };
         }
+        this.isLoading = "";
       });
 
     this.polling = setInterval(
@@ -274,7 +274,6 @@ export default {
           .then((response) => {
             if (response.data.state != null && response.data.state.length > 0) {
               this.data = sortedConnectors(response.data.state);
-              this.isLoading = "";
               if (response.data.isConnectUp) {
                 // connect is running again
                 this.errors = "";
@@ -293,7 +292,7 @@ export default {
             }
           });
       }.bind(this),
-      5000
+      10000
     );
   },
 
@@ -303,6 +302,8 @@ export default {
 
   methods: {
     reload() {
+      this.isLoading = "reload";
+      this.errors = "";
       connect
         .getAllConnectorStatus()
         .then((response) => {
@@ -321,6 +322,7 @@ export default {
           } else {
             this.errors = { message: e.message };
           }
+          this.isLoading = "";
         });
     },
 
@@ -331,10 +333,13 @@ export default {
       this.$router.push("/edit/" + id);
     },
     del: function(id) {
+      this.isLoading = `delete-${id}`;
+      this.errors = "";
       connect
         .deleteConnector(id)
         .then((resp) => {
           this.data = sortedConnectors(resp.data);
+          this.isLoading = "";
         })
         .catch((e) => {
           if (e.response) {
@@ -342,10 +347,12 @@ export default {
           } else {
             this.errors = { message: e.message };
           }
+          this.isLoading = "";
         });
     },
     restart: function(id) {
       this.isLoading = `restart-${id}`;
+      this.errors = "";
       connect
         .restartConnector(id)
         .then((resp) => {
@@ -363,6 +370,7 @@ export default {
     },
     pause: function(id) {
       this.isLoading = `pause-${id}`;
+      this.errors = "";
       connect
         .pauseConnector(id)
         .then((resp) => {
@@ -380,6 +388,7 @@ export default {
     },
     resume: function(id) {
       this.isLoading = `resume-${id}`;
+      this.errors = "";
       connect
         .resumeConnector(id)
         .then((resp) => {
@@ -397,6 +406,7 @@ export default {
     },
     restartTask: function(id, task_id) {
       this.isLoading = `restart-${id}-${task_id}`;
+      this.errors = "";
       connect
         .restartTask(id, task_id)
         .then((resp) => {
