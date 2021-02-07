@@ -22,7 +22,7 @@
 
       <h2>Application Info</h2>
 
-      <table class="table is-hoverable" v-if="data">
+      <table class="table is-hoverable">
         <thead>
           <tr>
             <th></th>
@@ -32,22 +32,22 @@
         <tbody>
           <tr>
             <td>Version</td>
-            <td>{{ data.vc_version }}</td>
+            <td>{{ app_info.vc_version }}</td>
           </tr>
           <tr>
             <td>Build time</td>
-            <td>{{ data.build_time }}</td>
+            <td>{{ app_info.build_time }}</td>
           </tr>
           <tr>
             <td>GIT SHA</td>
-            <td>{{ data.sha }}</td>
+            <td>{{ app_info.sha }}</td>
           </tr>
         </tbody>
       </table>
 
       <h2>Cluster Info</h2>
 
-      <table class="table is-hoverable" v-if="data">
+      <table class="table is-hoverable">
         <thead>
           <tr>
             <th></th>
@@ -57,20 +57,22 @@
         <tbody>
           <tr>
             <td>Connect worker version</td>
-            <td>{{ data.version }}</td>
+            <td>{{ cluster_info.version }}</td>
           </tr>
           <tr>
             <td>Connect git commit ID</td>
-            <td>{{ data.commit }}</td>
+            <td>{{ cluster_info.commit }}</td>
           </tr>
           <tr>
             <td>Kafka cluster ID</td>
-            <td>{{ data.kafka_cluster_id }}</td>
+            <td>{{ cluster_info.kafka_cluster_id }}</td>
           </tr>
           <tr>
             <td>Connect API endpoint</td>
             <td>
-              <a v-bind:href="data.endpoint">{{ data.endpoint }}</a>
+              <a v-bind:href="cluster_info.endpoint">{{
+                cluster_info.endpoint
+              }}</a>
             </td>
           </tr>
         </tbody>
@@ -85,8 +87,8 @@ import connect from "../common/connect";
 export default {
   data() {
     return {
-      data: [],
-      meta: {},
+      cluster_info: {},
+      app_info: {},
       errors: "",
       isLoading: "",
     };
@@ -94,16 +96,25 @@ export default {
 
   created() {
     this.isLoading = "info";
+
+    connect
+      .getAppInfo()
+      .then((response) => {
+        this.app_info = response.data;
+      })
+      .catch(() => {
+        // ignore
+      });
+
     connect
       .getInfo()
       .then((response) => {
-        this.data = response.data;
+        this.cluster_info = response.data;
         this.isLoading = "";
       })
       .catch((e) => {
         if (e.response) {
           this.errors = e.response.data.message;
-          this.data = e.response.data.cache;
         } else {
           this.errors = { message: e.message };
         }
@@ -117,7 +128,7 @@ export default {
       connect
         .getInfo()
         .then((response) => {
-          this.data = response.data;
+          this.cluster_info = response.data;
           this.isLoading = "";
           this.errors = "";
         })

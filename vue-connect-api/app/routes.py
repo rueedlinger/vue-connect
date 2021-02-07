@@ -217,33 +217,23 @@ def plugins():
     return jsonify(plugins)
 
 
-@app.route('/api/info', strict_slashes=False)
-def info():
-
+@app.route('/api/app/info', strict_slashes=False)
+def app_info():
     app_info = {}
-    app_info['endpoint'] = connect_url
     app_info['vc_version'] = util.get_str_config('VC_VERSION', 'dev')
     app_info['tags'] = util.get_str_config('VC_TAGS', None)
     app_info['sha'] = util.get_str_config('VC_IMAGE_GITHUB_SHA', None)
     app_info['build_time'] = util.get_str_config('VC_IMAGE_BUILD_TIME', None)
 
-    try:
-        r = requests.get(connect_url, timeout=request_timeout_sec)
+    return jsonify(app_info)
 
-        info = r.json()
-        info.update(app_info)
 
-        return jsonify(info)
-    except ConnectionError:
-        return jsonify({
-            'message': ERROR_MSG_CLUSTER_NOT_REACHABLE.format(connect_url),
-            'cache': app_info
-        }), 503
-    except Timeout:
-        return jsonify({
-            'message': ERROR_MSG_CLUSTER_TIMEOUT.format(connect_url),
-            'cache': app_info
-        }), 504
+@app.route('/api/info', strict_slashes=False)
+def info():
+    r = requests.get(connect_url, timeout=request_timeout_sec)
+    info = r.json()
+    info['endpoint'] = connect_url
+    return jsonify(info)
 
 
 @app.errorhandler(Timeout)
