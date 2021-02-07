@@ -264,6 +264,7 @@ export default {
         } else {
           this.errors = { message: e.message };
         }
+        this.isLoading = "";
       });
 
     this.polling = setInterval(
@@ -272,7 +273,7 @@ export default {
           .pollConnectorStatus()
           .then((response) => {
             if (response.data.state != null && response.data.state.length > 0) {
-              this.data = sortedConnectors(response.data.state);              
+              this.data = sortedConnectors(response.data.state);
               if (response.data.isConnectUp) {
                 // connect is running again
                 this.errors = "";

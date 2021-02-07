@@ -101,7 +101,7 @@ export default {
       this.errors = "";
       connect
         .getInfo()
-        .then((response) => {         
+        .then((response) => {
           this.data = response.data;
           this.isLoading = "";
           this.errors = "";
