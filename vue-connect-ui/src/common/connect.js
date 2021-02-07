@@ -1,6 +1,9 @@
 import axios from "axios";
 
 const connect = {
+  getAppInfo: () => {
+    return axiosGet("/app/info");
+  },
   getInfo: () => {
     return axiosGet("/info");
   },
