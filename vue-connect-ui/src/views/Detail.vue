@@ -99,6 +99,24 @@ import errorHandler from "../common/error";
 import axios from "axios";
 import ErrorMessage from "../components/ErrorMessage.vue";
 
+function loadData() {
+  this.isLoading = "detail";
+  axios
+    .all([
+      connect.getConnectorStatus(this.$route.params.id),
+      connect.getConnectorConfig(this.$route.params.id),
+    ])
+    .then((respAll) => {
+      this.status = respAll[0].data;
+      this.config = respAll[1].data;
+      this.isLoading = "";
+    })
+    .catch((e) => {
+      this.errors = errorHandler.transform(e);
+      this.isLoading = "";
+    });
+}
+
 export default {
   components: { ErrorMessage },
   data() {
@@ -111,42 +129,12 @@ export default {
     };
   },
 
-  // Fetches posts when the component is created.
   created() {
-    this.isLoading = "detail";
-    axios
-      .all([
-        connect.getConnectorStatus(this.$route.params.id),
-        connect.getConnectorConfig(this.$route.params.id),
-      ])
-      .then((respAll) => {
-        this.status = respAll[0].data;
-        this.config = respAll[1].data;
-        this.isLoading = "";
-      })
-      .catch((e) => {
-        this.errors = errorHandler.transform(e);
-        this.isLoading = "";
-      });
+    loadData.bind(this)();
   },
   methods: {
     reload: function() {
-      this.isLoading = "detail";
-      this.errors = null;
-      axios
-        .all([
-          connect.getConnectorStatus(this.$route.params.id),
-          connect.getConnectorConfig(this.$route.params.id),
-        ])
-        .then((respAll) => {
-          this.status = respAll[0].data;
-          this.config = respAll[1].data;
-          this.isLoading = "";
-        })
-        .catch((e) => {
-          this.errors = errorHandler.transform(e);
-          this.isLoading = "";
-        });
+      loadData.bind(this)();
     },
   },
 };

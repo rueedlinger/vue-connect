@@ -51,6 +51,25 @@ import errorHandler from "../common/error";
 import axios from "axios";
 import ErrorMessage from "../components/ErrorMessage.vue";
 
+function loadData() {
+  this.isLoading = "edit";
+  axios
+    .all([
+      connect.getConnectorStatus(this.$route.params.id),
+      connect.getConnectorConfig(this.$route.params.id),
+    ])
+    .then((respAll) => {
+      this.status = respAll[0].data;
+      this.config = respAll[1].data;
+      this.jsonConfig = JSON.stringify(respAll[1].data, null, 2);
+      this.isLoading = "";
+    })
+    .catch((e) => {
+      this.errors = errorHandler.transform(e);
+      this.isLoading = "";
+    });
+}
+
 export default {
   components: { ErrorMessage },
   data() {
@@ -65,22 +84,7 @@ export default {
 
   // Fetches posts when the component is created.
   created() {
-    this.isLoading = "edit";
-    axios
-      .all([
-        connect.getConnectorStatus(this.$route.params.id),
-        connect.getConnectorConfig(this.$route.params.id),
-      ])
-      .then((respAll) => {
-        this.status = respAll[0].data;
-        this.config = respAll[1].data;
-        this.jsonConfig = JSON.stringify(respAll[1].data, null, 2);
-        this.isLoading = "";
-      })
-      .catch((e) => {
-        this.errors = errorHandler.transform(e);
-        this.isLoading = "";
-      });
+    loadData.bind(this)();
   },
 
   methods: {
@@ -100,23 +104,7 @@ export default {
       }
     },
     reload: function() {
-      this.isLoading = "edit";
-      this.errors = null;
-      axios
-        .all([
-          connect.getConnectorStatus(this.$route.params.id),
-          connect.getConnectorConfig(this.$route.params.id),
-        ])
-        .then((respAll) => {
-          this.status = respAll[0].data;
-          this.config = respAll[1].data;
-          this.jsonConfig = JSON.stringify(respAll[1].data, null, 2);
-          this.isLoading = "";
-        })
-        .catch((e) => {
-          this.errors = errorHandler.transform(e);
-          this.isLoading = "";
-        });
+      loadData.bind(this)();
     },
   },
 };

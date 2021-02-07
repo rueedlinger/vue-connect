@@ -79,6 +79,30 @@ import connect from "../common/connect";
 import errorHandler from "../common/error";
 import ErrorMessage from "../components/ErrorMessage";
 
+function loadData() {
+  this.isLoading = "info";
+
+  connect
+    .getAppInfo()
+    .then((response) => {
+      this.app_info = response.data;
+    })
+    .catch(() => {
+      // ignore
+    });
+
+  connect
+    .getInfo()
+    .then((response) => {
+      this.cluster_info = response.data;
+      this.isLoading = "";
+    })
+    .catch((e) => {
+      this.errors = errorHandler.transform(e);
+      this.isLoading = "";
+    });
+}
+
 export default {
   components: { ErrorMessage },
   data() {
@@ -91,43 +115,11 @@ export default {
   },
 
   created() {
-    this.isLoading = "info";
-
-    connect
-      .getAppInfo()
-      .then((response) => {
-        this.app_info = response.data;
-      })
-      .catch(() => {
-        // ignore
-      });
-
-    connect
-      .getInfo()
-      .then((response) => {
-        this.cluster_info = response.data;
-        this.isLoading = "";
-      })
-      .catch((e) => {
-        this.errors = errorHandler.transform(e);
-        this.isLoading = "";
-      });
+    loadData.bind(this)();
   },
   methods: {
     reload: function() {
-      this.isLoading = "plugins";
-      this.errors = null;
-      connect
-        .getInfo()
-        .then((response) => {
-          this.cluster_info = response.data;
-          this.isLoading = "";
-          this.errors = "";
-        })
-        .catch((e) => {
-          this.errors = errorHandler.transform(e);
-          this.isLoading = "";
-        });
+      loadData.bind(this)();
     },
   },
 };

@@ -49,6 +49,21 @@ import connect from "../common/connect";
 import errorHandler from "../common/error";
 import ErrorMessage from "../components/ErrorMessage.vue";
 
+function loadData() {
+  this.isLoading = "plugins";
+  connect
+    .getPlugins()
+    .then((response) => {
+      // JSON responses are automatically parsed.
+      this.data = response.data;
+      this.isLoading = "";
+    })
+    .catch((e) => {
+      this.errors = errorHandler.transform(e);
+      this.isLoading = "";
+    });
+}
+
 export default {
   components: { ErrorMessage },
   data() {
@@ -59,20 +74,8 @@ export default {
     };
   },
 
-  // Fetches posts when the component is created.
   created() {
-    this.isLoading = "plugins";
-    connect
-      .getPlugins()
-      .then((response) => {
-        // JSON responses are automatically parsed.
-        this.data = response.data;
-        this.isLoading = "";
-      })
-      .catch((e) => {
-        this.errors = errorHandler.transform(e);
-        this.isLoading = "";
-      });
+    loadData.bind(this)();
   },
 
   methods: {
@@ -80,20 +83,7 @@ export default {
       this.$router.push("/new/" + pluginClass + "/" + pluginType);
     },
     reload: function() {
-      this.isLoading = "plugins";
-      this.errors = null;
-      connect
-        .getPlugins()
-        .then((response) => {
-          // JSON responses are automatically parsed.
-          this.data = response.data;
-          this.isLoading = "";
-          this.errors = null;
-        })
-        .catch((e) => {
-          this.errors = errorHandler.transform(e);
-          this.isLoading = "";
-        });
+      loadData.bind(this)();
     },
   },
 };
