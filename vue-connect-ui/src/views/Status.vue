@@ -103,11 +103,7 @@
                     </td>
                     <td>
                       <a
-<<<<<<< HEAD
                         class="button is-primary is-small"
-=======
-                        class="button is-primary is-small"                       
->>>>>>> master
                         v-on:click="pause(item.name)"
                         v-bind:class="[
                           isLoading == `pause-${item.name}` ? `is-loading` : ``,
