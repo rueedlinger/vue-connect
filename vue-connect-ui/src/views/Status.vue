@@ -333,7 +333,7 @@ export default {
       runConnectOperation.bind(this)(connect.pauseConnector, "pause", id);
     },
     resume: function(id) {
-      runConnectOperation.bind(this)(connect.resumeConnector, "pause", id);
+      runConnectOperation.bind(this)(connect.resumeConnector, "resume", id);
     },
     restartTask: function(id, task_id) {
       runConnectOperation.bind(this)(
