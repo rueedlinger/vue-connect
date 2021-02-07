@@ -7,7 +7,7 @@
         <li>Type: {{ $route.params.type }}</li>
       </ul>
 
-      <error-message :message="errors"></error-message>
+      <error-message :error="errors"></error-message>
 
       <div class="field">
         <label class="label">Configuration</label>
@@ -56,6 +56,7 @@
 
 <script>
 import connect from "../common/connect";
+import errorHandler from "../common/error";
 import ErrorMessage from "../components/ErrorMessage.vue";
 
 export default {
@@ -65,7 +66,7 @@ export default {
       connectorName: "",
       configParams: [],
       jsonConfig: "",
-      errors: "",
+      errors: null,
     };
   },
 
@@ -112,11 +113,7 @@ export default {
         this.jsonConfig = JSON.stringify(data, null, 2);
       })
       .catch((e) => {
-        if (e.response) {
-          this.errors = e.response.data.message;
-        } else {
-          this.errors = { message: e.message };
-        }
+        this.errors = errorHandler.transform(e);
       });
   },
 
@@ -130,14 +127,10 @@ export default {
             this.$router.push("/");
           })
           .catch((e) => {
-            if (e.response) {
-              this.errors = e.response.data.message;
-            } else {
-              this.errors = { message: e.message };
-            }
+            this.errors = errorHandler.transform(e);
           });
       } catch (error) {
-        this.errors = error;
+        this.errors = errorHandler.transform(error);
       }
     },
   },

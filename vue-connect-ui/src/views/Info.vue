@@ -11,7 +11,7 @@
     </div>
 
     <div class="box content">
-      <error-message :message="errors"></error-message>
+      <error-message :error="errors"></error-message>
 
       <h2>Application Info</h2>
 
@@ -76,6 +76,7 @@
 
 <script>
 import connect from "../common/connect";
+import errorHandler from "../common/error";
 import ErrorMessage from "../components/ErrorMessage";
 
 export default {
@@ -84,7 +85,7 @@ export default {
     return {
       cluster_info: {},
       app_info: {},
-      errors: "",
+      errors: null,
       isLoading: "",
     };
   },
@@ -108,18 +109,14 @@ export default {
         this.isLoading = "";
       })
       .catch((e) => {
-        if (e.response) {
-          this.errors = e.response.data.message;
-        } else {
-          this.errors = { message: e.message };
-        }
+        this.errors = errorHandler.transform(e);
         this.isLoading = "";
       });
   },
   methods: {
     reload: function() {
       this.isLoading = "plugins";
-      this.errors = "";
+      this.errors = null;
       connect
         .getInfo()
         .then((response) => {
@@ -128,11 +125,7 @@ export default {
           this.errors = "";
         })
         .catch((e) => {
-          if (e.response) {
-            this.errors = e.response.data.message;
-          } else {
-            this.errors = { message: e.message };
-          }
+          this.errors = errorHandler.transform(e);
           this.isLoading = "";
         });
     },

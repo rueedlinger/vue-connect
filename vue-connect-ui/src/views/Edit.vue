@@ -11,7 +11,7 @@
     </div>
 
     <div class="box content">
-      <error-message :message="errors"></error-message>
+      <error-message :error="errors"></error-message>
 
       <div v-if="config.name">
         <h2>Conector {{ status.name }}</h2>
@@ -47,6 +47,7 @@
 
 <script>
 import connect from "../common/connect";
+import errorHandler from "../common/error";
 import axios from "axios";
 import ErrorMessage from "../components/ErrorMessage.vue";
 
@@ -57,7 +58,7 @@ export default {
       status: [],
       config: [],
       jsonConfig: "",
-      errors: "",
+      errors: null,
       isLoading: "",
     };
   },
@@ -77,11 +78,7 @@ export default {
         this.isLoading = "";
       })
       .catch((e) => {
-        if (e.response) {
-          this.errors = e.response.data.message;
-        } else {
-          this.errors = { message: e.message };
-        }
+        this.errors = errorHandler.transform(e);
         this.isLoading = "";
       });
   },
@@ -96,11 +93,7 @@ export default {
             this.$router.push("/");
           })
           .catch((e) => {
-            if (e.response) {
-              this.errors = e.response.data.message;
-            } else {
-              this.errors = { message: e.message };
-            }
+            this.errors = errorHandler.transform(e);
           });
       } catch (e) {
         this.errors = e;
@@ -108,7 +101,7 @@ export default {
     },
     reload: function() {
       this.isLoading = "edit";
-      this.errors = "";
+      this.errors = null;
       axios
         .all([
           connect.getConnectorStatus(this.$route.params.id),
@@ -121,11 +114,7 @@ export default {
           this.isLoading = "";
         })
         .catch((e) => {
-          if (e.response) {
-            this.errors = e.response.data.message;
-          } else {
-            this.errors = { message: e.message };
-          }
+          this.errors = errorHandler.transform(e);
           this.isLoading = "";
         });
     },

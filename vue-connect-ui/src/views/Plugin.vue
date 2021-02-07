@@ -11,7 +11,7 @@
     </div>
 
     <div class="box">
-      <error-message :message="errors"></error-message>
+      <error-message :error="errors"></error-message>
 
       <table v-if="data.length > 0" class="table is-hoverable">
         <thead>
@@ -46,6 +46,7 @@
 </template>
 <script>
 import connect from "../common/connect";
+import errorHandler from "../common/error";
 import ErrorMessage from "../components/ErrorMessage.vue";
 
 export default {
@@ -53,7 +54,7 @@ export default {
   data() {
     return {
       data: [],
-      errors: "",
+      errors: null,
       isLoading: "",
     };
   },
@@ -69,11 +70,7 @@ export default {
         this.isLoading = "";
       })
       .catch((e) => {
-        if (e.response) {
-          this.errors = e.response.data.message;
-        } else {
-          this.errors = { message: e.message };
-        }
+        this.errors = errorHandler.transform(e);
         this.isLoading = "";
       });
   },
@@ -84,21 +81,17 @@ export default {
     },
     reload: function() {
       this.isLoading = "plugins";
-      this.errors = "";
+      this.errors = null;
       connect
         .getPlugins()
         .then((response) => {
           // JSON responses are automatically parsed.
           this.data = response.data;
           this.isLoading = "";
-          this.errors = "";
+          this.errors = null;
         })
         .catch((e) => {
-          if (e.response) {
-            this.errors = e.response.data.message;
-          } else {
-            this.errors = { message: e.message };
-          }
+          this.errors = errorHandler.transform(e);
           this.isLoading = "";
         });
     },

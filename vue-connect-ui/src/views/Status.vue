@@ -11,7 +11,7 @@
     </div>
 
     <div class="box">
-      <error-message :message="errors"></error-message>
+      <error-message :error="errors"></error-message>
 
       <div class="table-container is-size-7">
         <table v-if="data.length > 0" class="table is-hoverable ">
@@ -193,6 +193,7 @@
 
 <script>
 import connect from "../common/connect";
+import errorHandler from "../common/error";
 import ErrorMessage from "../components/ErrorMessage.vue";
 
 /**
@@ -233,7 +234,7 @@ export default {
   data() {
     return {
       data: [],
-      errors: "",
+      errors: null,
       polling: null,
       isLoading: "",
     };
@@ -249,16 +250,11 @@ export default {
         this.isLoading = "";
       })
       .catch((e) => {
-        if (e.response) {
-          if (e.response.data.cache) {
-            this.data = sortedConnectors(e.response.data.cache);
-          }
-          if (e.response.data.message) {
-            this.errors = e.response.data.message;
-          }
-        } else {
-          this.errors = { message: e.message };
+        // check if there is cached state in error response
+        if (e.response && e.response.data.cache) {
+          this.data = sortedConnectors(e.response.data.cache);
         }
+        this.errors = errorHandler.transform(e);
         this.isLoading = "";
       });
 
@@ -271,20 +267,16 @@ export default {
               this.data = sortedConnectors(response.data.state);
               if (response.data.isConnectUp) {
                 // connect is running again
-                this.errors = "";
+                this.errors = null;
               }
               if (!response.data.isConnectUp && this.errors == "") {
                 // set error from cache
-                this.errors = response.data.message;
+                this.errors = { message: response.data.message };
               }
             }
           })
           .catch((e) => {
-            if (e.response) {
-              this.errors = e.response.data.message;
-            } else {
-              this.errors = { message: e.message };
-            }
+            this.errors = errorHandler.transform(e);
           });
       }.bind(this),
       10000
@@ -298,25 +290,20 @@ export default {
   methods: {
     reload() {
       this.isLoading = "reload";
-      this.errors = "";
+      this.errors = null;
       connect
         .getAllConnectorStatus()
         .then((response) => {
           this.data = sortedConnectors(response.data);
-          this.errors = "";
+          this.errors = null;
           this.isLoading = "";
         })
         .catch((e) => {
-          if (e.response) {
-            if (e.response.data.cache) {
-              this.data = sortedConnectors(e.response.data.cache);
-            }
-            if (e.response.data.message) {
-              this.errors = e.response.data.message;
-            }
-          } else {
-            this.errors = { message: e.message };
+          // check if there is cached state in error response
+          if (e.response && e.response.data.cache) {
+            this.data = sortedConnectors(e.response.data.cache);
           }
+          this.errors = errorHandler.transform(e);
           this.isLoading = "";
         });
     },
@@ -329,7 +316,7 @@ export default {
     },
     del: function(id) {
       this.isLoading = `delete-${id}`;
-      this.errors = "";
+      this.errors = null;
       connect
         .deleteConnector(id)
         .then((resp) => {
@@ -337,17 +324,13 @@ export default {
           this.isLoading = "";
         })
         .catch((e) => {
-          if (e.response) {
-            this.errors = e.response.data.message;
-          } else {
-            this.errors = { message: e.message };
-          }
+          this.errors = errorHandler.transform(e);
           this.isLoading = "";
         });
     },
     restart: function(id) {
       this.isLoading = `restart-${id}`;
-      this.errors = "";
+      this.errors = null;
       connect
         .restartConnector(id)
         .then((resp) => {
@@ -355,17 +338,13 @@ export default {
           this.isLoading = "";
         })
         .catch((e) => {
-          if (e.response) {
-            this.errors = e.response.data.message;
-          } else {
-            this.errors = { message: e.message };
-          }
+          this.errors = errorHandler.transform(e);
           this.isLoading = "";
         });
     },
     pause: function(id) {
       this.isLoading = `pause-${id}`;
-      this.errors = "";
+      this.errors = null;
       connect
         .pauseConnector(id)
         .then((resp) => {
@@ -373,17 +352,13 @@ export default {
           this.isLoading = "";
         })
         .catch((e) => {
-          if (e.response) {
-            this.errors = e.response.data.message;
-          } else {
-            this.errors = { message: e.message };
-          }
+          this.errors = errorHandler.transform(e);
           this.isLoading = "";
         });
     },
     resume: function(id) {
       this.isLoading = `resume-${id}`;
-      this.errors = "";
+      this.errors = null;
       connect
         .resumeConnector(id)
         .then((resp) => {
@@ -391,17 +366,13 @@ export default {
           this.isLoading = "";
         })
         .catch((e) => {
-          if (e.response) {
-            this.errors = e.response.data.message;
-          } else {
-            this.errors = { message: e.message };
-          }
+          this.errors = errorHandler.transform(e);
           this.isLoading = "";
         });
     },
     restartTask: function(id, task_id) {
       this.isLoading = `restart-${id}-${task_id}`;
-      this.errors = "";
+      this.errors = null;
       connect
         .restartTask(id, task_id)
         .then((resp) => {
@@ -409,11 +380,7 @@ export default {
           this.isLoading = "";
         })
         .catch((e) => {
-          if (e.response) {
-            this.errors = e.response.data.message;
-          } else {
-            this.errors = { message: e.message };
-          }
+          this.errors = errorHandler.transform(e);
           this.isLoading = "";
         });
     },

@@ -1,22 +1,20 @@
 <template>
-  <article class="message is-danger" v-if="message">
+  <article class="message is-danger" v-if="error">
     <div class="message-header">
-      <p v-if="title">{{ title }}</p>
+      <p v-if="error.title">{{ error.title }}</p>
       <p v-else>Error</p>
     </div>
     <div class="message-body">
-      {{ message }}
+      {{ error.message }}
     </div>
   </article>
 </template>
 
 <script>
 export default {
-  props: ["message", "title"],
+  props: ["error"],
   data() {
-    return {
-      isDisplayed: true,
-    };
+    return {};
   },
 };
 </script>
