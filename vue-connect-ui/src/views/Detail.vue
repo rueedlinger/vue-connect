@@ -1,13 +1,26 @@
 <template>
-  <div class="box content">
-    <article class="message is-danger" v-if="errors">
-      <div class="message-header">
-        <p>Error</p>
-      </div>
-      <div class="message-body">
-        {{ errors }}
-      </div>
-    </article>
+  <div>
+    <div class="box>">
+      <button
+        v-on:click="reload()"
+        v-bind:class="[isLoading != `` ? `is-loading` : ``]"
+        class="button"
+      >
+        <font-awesome-icon icon="sync-alt"></font-awesome-icon>
+      </button>
+    </div>
+
+  
+ <div class="box">
+      <article class="message is-danger" v-if="errors">
+        <div class="message-header">
+          <p>Error</p>
+        </div>
+        <div class="message-body">
+          {{ errors }}
+        </div>
+      </article>
+    </div>
 
     <div class="box" v-if="status.connector">
       <h2>Connector {{ status.name }}</h2>
@@ -85,6 +98,7 @@
         </div>
       </article>
     </div>
+    
   </div>
 </template>
 
@@ -99,6 +113,7 @@ export default {
       config: [],
       topics: [],
       errors: "",
+      isLoading: ""
     };
   },
 

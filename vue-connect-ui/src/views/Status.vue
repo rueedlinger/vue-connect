@@ -1,5 +1,5 @@
 <template>
-  <div class="">
+  <div>
     <div class="box">
       <button
         v-on:click="reload()"
