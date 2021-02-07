@@ -60,7 +60,11 @@
                   <tr>
                     <td>
                       <a
+<<<<<<< HEAD
                         class="button is-primary is-small"
+=======
+                        class="button is-primary is-small"                        
+>>>>>>> master
                         v-on:click="detail(item.name)"
                         ><font-awesome-icon
                           icon="info-circle"
@@ -69,7 +73,11 @@
                     </td>
                     <td>
                       <a
+<<<<<<< HEAD
                         class="button is-primary is-small"
+=======
+                        class="button is-primary is-small"                        
+>>>>>>> master
                         v-on:click="edit(item.name)"
                         ><font-awesome-icon icon="edit"></font-awesome-icon
                       ></a>
@@ -103,7 +111,11 @@
                     </td>
                     <td>
                       <a
+<<<<<<< HEAD
                         class="button is-primary is-small"
+=======
+                        class="button is-primary is-small"                       
+>>>>>>> master
                         v-on:click="pause(item.name)"
                         v-bind:class="[
                           isLoading == `pause-${item.name}` ? `is-loading` : ``,
@@ -116,7 +128,11 @@
                     </td>
                     <td>
                       <a
+<<<<<<< HEAD
                         class="button is-primary is-small"
+=======
+                        class="button is-primary is-small"                       
+>>>>>>> master
                         v-on:click="restart(item.name)"
                         v-bind:class="[
                           isLoading == `restart-${item.name}`
@@ -176,7 +192,11 @@
                       </td>
                       <td>
                         <a
+<<<<<<< HEAD
                           class="button is-primary is-small"
+=======
+                          class="button is-primary is-small"                       
+>>>>>>> master
                           v-on:click="restartTask(item.name, task.id)"
                           v-bind:class="[
                             isLoading == `restart-${item.name}-${task.id}`
