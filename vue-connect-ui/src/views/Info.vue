@@ -11,14 +11,7 @@
     </div>
 
     <div class="box content">
-      <article class="message is-danger" v-if="errors">
-        <div class="message-header">
-          <p>Error</p>
-        </div>
-        <div class="message-body">
-          {{ errors }}
-        </div>
-      </article>
+      <error-message :message="errors"></error-message>
 
       <h2>Application Info</h2>
 
@@ -83,8 +76,10 @@
 
 <script>
 import connect from "../common/connect";
+import ErrorMessage from "../components/ErrorMessage";
 
 export default {
+  components: { ErrorMessage },
   data() {
     return {
       cluster_info: {},

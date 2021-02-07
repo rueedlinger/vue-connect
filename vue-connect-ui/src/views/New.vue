@@ -7,14 +7,7 @@
         <li>Type: {{ $route.params.type }}</li>
       </ul>
 
-      <article class="message is-danger" v-if="errors">
-        <div class="message-header">
-          <p>Error</p>
-        </div>
-        <div class="message-body">
-          {{ errors }}
-        </div>
-      </article>
+      <error-message :message="errors"></error-message>
 
       <div class="field">
         <label class="label">Configuration</label>
@@ -63,8 +56,10 @@
 
 <script>
 import connect from "../common/connect";
+import ErrorMessage from "../components/ErrorMessage.vue";
 
 export default {
+  components: { ErrorMessage },
   data() {
     return {
       connectorName: "",

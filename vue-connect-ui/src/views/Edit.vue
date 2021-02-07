@@ -11,14 +11,7 @@
     </div>
 
     <div class="box content">
-      <article class="message is-danger" v-if="errors">
-        <div class="message-header">
-          <p>Error</p>
-        </div>
-        <div class="message-body">
-          {{ errors }}
-        </div>
-      </article>
+      <error-message :message="errors"></error-message>
 
       <div v-if="config.name">
         <h2>Conector {{ status.name }}</h2>
@@ -55,8 +48,10 @@
 <script>
 import connect from "../common/connect";
 import axios from "axios";
+import ErrorMessage from "../components/ErrorMessage.vue";
 
 export default {
+  components: { ErrorMessage },
   data() {
     return {
       status: [],

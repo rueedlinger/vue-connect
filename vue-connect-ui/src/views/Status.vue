@@ -11,14 +11,7 @@
     </div>
 
     <div class="box">
-      <article class="message is-danger" v-if="errors">
-        <div class="message-header">
-          <p>Error</p>
-        </div>
-        <div class="message-body">
-          {{ errors }}
-        </div>
-      </article>
+      <error-message :message="errors"></error-message>
 
       <div class="table-container is-size-7">
         <table v-if="data.length > 0" class="table is-hoverable ">
@@ -200,6 +193,7 @@
 
 <script>
 import connect from "../common/connect";
+import ErrorMessage from "../components/ErrorMessage.vue";
 
 /**
  * return sorted connector list
@@ -235,6 +229,7 @@ function sortedConnectors(connectors) {
 }
 
 export default {
+  components: { ErrorMessage },
   data() {
     return {
       data: [],
