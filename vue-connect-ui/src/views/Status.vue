@@ -11,14 +11,7 @@
     </div>
 
     <div class="box">
-      <article class="message is-danger" v-if="errors">
-        <div class="message-header">
-          <p>Error</p>
-        </div>
-        <div class="message-body">
-          {{ errors }}
-        </div>
-      </article>
+      <error-message :error="errors"></error-message>
 
       <div class="table-container is-size-7">
         <table v-if="data.length > 0" class="table is-hoverable ">
@@ -200,6 +193,8 @@
 
 <script>
 import connect from "../common/connect";
+import errorHandler from "../common/error";
+import ErrorMessage from "../components/ErrorMessage.vue";
 
 /**
  * return sorted connector list
@@ -234,11 +229,51 @@ function sortedConnectors(connectors) {
   return [...failedCollection, ...runningCollection, ...pausedCollection];
 }
 
+function loadData() {
+  this.isLoading = `status`;
+  this.errors = null;
+
+  connect
+    .getAllConnectorStatus()
+    .then((response) => {
+      this.data = sortedConnectors(response.data);
+      this.isLoading = "";
+    })
+    .catch((e) => {
+      // check if there is cached state in error response
+      if (e.response && e.response.data.cache) {
+        this.data = sortedConnectors(e.response.data.cache);
+      }
+      this.errors = errorHandler.transform(e);
+      this.isLoading = "";
+    });
+}
+
+function runConnectOperation(operation, operationName, connectorId, taskId) {
+  if (taskId != null) {
+    this.isLoading = `${operationName}-${connectorId}-${taskId}`;
+  } else {
+    this.isLoading = `${operationName}-${connectorId}`;
+  }
+
+  this.errors = null;
+  operation(connectorId, taskId)
+    .then((resp) => {
+      this.data = sortedConnectors(resp.data);
+      this.isLoading = "";
+    })
+    .catch((e) => {
+      this.errors = errorHandler.transform(e);
+      this.isLoading = "";
+    });
+}
+
 export default {
+  components: { ErrorMessage },
   data() {
     return {
       data: [],
-      errors: "",
+      errors: null,
       polling: null,
       isLoading: "",
     };
@@ -246,26 +281,7 @@ export default {
 
   // Fetches posts when the component is created.
   created() {
-    this.isLoading = "reload";
-    connect
-      .getAllConnectorStatus()
-      .then((response) => {
-        this.data = sortedConnectors(response.data);
-        this.isLoading = "";
-      })
-      .catch((e) => {
-        if (e.response) {
-          if (e.response.data.cache) {
-            this.data = sortedConnectors(e.response.data.cache);
-          }
-          if (e.response.data.message) {
-            this.errors = e.response.data.message;
-          }
-        } else {
-          this.errors = { message: e.message };
-        }
-        this.isLoading = "";
-      });
+    loadData.bind(this)();
 
     this.polling = setInterval(
       function() {
@@ -276,20 +292,16 @@ export default {
               this.data = sortedConnectors(response.data.state);
               if (response.data.isConnectUp) {
                 // connect is running again
-                this.errors = "";
+                this.errors = null;
               }
-              if (!response.data.isConnectUp && this.errors == "") {
+              if (!response.data.isConnectUp && this.errors == null) {
                 // set error from cache
-                this.errors = response.data.message;
+                this.errors = { message: response.data.message };
               }
             }
           })
           .catch((e) => {
-            if (e.response) {
-              this.errors = e.response.data.message;
-            } else {
-              this.errors = { message: e.message };
-            }
+            this.errors = errorHandler.transform(e);
           });
       }.bind(this),
       10000
@@ -302,28 +314,7 @@ export default {
 
   methods: {
     reload() {
-      this.isLoading = "reload";
-      this.errors = "";
-      connect
-        .getAllConnectorStatus()
-        .then((response) => {
-          this.data = sortedConnectors(response.data);
-          this.errors = "";
-          this.isLoading = "";
-        })
-        .catch((e) => {
-          if (e.response) {
-            if (e.response.data.cache) {
-              this.data = sortedConnectors(e.response.data.cache);
-            }
-            if (e.response.data.message) {
-              this.errors = e.response.data.message;
-            }
-          } else {
-            this.errors = { message: e.message };
-          }
-          this.isLoading = "";
-        });
+      loadData.bind(this)();
     },
 
     detail: function(id) {
@@ -333,94 +324,24 @@ export default {
       this.$router.push("/edit/" + id);
     },
     del: function(id) {
-      this.isLoading = `delete-${id}`;
-      this.errors = "";
-      connect
-        .deleteConnector(id)
-        .then((resp) => {
-          this.data = sortedConnectors(resp.data);
-          this.isLoading = "";
-        })
-        .catch((e) => {
-          if (e.response) {
-            this.errors = e.response.data.message;
-          } else {
-            this.errors = { message: e.message };
-          }
-          this.isLoading = "";
-        });
+      runConnectOperation.bind(this)(connect.deleteConnector, "delete", id);
     },
     restart: function(id) {
-      this.isLoading = `restart-${id}`;
-      this.errors = "";
-      connect
-        .restartConnector(id)
-        .then((resp) => {
-          this.data = sortedConnectors(resp.data);
-          this.isLoading = "";
-        })
-        .catch((e) => {
-          if (e.response) {
-            this.errors = e.response.data.message;
-          } else {
-            this.errors = { message: e.message };
-          }
-          this.isLoading = "";
-        });
+      runConnectOperation.bind(this)(connect.restartConnector, "restart", id);
     },
     pause: function(id) {
-      this.isLoading = `pause-${id}`;
-      this.errors = "";
-      connect
-        .pauseConnector(id)
-        .then((resp) => {
-          this.data = sortedConnectors(resp.data);
-          this.isLoading = "";
-        })
-        .catch((e) => {
-          if (e.response) {
-            this.errors = e.response.data.message;
-          } else {
-            this.errors = { message: e.message };
-          }
-          this.isLoading = "";
-        });
+      runConnectOperation.bind(this)(connect.pauseConnector, "pause", id);
     },
     resume: function(id) {
-      this.isLoading = `resume-${id}`;
-      this.errors = "";
-      connect
-        .resumeConnector(id)
-        .then((resp) => {
-          this.data = sortedConnectors(resp.data);
-          this.isLoading = "";
-        })
-        .catch((e) => {
-          if (e.response) {
-            this.errors = e.response.data.message;
-          } else {
-            this.errors = { message: e.message };
-          }
-          this.isLoading = "";
-        });
+      runConnectOperation.bind(this)(connect.resumeConnector, "pause", id);
     },
     restartTask: function(id, task_id) {
-      this.isLoading = `restart-${id}-${task_id}`;
-      this.errors = "";
-      connect
-        .restartTask(id, task_id)
-        .then((resp) => {
-          this.data = sortedConnectors(resp.data);
-          this.isLoading = "";
-        })
-        .catch((e) => {
-          if (e.response) {
-            this.errors = e.response.data.message;
-          } else {
-            this.errors = { message: e.message };
-          }
-          this.isLoading = "";
-        });
+      runConnectOperation.bind(this)(
+        connect.restartTask,
+        "restart",
+        id,
+        task_id
+      );
     },
   },
 };

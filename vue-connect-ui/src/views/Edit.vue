@@ -11,14 +11,7 @@
     </div>
 
     <div class="box content">
-      <article class="message is-danger" v-if="errors">
-        <div class="message-header">
-          <p>Error</p>
-        </div>
-        <div class="message-body">
-          {{ errors }}
-        </div>
-      </article>
+      <error-message :error="errors"></error-message>
 
       <div v-if="config.name">
         <h2>Conector {{ status.name }}</h2>
@@ -54,41 +47,44 @@
 
 <script>
 import connect from "../common/connect";
+import errorHandler from "../common/error";
 import axios from "axios";
+import ErrorMessage from "../components/ErrorMessage.vue";
+
+function loadData() {
+  this.isLoading = "edit";
+  axios
+    .all([
+      connect.getConnectorStatus(this.$route.params.id),
+      connect.getConnectorConfig(this.$route.params.id),
+    ])
+    .then((respAll) => {
+      this.status = respAll[0].data;
+      this.config = respAll[1].data;
+      this.jsonConfig = JSON.stringify(respAll[1].data, null, 2);
+      this.isLoading = "";
+    })
+    .catch((e) => {
+      this.errors = errorHandler.transform(e);
+      this.isLoading = "";
+    });
+}
 
 export default {
+  components: { ErrorMessage },
   data() {
     return {
       status: [],
       config: [],
       jsonConfig: "",
-      errors: "",
+      errors: null,
       isLoading: "",
     };
   },
 
   // Fetches posts when the component is created.
   created() {
-    this.isLoading = "edit";
-    axios
-      .all([
-        connect.getConnectorStatus(this.$route.params.id),
-        connect.getConnectorConfig(this.$route.params.id),
-      ])
-      .then((respAll) => {
-        this.status = respAll[0].data;
-        this.config = respAll[1].data;
-        this.jsonConfig = JSON.stringify(respAll[1].data, null, 2);
-        this.isLoading = "";
-      })
-      .catch((e) => {
-        if (e.response) {
-          this.errors = e.response.data.message;
-        } else {
-          this.errors = { message: e.message };
-        }
-        this.isLoading = "";
-      });
+    loadData.bind(this)();
   },
 
   methods: {
@@ -101,38 +97,14 @@ export default {
             this.$router.push("/");
           })
           .catch((e) => {
-            if (e.response) {
-              this.errors = e.response.data.message;
-            } else {
-              this.errors = { message: e.message };
-            }
+            this.errors = errorHandler.transform(e);
           });
       } catch (e) {
-        this.errors = e;
+        this.errors = errorHandler.transform(e);
       }
     },
     reload: function() {
-      this.isLoading = "edit";
-      this.errors = "";
-      axios
-        .all([
-          connect.getConnectorStatus(this.$route.params.id),
-          connect.getConnectorConfig(this.$route.params.id),
-        ])
-        .then((respAll) => {
-          this.status = respAll[0].data;
-          this.config = respAll[1].data;
-          this.jsonConfig = JSON.stringify(respAll[1].data, null, 2);
-          this.isLoading = "";
-        })
-        .catch((e) => {
-          if (e.response) {
-            this.errors = e.response.data.message;
-          } else {
-            this.errors = { message: e.message };
-          }
-          this.isLoading = "";
-        });
+      loadData.bind(this)();
     },
   },
 };

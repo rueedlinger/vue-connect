@@ -11,14 +11,7 @@
     </div>
 
     <div class="box content">
-      <article class="message is-danger" v-if="errors">
-        <div class="message-header">
-          <p>Error</p>
-        </div>
-        <div class="message-body">
-          {{ errors }}
-        </div>
-      </article>
+      <error-message :error="errors"></error-message>
 
       <h2>Application Info</h2>
 
@@ -83,63 +76,50 @@
 
 <script>
 import connect from "../common/connect";
+import errorHandler from "../common/error";
+import ErrorMessage from "../components/ErrorMessage";
+
+function loadData() {
+  this.isLoading = "info";
+
+  connect
+    .getAppInfo()
+    .then((response) => {
+      this.app_info = response.data;
+    })
+    .catch(() => {
+      // ignore
+    });
+
+  connect
+    .getInfo()
+    .then((response) => {
+      this.cluster_info = response.data;
+      this.isLoading = "";
+    })
+    .catch((e) => {
+      this.errors = errorHandler.transform(e);
+      this.isLoading = "";
+    });
+}
 
 export default {
+  components: { ErrorMessage },
   data() {
     return {
       cluster_info: {},
       app_info: {},
-      errors: "",
+      errors: null,
       isLoading: "",
     };
   },
 
   created() {
-    this.isLoading = "info";
-
-    connect
-      .getAppInfo()
-      .then((response) => {
-        this.app_info = response.data;
-      })
-      .catch(() => {
-        // ignore
-      });
-
-    connect
-      .getInfo()
-      .then((response) => {
-        this.cluster_info = response.data;
-        this.isLoading = "";
-      })
-      .catch((e) => {
-        if (e.response) {
-          this.errors = e.response.data.message;
-        } else {
-          this.errors = { message: e.message };
-        }
-        this.isLoading = "";
-      });
+    loadData.bind(this)();
   },
   methods: {
     reload: function() {
-      this.isLoading = "plugins";
-      this.errors = "";
-      connect
-        .getInfo()
-        .then((response) => {
-          this.cluster_info = response.data;
-          this.isLoading = "";
-          this.errors = "";
-        })
-        .catch((e) => {
-          if (e.response) {
-            this.errors = e.response.data.message;
-          } else {
-            this.errors = { message: e.message };
-          }
-          this.isLoading = "";
-        });
+      loadData.bind(this)();
     },
   },
 };
