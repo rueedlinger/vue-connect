@@ -1,6 +1,5 @@
 from flask import Flask
 from flask_cors import CORS
-from flask import g
 import logging
 
 logging.basicConfig(level=logging.INFO)

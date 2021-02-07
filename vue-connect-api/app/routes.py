@@ -3,7 +3,6 @@ from app import util
 
 from flask import jsonify
 from flask import request
-from datetime import datetime
 from requests.exceptions import ConnectionError
 from requests.exceptions import Timeout
 from apscheduler.schedulers.background import BackgroundScheduler
