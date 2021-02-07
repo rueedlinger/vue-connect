@@ -1,6 +1,6 @@
 <template>
   <div>
-    <div class="box>">
+    <div class="box">
       <button
         v-on:click="reload()"
         v-bind:class="[isLoading != `` ? `is-loading` : ``]"
@@ -10,8 +10,7 @@
       </button>
     </div>
 
-  
- <div class="box">
+    <div class="box">
       <article class="message is-danger" v-if="errors">
         <div class="message-header">
           <p>Error</p>
@@ -98,7 +97,6 @@
         </div>
       </article>
     </div>
-    
   </div>
 </template>
 
@@ -113,12 +111,13 @@ export default {
       config: [],
       topics: [],
       errors: "",
-      isLoading: ""
+      isLoading: "",
     };
   },
 
   // Fetches posts when the component is created.
   created() {
+    this.isLoading = "detail";
     axios
       .all([
         connect.getConnectorStatus(this.$route.params.id),
@@ -127,6 +126,7 @@ export default {
       .then((respAll) => {
         this.status = respAll[0].data;
         this.config = respAll[1].data;
+        this.isLoading = "";
       })
       .catch((e) => {
         if (e.response) {
@@ -134,7 +134,32 @@ export default {
         } else {
           this.errors = { message: e.message };
         }
+        this.isLoading = "";
       });
+  },
+  methods: {
+    reload: function() {
+      this.isLoading = "detail";
+      this.errors = "";
+      axios
+        .all([
+          connect.getConnectorStatus(this.$route.params.id),
+          connect.getConnectorConfig(this.$route.params.id),
+        ])
+        .then((respAll) => {
+          this.status = respAll[0].data;
+          this.config = respAll[1].data;
+          this.isLoading = "";
+        })
+        .catch((e) => {
+          if (e.response) {
+            this.errors = e.response.data.message;
+          } else {
+            this.errors = { message: e.message };
+          }
+          this.isLoading = "";
+        });
+    },
   },
 };
 </script>

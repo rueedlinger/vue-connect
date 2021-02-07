@@ -111,6 +111,7 @@ export default {
     },
     reload: function() {
       this.isLoading = "edit";
+      this.errors = "";
       axios
         .all([
           connect.getConnectorStatus(this.$route.params.id),
