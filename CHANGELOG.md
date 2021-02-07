@@ -12,6 +12,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 [i4]: https://github.com/rueedlinger/vue-connect/issues/4
 [i13]: https://github.com/rueedlinger/vue-connect/issues/13
+
+### Fixed
+- Removed tooltips fix loading animation for the cluster operations.
+
 ## [0.3.0] - 2021-02-05
 ### Added
 - When a connector or task has the state FAILURE show details on the main page ([#25][i25])
