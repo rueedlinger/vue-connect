@@ -96,7 +96,7 @@ export default {
             this.errors = errorHandler.transform(e);
           });
       } catch (e) {
-        this.errors = e;
+        this.errors = errorHandler.transform(e);
       }
     },
     reload: function() {
