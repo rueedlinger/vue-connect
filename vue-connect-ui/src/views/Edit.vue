@@ -20,31 +20,33 @@
         </div>
       </article>
 
-      <h2>Conector {{ status.name }}</h2>
-      <ul>
-        <li>Class: {{ config["connector.class"] }}</li>
-        <li>Type: {{ status.type }}</li>
-      </ul>
+      <div v-if="config.name">
+        <h2>Conector {{ status.name }}</h2>
+        <ul>
+          <li>Class: {{ config["connector.class"] }}</li>
+          <li>Type: {{ status.type }}</li>
+        </ul>
 
-      <div class="field">
-        <label class="label">Configuration</label>
-        <div class="control">
-          <textarea
-            class="textarea is-small is-primary"
-            placeholder=""
-            v-model="jsonConfig"
-          ></textarea>
+        <div class="field">
+          <label class="label">Configuration</label>
+          <div class="control">
+            <textarea
+              class="textarea is-small is-primary"
+              placeholder=""
+              v-model="jsonConfig"
+            ></textarea>
+          </div>
         </div>
-      </div>
 
-      <div class="control">
-        <button
-          class="button is-primary is-small"
-          v-on:click="save($route.params.id)"
-        >
-          <font-awesome-icon icon="edit"></font-awesome-icon
-          ><span class="pl-1">Save</span>
-        </button>
+        <div class="control">
+          <button
+            class="button is-primary is-small"
+            v-on:click="save($route.params.id)"
+          >
+            <font-awesome-icon icon="edit"></font-awesome-icon
+            ><span class="pl-1">Save</span>
+          </button>
+        </div>
       </div>
     </div>
   </div>

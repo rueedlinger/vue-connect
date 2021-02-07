@@ -10,7 +10,7 @@
       </button>
     </div>
 
-    <div class="box">
+    <div class="box content">
       <article class="message is-danger" v-if="errors">
         <div class="message-header">
           <p>Error</p>
@@ -19,9 +19,9 @@
           {{ errors }}
         </div>
       </article>
-    </div>
 
-    <div class="box" v-if="status.connector">
+      <div v-if="status.connector">
+
       <h2>Connector {{ status.name }}</h2>
 
       <table class="table">
@@ -63,7 +63,9 @@
       </article>
     </div>
 
-    <div class="box" v-for="task in status.tasks" :key="task.id">
+    </div>
+
+    <div class="box content" v-for="task in status.tasks" :key="task.id">
       <h2>Task {{ task.id }}</h2>
       <table class="table">
         <thead>
