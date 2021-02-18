@@ -30,7 +30,7 @@ def get_str_config(env_name, default_value):
 
 def get_url():
     if os.getenv("CONNECT_URL") is not None:
-        return os.getenv("CONNECT_URL")
+        return os.getenv("CONNECT_URL").rstrip('/')
     else:
         return DEFAULT_REST_ENDPOINT
 
