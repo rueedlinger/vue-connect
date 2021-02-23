@@ -30,7 +30,7 @@
     <div class="box">
       <error-message :error="errors"></error-message>
 
-      <div class="table-container is-size-7">
+      <div class="table-container">
         <table v-if="filterdata.length > 0" class="table is-hoverable">
           <thead>
             <tr>
