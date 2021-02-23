@@ -6,12 +6,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.4.0] - 2021-02-24
+### Added
+- Support front-end filtering ([#11][i11])
 ### Changed
+- Display style of the reload button ([#33][i33])
 - Support custom polling time ([#13][i13])
 - Handle Kafka Connect API downtime ([#4][i4])
 
 [i4]: https://github.com/rueedlinger/vue-connect/issues/4
+[i11]: https://github.com/rueedlinger/vue-connect/issues/11
 [i13]: https://github.com/rueedlinger/vue-connect/issues/13
+[i33]: https://github.com/rueedlinger/vue-connect/issues/33
 
 ### Fixed
 - Removed tooltips to fix loading animation for the cluster operations.
