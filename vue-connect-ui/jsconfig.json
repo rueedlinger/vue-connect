@@ -1,0 +1,10 @@
+{
+    "compilerOptions": {
+      "baseUrl": "."
+    },
+    "include": [
+      "src/**/*.vue",
+      "src/**/*.js"
+    ]
+  }
+  
