@@ -1,20 +1,37 @@
 <template>
   <div>
-    <div class="box">
-      <button
-        v-on:click="reload()"
-        v-bind:class="[isLoading != `` ? `is-loading` : ``]"
-        class="button"
-      >
-        <font-awesome-icon icon="sync-alt"></font-awesome-icon>
-      </button>
+    <div class="box notification is-primary">
+      <div class="columns">
+        <div class="column">
+          <p class="title">
+            {{ $route.name }}
+          </p>
+        </div>
+        <div class="column is-two-thirds">
+          <input
+            class="input is-primary is-rounded"
+            type="text"
+            placeholder="Name"
+            v-model="searchText"
+          />
+        </div>
+        <div class="column">
+          <button
+            v-on:click="reload()"
+            v-bind:class="[isLoading != `` ? `is-loading` : ``]"
+            class="button"
+          >
+            <font-awesome-icon icon="sync-alt"></font-awesome-icon>
+          </button>
+        </div>
+      </div>
     </div>
 
     <div class="box">
       <error-message :error="errors"></error-message>
 
       <div class="table-container is-size-7">
-        <table v-if="data.length > 0" class="table is-hoverable ">
+        <table v-if="filterdata.length > 0" class="table is-hoverable">
           <thead>
             <tr>
               <th>State</th>
@@ -24,7 +41,7 @@
             </tr>
           </thead>
           <tbody>
-            <tr v-for="item in data" v-bind:key="item.name">
+            <tr v-for="item in filterdata" v-bind:key="item.name">
               <td>
                 <button
                   v-bind:class="item.connector.state"
@@ -276,7 +293,20 @@ export default {
       errors: null,
       polling: null,
       isLoading: "",
+      searchText: "",
     };
+  },
+
+  computed: {
+    filterdata() {
+      if (this.searchText != "") {
+        return this.data.filter(
+          (s) =>
+            s.name.toLowerCase().indexOf(this.searchText.toLowerCase()) >= 0
+        );
+      }
+      return this.data;
+    },
   },
 
   // Fetches posts when the component is created.
@@ -316,7 +346,6 @@ export default {
     reload() {
       loadData.bind(this)();
     },
-
     detail: function(id) {
       this.$router.push("/detail/" + id);
     },

@@ -23,16 +23,6 @@
       </router-link>
     </header>
 
-    <div class="pb-1">
-      <section class="hero is-small is-primary">
-        <div class="hero-body ml-2">
-          <p class="title">
-            {{ $route.name }}
-          </p>
-        </div>
-      </section>
-    </div>
-
     <div class="container is-fluid">
       <router-view />
     </div>

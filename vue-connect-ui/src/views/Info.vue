@@ -1,13 +1,24 @@
 <template>
   <div>
-    <div class="box">
-      <button
-        v-on:click="reload()"
-        v-bind:class="[isLoading != `` ? `is-loading` : ``]"
-        class="button"
-      >
-        <font-awesome-icon icon="sync-alt"></font-awesome-icon>
-      </button>
+    <div class="box notification is-primary">
+      <div class="columns">
+        <div class="column">
+          <p class="title">
+            {{ $route.name }}
+          </p>
+        </div>
+        <div class="column is-two-thirds">
+        </div>
+        <div class="column">
+          <button
+            v-on:click="reload()"
+            v-bind:class="[isLoading != `` ? `is-loading` : ``]"
+            class="button"
+          >
+            <font-awesome-icon icon="sync-alt"></font-awesome-icon>
+          </button>
+        </div>
+      </div>
     </div>
 
     <div class="box content">
