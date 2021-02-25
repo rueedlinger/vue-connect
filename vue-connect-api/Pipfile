@@ -7,6 +7,7 @@ verify_ssl = true
 pytest = "*"
 pytest-mock = "*"
 autopep8 = "*"
+pylint = "*"
 
 [packages]
 flask = "*"

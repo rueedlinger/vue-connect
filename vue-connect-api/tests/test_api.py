@@ -1,7 +1,7 @@
 import pytest
 import json
 
-from app import app
+from backend import app
 
 path_get = [
     '/api/plugins',
@@ -20,8 +20,9 @@ path_post = [
 
 
 @pytest.fixture
-def client():
+def client(monkeypatch):
 
+    monkeypatch.setenv("CONNECT_URL", "http://foo:1234")
     app.config['TESTING'] = True
 
     with app.test_client() as client:
@@ -91,5 +92,5 @@ def test_api_post(client, path):
 
 
 def assertNotReachable(response):
-    assert b'{"message":"Cluster http://localhost:8083 not reachable!"}' in response.data
+    assert b'{"message":"Cluster http://foo:1234 not reachable!"}' in response.data
     assert 503 == response.status_code
