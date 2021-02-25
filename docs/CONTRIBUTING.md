@@ -11,5 +11,5 @@ When contributing to this repository, please first discuss the change you wish t
   - Docker
   - Python
   - Vue.JS
-- Update [Changelog](CHANGELOG.md) when necessary
-- Update [Readme](README.md) when necessary
+- Update [Changelog](../CHANGELOG.md) when necessary
+- Update [Readme](../README.md) when necessary
