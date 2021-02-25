@@ -9,24 +9,38 @@ import logging
 
 
 def handle_timeout_error(e):
-    return jsonify({'message': util.ERROR_MSG_CLUSTER_TIMEOUT.format(util.get_connect_url())}), 504
+    return (
+        jsonify(
+            {"message": util.ERROR_MSG_CLUSTER_TIMEOUT.format(util.get_connect_url())}
+        ),
+        504,
+    )
 
 
 def handle_connection_error(e):
-    return jsonify({'message': util.ERROR_MSG_CLUSTER_NOT_REACHABLE.format(util.get_connect_url())}), 503
+    return (
+        jsonify(
+            {
+                "message": util.ERROR_MSG_CLUSTER_NOT_REACHABLE.format(
+                    util.get_connect_url()
+                )
+            }
+        ),
+        503,
+    )
 
 
 def page_not_found(e):
-    return jsonify({'message': util.ERROR_MSG_NOT_FOUND}), 404
+    return jsonify({"message": util.ERROR_MSG_NOT_FOUND}), 404
 
 
 def method_not_allowed(e):
-    return jsonify({'message': util.ERROR_MSG_NOT_ALLOWED}), 405
+    return jsonify({"message": util.ERROR_MSG_NOT_ALLOWED}), 405
 
 
 def internal_error(e):
     logging.error(e)
-    return jsonify({'message': util.ERROR_MSG_INTERNAL_SERVER_ERROR}), 500
+    return jsonify({"message": util.ERROR_MSG_INTERNAL_SERVER_ERROR}), 500
 
 
 logging.basicConfig(level=logging.INFO)

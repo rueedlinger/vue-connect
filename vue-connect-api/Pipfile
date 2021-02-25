@@ -8,6 +8,7 @@ pytest = "*"
 pytest-mock = "*"
 autopep8 = "*"
 pylint = "*"
+black = "*"
 
 [packages]
 flask = "*"

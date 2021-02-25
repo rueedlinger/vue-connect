@@ -1,6 +1,6 @@
 import os
 
-DEFAULT_REST_ENDPOINT = 'http://localhost:8083'
+DEFAULT_REST_ENDPOINT = "http://localhost:8083"
 DEFAULT_REQUEST_TIMEOUT_SEC = 5
 DEFAULT_POLLING_INTERVAL_SEC = 60
 
@@ -38,7 +38,7 @@ def get_str_config(env_name, default_value):
 
 def get_connect_url():
     if os.getenv("CONNECT_URL") is not None:
-        return os.getenv("CONNECT_URL").rstrip('/')
+        return os.getenv("CONNECT_URL").rstrip("/")
     else:
         return DEFAULT_REST_ENDPOINT
 
@@ -48,4 +48,6 @@ def get_request_timeout():
 
 
 def get_poll_intervall():
-    return get_int_config(ENV_POLLING_INTERVALL_CONFIG_NAME, DEFAULT_POLLING_INTERVAL_SEC)
+    return get_int_config(
+        ENV_POLLING_INTERVALL_CONFIG_NAME, DEFAULT_POLLING_INTERVAL_SEC
+    )
