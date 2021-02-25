@@ -1,6 +1,6 @@
-import pytest
 import json
 
+import pytest
 from backend import app
 
 path_get = ["/api/plugins", "/api/status/foo", "/api/config/foo", "/api/info"]
