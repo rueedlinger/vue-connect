@@ -1,17 +1,21 @@
-from backend import routes
-from backend import util
-from flask import Flask
-from flask import jsonify
-from flask_cors import CORS
-from requests.exceptions import Timeout
-from requests.exceptions import ConnectionError
 import logging
+
+from common import config
+from flask import Flask, jsonify
+from flask_cors import CORS
+from requests.exceptions import ConnectionError, Timeout
+
+from backend import routes
 
 
 def handle_timeout_error(e):
     return (
         jsonify(
-            {"message": util.ERROR_MSG_CLUSTER_TIMEOUT.format(util.get_connect_url())}
+            {
+                "message": config.ERROR_MSG_CLUSTER_TIMEOUT.format(
+                    config.get_connect_url()
+                )
+            }
         ),
         504,
     )
@@ -21,8 +25,8 @@ def handle_connection_error(e):
     return (
         jsonify(
             {
-                "message": util.ERROR_MSG_CLUSTER_NOT_REACHABLE.format(
-                    util.get_connect_url()
+                "message": config.ERROR_MSG_CLUSTER_NOT_REACHABLE.format(
+                    config.get_connect_url()
                 )
             }
         ),
@@ -31,16 +35,16 @@ def handle_connection_error(e):
 
 
 def page_not_found(e):
-    return jsonify({"message": util.ERROR_MSG_NOT_FOUND}), 404
+    return jsonify({"message": config.ERROR_MSG_NOT_FOUND}), 404
 
 
 def method_not_allowed(e):
-    return jsonify({"message": util.ERROR_MSG_NOT_ALLOWED}), 405
+    return jsonify({"message": config.ERROR_MSG_NOT_ALLOWED}), 405
 
 
 def internal_error(e):
     logging.error(e)
-    return jsonify({"message": util.ERROR_MSG_INTERNAL_SERVER_ERROR}), 500
+    return jsonify({"message": config.ERROR_MSG_INTERNAL_SERVER_ERROR}), 500
 
 
 logging.basicConfig(level=logging.INFO)

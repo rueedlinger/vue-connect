@@ -3,17 +3,17 @@ import time
 
 import requests
 from apscheduler.schedulers.background import BackgroundScheduler
+from common import config
 from flask import Blueprint, jsonify, request
 from requests.exceptions import ConnectionError, Timeout
 
-from backend import util
-
 connect_api = Blueprint("connect_api", __name__)
+
 
 cache = {"loadtime": 0, "state": None, "isConnectUp": False, "message": None}
 
-request_timeout_sec = util.get_request_timeout()
-poll_intervall_sec = util.get_poll_intervall()
+request_timeout_sec = config.get_request_timeout()
+poll_intervall_sec = config.get_poll_intervall()
 
 
 @connect_api.route("/api/connectors", strict_slashes=False, methods=["POST"])
@@ -23,7 +23,7 @@ def new():
         return (
             jsonify(
                 {
-                    "message": util.ERROR_MSG_NO_DATA.format(
+                    "message": config.ERROR_MSG_NO_DATA.format(
                         "There was no connector configuration provided"
                     )
                 }
@@ -38,14 +38,12 @@ def new():
         cfg = {"name": name, "config": data}
 
         r = requests.post(
-            util.get_connect_url() + "/connectors/",
+            config.get_connect_url() + "/connectors/",
             json=cfg,
             timeout=request_timeout_sec,
         )
 
-        status = r.json()
-
-        return jsonify(status), r.status_code
+        return jsonify(r.json()), r.status_code
     else:
         return jsonify({"message": "Missing configuration property 'name'."}), 400
 
@@ -60,7 +58,7 @@ def update(id):
         return (
             jsonify(
                 {
-                    "message": util.ERROR_MSG_NO_DATA.format(
+                    "message": config.ERROR_MSG_NO_DATA.format(
                         "There is no connector configuration for '" + id + "'"
                     )
                 }
@@ -69,12 +67,12 @@ def update(id):
         )
 
     r = requests.put(
-        util.get_connect_url() + "/connectors/" + id + "/config",
+        config.get_connect_url() + "/connectors/" + id + "/config",
         json=data,
         timeout=request_timeout_sec,
     )
-    status = r.json()
-    return jsonify(status), r.status_code
+
+    return jsonify(r.json()), r.status_code
 
 
 @connect_api.route(
@@ -82,7 +80,7 @@ def update(id):
 )
 def restart(id):
     requests.post(
-        util.get_connect_url() + "/connectors/" + id + "/restart",
+        config.get_connect_url() + "/connectors/" + id + "/restart",
         timeout=request_timeout_sec,
     )
     return connectors()
@@ -93,7 +91,7 @@ def restart(id):
 )
 def delete(id):
     requests.delete(
-        util.get_connect_url() + "/connectors/" + id, timeout=request_timeout_sec
+        config.get_connect_url() + "/connectors/" + id, timeout=request_timeout_sec
     )
     return connectors()
 
@@ -101,7 +99,7 @@ def delete(id):
 @connect_api.route("/api/connectors/<id>/pause", strict_slashes=False, methods=["POST"])
 def pause(id):
     requests.put(
-        util.get_connect_url() + "/connectors/" + id + "/pause",
+        config.get_connect_url() + "/connectors/" + id + "/pause",
         timeout=request_timeout_sec,
     )
     return connectors()
@@ -112,7 +110,7 @@ def pause(id):
 )
 def resume(id):
     requests.put(
-        util.get_connect_url() + "/connectors/" + id + "/resume",
+        config.get_connect_url() + "/connectors/" + id + "/resume",
         timeout=request_timeout_sec,
     )
     return connectors()
@@ -125,20 +123,25 @@ def resume(id):
 )
 def task_restart(id, task_id):
     requests.post(
-        util.get_connect_url() + "/connectors/" + id + "/tasks/" + task_id + "/restart",
+        config.get_connect_url()
+        + "/connectors/"
+        + id
+        + "/tasks/"
+        + task_id
+        + "/restart",
         timeout=request_timeout_sec,
     )
     return connectors()
 
 
 @connect_api.route("/api/config/<id>", strict_slashes=False)
-def config(id):
+def connect_config(id):
     r = requests.get(
-        util.get_connect_url() + "/connectors/" + id + "/config",
+        config.get_connect_url() + "/connectors/" + id + "/config",
         timeout=request_timeout_sec,
     )
-    config = r.json()
-    return jsonify(config)
+
+    return jsonify(r.json())
 
 
 @connect_api.route("/api/polling", strict_slashes=False)
@@ -155,14 +158,16 @@ def connectors():
 
     # return error and last cached result
     except ConnectionError:
-        cache["message"] = util.ERROR_MSG_CLUSTER_NOT_REACHABLE.format(
-            util.get_connect_url()
+        cache["message"] = config.ERROR_MSG_CLUSTER_NOT_REACHABLE.format(
+            config.get_connect_url()
         )
         cache["isConnectUp"] = False
 
         return jsonify({"message": cache["message"], "cache": cache["state"]}), 503
     except Timeout:
-        cache["message"] = util.ERROR_MSG_CLUSTER_TIMEOUT.format(util.get_connect_url())
+        cache["message"] = config.ERROR_MSG_CLUSTER_TIMEOUT.format(
+            config.get_connect_url()
+        )
         cache["isConnectUp"] = False
 
         return (
@@ -179,7 +184,7 @@ def connectors():
 def load_state():
     state = []
     r = requests.get(
-        util.get_connect_url() + "/connectors?expand=info&expand=status",
+        config.get_connect_url() + "/connectors?expand=info&expand=status",
         timeout=request_timeout_sec,
     )
     connectors = r.json()
@@ -221,12 +226,11 @@ def load_state():
 @connect_api.route("/api/status/<id>", strict_slashes=False)
 def status(id):
     r = requests.get(
-        util.get_connect_url() + "/connectors/" + id + "/status",
+        config.get_connect_url() + "/connectors/" + id + "/status",
         timeout=request_timeout_sec,
     )
 
-    status = r.json()
-    return jsonify(status), r.status_code
+    return jsonify(r.json()), r.status_code
 
 
 @connect_api.route(
@@ -237,25 +241,24 @@ def validate(name):
     if data is None:
         return (
             jsonify(
-                {"message": util.ERROR_MSG_NO_DATA.format("connector configuration")}
+                {"message": config.ERROR_MSG_NO_DATA.format("connector configuration")}
             ),
             400,
         )
 
     r = requests.put(
-        util.get_connect_url() + "/connector-plugins/" + name + "/config/validate",
+        config.get_connect_url() + "/connector-plugins/" + name + "/config/validate",
         json=data,
         timeout=request_timeout_sec,
     )
-    config = r.json()
 
-    return jsonify(config), r.status_code
+    return jsonify(r.json()), r.status_code
 
 
 @connect_api.route("/api/plugins", strict_slashes=False)
 def plugins():
     r = requests.get(
-        util.get_connect_url() + "/connector-plugins", timeout=request_timeout_sec
+        config.get_connect_url() + "/connector-plugins", timeout=request_timeout_sec
     )
     plugins = r.json()
 
@@ -272,19 +275,19 @@ def plugins():
 @connect_api.route("/api/app/info", strict_slashes=False)
 def app_info():
     app_info = {}
-    app_info["vc_version"] = util.get_str_config("VC_VERSION", "dev")
-    app_info["tags"] = util.get_str_config("VC_TAGS", None)
-    app_info["sha"] = util.get_str_config("VC_IMAGE_GITHUB_SHA", None)
-    app_info["build_time"] = util.get_str_config("VC_IMAGE_BUILD_TIME", None)
+    app_info["vc_version"] = config.get_str_config("VC_VERSION", "dev")
+    app_info["tags"] = config.get_str_config("VC_TAGS", None)
+    app_info["sha"] = config.get_str_config("VC_IMAGE_GITHUB_SHA", None)
+    app_info["build_time"] = config.get_str_config("VC_IMAGE_BUILD_TIME", None)
 
     return jsonify(app_info)
 
 
 @connect_api.route("/api/info", strict_slashes=False)
 def info():
-    r = requests.get(util.get_connect_url(), timeout=request_timeout_sec)
+    r = requests.get(config.get_connect_url(), timeout=request_timeout_sec)
     info = r.json()
-    info["endpoint"] = util.get_connect_url()
+    info["endpoint"] = config.get_connect_url()
     return jsonify(info)
 
 
@@ -303,19 +306,21 @@ def job_update_cache():
         update_cache(state)
     except ConnectionError:
         cache["isConnectUp"] = False
-        cache["message"] = util.ERROR_MSG_CLUSTER_NOT_REACHABLE.format(
-            util.get_connect_url()
+        cache["message"] = config.ERROR_MSG_CLUSTER_NOT_REACHABLE.format(
+            config.get_connect_url()
         )
         logging.info(
-            util.ERROR_MSG_CLUSTER_NOT_REACHABLE.format(util.get_connect_url())
+            config.ERROR_MSG_CLUSTER_NOT_REACHABLE.format(config.get_connect_url())
         )
     except Timeout:
-        cache["message"] = util.ERROR_MSG_CLUSTER_TIMEOUT.format(util.get_connect_url())
+        cache["message"] = config.ERROR_MSG_CLUSTER_TIMEOUT.format(
+            config.get_connect_url()
+        )
         cache["isConnectUp"] = False
-        logging.info(util.ERROR_MSG_CLUSTER_TIMEOUT.format(util.get_connect_url()))
+        logging.info(config.ERROR_MSG_CLUSTER_TIMEOUT.format(config.get_connect_url()))
     except Exception as e:
         cache["isConnectUp"] = False
-        cache["message"] = util.ERROR_MSG_INTERNAL_SERVER_ERROR
+        cache["message"] = config.ERROR_MSG_INTERNAL_SERVER_ERROR
         logging.error("Could not update cache: %s", e)
 
 
