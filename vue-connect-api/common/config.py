@@ -1,11 +1,14 @@
-import os
+import os, tempfile
 
 DEFAULT_REST_ENDPOINT = "http://localhost:8083"
 DEFAULT_REQUEST_TIMEOUT_SEC = 5
 DEFAULT_POLLING_INTERVAL_SEC = 60
 
+DEFAULT_SQLITE_FILE_PATH = "vue-connect.db"
+
 ENV_POLLING_INTERVALL_CONFIG_NAME = "VC_POLLING_INTERVAL_SEC"
 ENV_REQUEST_TIMEOUT_CONFIG_NAME = "VC_REQUEST_TIMEOUT_SEC"
+ENV_SQLITE_FILE_PATH = "VC_SQLITE_FILE_PATH"
 
 
 ERROR_MSG_CLUSTER_NOT_REACHABLE = "Cluster {} not reachable!"
@@ -41,6 +44,10 @@ def get_connect_url():
         return os.getenv("CONNECT_URL").rstrip("/")
     else:
         return DEFAULT_REST_ENDPOINT
+
+
+def get_db_url():
+    return get_str_config(ENV_SQLITE_FILE_PATH, DEFAULT_SQLITE_FILE_PATH)
 
 
 def get_request_timeout():

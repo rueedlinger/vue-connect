@@ -1,7 +1,7 @@
 from common import config
 
 
-def test_get_url(monkeypatch):
+def test_get_connect_url(monkeypatch):
     assert config.get_connect_url() == "http://localhost:8083"
 
     monkeypatch.setenv("CONNECT_URL", "http://connect:8083")
@@ -12,6 +12,13 @@ def test_get_url(monkeypatch):
 
     monkeypatch.setenv("CONNECT_URL", "http://connect:8083/foo/bar/")
     assert config.get_connect_url() == "http://connect:8083/foo/bar"
+
+
+def test_get_db_url(monkeypatch):
+    assert config.get_db_url() == "vue-connect.db"
+
+    monkeypatch.setenv("VC_SQLITE_FILE_PATH", "/tmp/foo")
+    assert config.get_db_url() == "/tmp/foo"
 
 
 def test_get_poll_intervall(monkeypatch):

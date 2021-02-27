@@ -247,7 +247,7 @@ function sortedConnectors(connectors) {
 }
 
 function loadData() {
-  this.isLoading = `status`;
+  this.isLoading = "status";
   this.errors = null;
 
   connect
@@ -258,8 +258,8 @@ function loadData() {
     })
     .catch((e) => {
       // check if there is cached state in error response
-      if (e.response && e.response.data.cache) {
-        this.data = sortedConnectors(e.response.data.cache);
+      if (e.response && e.response.data.state) {
+        this.data = sortedConnectors(e.response.data.state);
       }
       this.errors = errorHandler.transform(e);
       this.isLoading = "";
@@ -313,6 +313,7 @@ export default {
   created() {
     loadData.bind(this)();
 
+    // polling new data from cache
     this.polling = setInterval(
       function() {
         connect

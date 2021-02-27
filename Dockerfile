@@ -7,11 +7,17 @@ RUN npm run build
 
 FROM alpine:3.12.0 as production-stage
 
-ARG IMAGE_VERSION=latest
-ARG IMAGE_TAGS
-ARG IMAGE_BUILD_TIME
-ARG IMAGE_GITHUB_SHA
-ARG IMAGE_GITHUB_REPO
+ARG IMAGE_VERSION=dev
+ARG IMAGE_TAGS=unknown
+ARG IMAGE_BUILD_TIME=unknown
+ARG IMAGE_GITHUB_SHA=unknown
+ARG IMAGE_GITHUB_REPO=unknown
+
+ENV TZ="UTC"
+ENV LANG="C.UTF-8"
+
+ENV VC_SQLITE_FILE_PATH="/dist/db/vue-connect.db"
+ENV VC_CREATE_DB_IN_APP="false"
 
 ENV VC_VERSION=$IMAGE_VERSION
 ENV VC_TAGS=$IMAGE_TAGS
@@ -22,13 +28,16 @@ ENV VC_IMAGE_GITHUB_REPO=$IMAGE_GITHUB_REPO
 
 RUN mkdir -p /dist/html \
     mkdir -p /dist/python \
+    mkdir -p /dist/db \
     mkdir -p /var/log/supervisord \
     mkdir -p /var/run/supervisord
 
-RUN addgroup -S gunicorn && adduser gunicorn -S gunicorn -G gunicorn
+RUN addgroup -S gunicorn && \ 
+    adduser gunicorn -S gunicorn -G gunicorn && \
+    chown gunicorn:gunicorn /dist/db
 
 ENV PYTHONUNBUFFERED=1
-RUN apk add --update --no-cache nginx python3 supervisor && \
+RUN apk add --no-cache nginx python3 supervisor sqlite tzdata && \
     ln -sf python3 /usr/bin/python && \
     python3 -m ensurepip && \
     pip3 install --no-cache --upgrade pip setuptools pipenv

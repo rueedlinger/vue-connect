@@ -1,8 +1,8 @@
 import json
 from unittest.mock import patch
 
+import backend
 import pytest
-from backend import app, routes
 
 TIMEOUT = 5
 
@@ -15,14 +15,11 @@ class Resp:
     def json(self):
         return self.data
 
-    def status_code(self):
-        return self.status_code
-
 
 @pytest.fixture
-def client():
+def client(monkeypatch):
 
-    app.config["TESTING"] = True
+    app = backend.create_app()
 
     with app.test_client() as client:
         yield client
@@ -337,7 +334,7 @@ def test_polling(client):
     mock_get.assert_not_called()
 
     assert 200 == resp.status_code
-    assert b"isConnectUp" in resp.data
+    assert b'{"state":[]}' in resp.data
 
 
 def test_config(client):

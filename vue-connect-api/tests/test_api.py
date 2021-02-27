@@ -1,7 +1,7 @@
 import json
 
 import pytest
-from backend import app
+import backend
 
 path_get = ["/api/plugins", "/api/status/foo", "/api/config/foo", "/api/info"]
 
@@ -18,7 +18,8 @@ path_post = [
 def client(monkeypatch):
 
     monkeypatch.setenv("CONNECT_URL", "http://foo:1234")
-    app.config["TESTING"] = True
+
+    app = backend.create_app()
 
     with app.test_client() as client:
         yield client
@@ -78,7 +79,7 @@ def test_api_post_with_data(client):
 
 def test_api_polling(client):
     resp = client.get("/api/polling")
-    assert b'isConnectUp"' in resp.data
+    assert b'{"state":[]}' in resp.data
     assert 200 == resp.status_code
 
 
