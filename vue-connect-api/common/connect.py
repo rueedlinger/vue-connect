@@ -1,4 +1,7 @@
+from datetime import datetime
+
 import requests
+
 from common import config
 
 request_timeout_sec = config.get_request_timeout()
@@ -31,6 +34,8 @@ def load_state():
                         "traceMessage"
                     ] = short_task_connectors[1].strip()
 
+            connector_state["connector"]["downtime"] = str(datetime.now().isoformat())
+
         for task in connector_state["tasks"]:
             if "trace" in task:
                 trace_short_task = task["trace"].split("\n")
@@ -42,6 +47,8 @@ def load_state():
                     if len(short_task_parts) > 1:
                         task["traceException"] = short_task_parts[0].strip()
                         task["traceMessage"] = short_task_parts[1].strip()
+
+                task["downtime"] = str(datetime.now().isoformat())
 
         state.append(connector_state)
     return state

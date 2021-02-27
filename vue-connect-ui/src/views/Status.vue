@@ -57,6 +57,9 @@
                   <li><b>Connector ID:</b> {{ item.name }}</li>
                   <li><b>Type:</b> {{ item.type }}</li>
                   <li><b>Worker ID:</b> {{ item.connector.worker_id }}</li>
+                  <li v-if="item.connector.downtime">
+                    <b>Downtime:</b> {{ item.connector.downtime }}
+                  </li>
                   <li
                     class="has-text-danger"
                     v-if="item.connector.traceMessage"
@@ -179,6 +182,9 @@
                         <ul id="detail">
                           <li><b>Task ID:</b> {{ task.id }}</li>
                           <li><b>Worker ID:</b> {{ task.worker_id }}</li>
+                          <li v-if="task.downtime">
+                            <b>Downtime:</b> {{ task.downtime }}
+                          </li>
                           <li class="has-text-danger" v-if="task.traceMessage">
                             <b>Error:</b> {{ task.traceMessage }}
                           </li>
