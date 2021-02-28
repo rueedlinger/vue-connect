@@ -60,36 +60,43 @@ class Cache:
         select_sql = """SELECT CLUSTER_ID, CLUSTTER_URL, RUNNING, CLUSTER_STATE, ERROR_MESSAGE, LAST_RUNNING_TIMESTAMP, CREATED_TIMESTAMP from VC_CLUSTER_CACHE where CLUSTER_ID=?"""
 
         db = self._db
-        cur = db.cursor().execute(
-            select_sql,
-            (0,),
-        )
 
-        res = cur.fetchone()
-        old_cache = {}
-        if res is not None:
-            old_cache = dict(
-                (cur.description[idx][0], value) for idx, value in enumerate(res)
+        with db:
+            # explicit begin transaction before reading data
+            db.execute("BEGIN")
+
+            cursor = db.cursor()
+            cursor.execute(
+                select_sql,
+                (0,),
             )
 
-        self.__merge_value(cache, old_cache, "CLUSTER_STATE", "[]")
-        self.__merge_value(cache, old_cache, "RUNNING", 1)
-        self.__merge_value(cache, old_cache, "ERROR_MESSAGE", None)
-        self.__merge_value(cache, old_cache, "LAST_RUNNING_TIMESTAMP", datetime.now())
+            res = cursor.fetchone()
+            old_cache = {}
+            if res is not None:
+                old_cache = dict(
+                    (cursor.description[idx][0], value) for idx, value in enumerate(res)
+                )
 
-        cur = db.cursor().execute(
-            update_sql,
-            (
-                0,
-                config.get_connect_url(),
-                cache["RUNNING"],
-                cache["CLUSTER_STATE"],
-                cache["ERROR_MESSAGE"],
-                cache["LAST_RUNNING_TIMESTAMP"],
-                datetime.now(),
-            ),
-        )
-        db.commit()
+            self.__merge_value(cache, old_cache, "CLUSTER_STATE", "[]")
+            self.__merge_value(cache, old_cache, "RUNNING", 1)
+            self.__merge_value(cache, old_cache, "ERROR_MESSAGE", None)
+            self.__merge_value(
+                cache, old_cache, "LAST_RUNNING_TIMESTAMP", datetime.now()
+            )
+
+            cursor.execute(
+                update_sql,
+                (
+                    0,
+                    config.get_connect_url(),
+                    cache["RUNNING"],
+                    cache["CLUSTER_STATE"],
+                    cache["ERROR_MESSAGE"],
+                    cache["LAST_RUNNING_TIMESTAMP"],
+                    datetime.now(),
+                ),
+            )
 
         return cache
 
