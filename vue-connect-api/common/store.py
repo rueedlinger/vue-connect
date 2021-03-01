@@ -6,7 +6,83 @@ from datetime import datetime
 from common import config
 
 
-class Cache:
+class CacheEntry:
+    def __init__(
+        self,
+        id=0,
+        url=config.get_connect_url(),
+        state=None,
+        last_time_running=None,
+        running=None,
+        error_mesage=None,
+        created=datetime.now(),
+    ):
+        self.id = id
+        self.url = url
+        self.state = state
+        self.last_time_running = last_time_running
+        self.running = running
+        self.error_mesage = error_mesage
+        self.created = created
+
+    @staticmethod
+    def from_sql(sqlRow):
+
+        kwargs = {}
+        if "CLUSTER_ID" in sqlRow:
+            kwargs["id"] = sqlRow["CLUSTER_ID"]
+
+        if "CLUSTTER_URL" in sqlRow:
+            kwargs["url"] = sqlRow["CLUSTTER_URL"]
+
+        if "CLUSTER_STATE" in sqlRow:
+            kwargs["state"] = json.loads(sqlRow["CLUSTER_STATE"])
+
+        if "RUNNING" in sqlRow:
+            kwargs["running"] = bool(sqlRow["RUNNING"])
+
+        if "ERROR_MESSAGE" in sqlRow:
+            kwargs["error_mesage"] = sqlRow["ERROR_MESSAGE"]
+
+        if "LAST_RUNNING_TIMESTAMP" in sqlRow:
+            kwargs["last_time_running"] = sqlRow["LAST_RUNNING_TIMESTAMP"]
+
+        if "CREATED_TIMESTAMP" in sqlRow:
+            kwargs["created"] = sqlRow["CREATED_TIMESTAMP"]
+
+        return CacheEntry(**kwargs)
+
+    def to_sql(self):
+
+        return {
+            "CLUSTER_ID": self.id,
+            "CLUSTTER_URL": self.url,
+            "CLUSTER_STATE": json.dumps(self.state) if self.state is not None else None,
+            "RUNNING": int(self.running) if self.running is not None else None,
+            "LAST_RUNNING_TIMESTAMP": self.last_time_running,
+            "ERROR_MESSAGE": self.error_mesage,
+            "CREATED_TIMESTAMP": self.created,
+        }
+
+    def to_response(self):
+
+        out = {}
+
+        if self.state is not None:
+            out["state"] = self.state
+        else:
+            out["state"] = []
+
+        if self.error_mesage is not None:
+            out["message"] = self.error_mesage
+
+        if self.running is not None:
+            out["isConnectUp"] = self.running
+
+        return out
+
+
+class CacheManager:
     def __init__(self, url):
         self._url = url
         self._db = sqlite3.connect(url)
@@ -17,7 +93,7 @@ class Cache:
     def close(self):
         self._db.close()
 
-    def load_cache(self):
+    def load(self):
         select_sql = """SELECT CLUSTER_ID, CLUSTTER_URL, RUNNING, CLUSTER_STATE, ERROR_MESSAGE, CREATED_TIMESTAMP from VC_CLUSTER_CACHE where CLUSTER_ID=?"""
 
         db = self._db
@@ -29,34 +105,14 @@ class Cache:
         res = cur.fetchone()
 
         if res == None:
-            return {"state": None}
+            return CacheEntry(state=[])
         else:
-            cache = dict(
-                (cur.description[idx][0], value) for idx, value in enumerate(res)
+            return CacheEntry.from_sql(
+                dict((cur.description[idx][0], value) for idx, value in enumerate(res))
             )
 
-        return cache
-
-    def new_cache(
-        self, state=None, last_time_running=None, running=None, error_mesage=None
-    ):
-        cache = {}
-        if state is not None:
-            cache["CLUSTER_STATE"] = json.dumps(state)
-
-        if last_time_running is not None:
-            cache["LAST_RUNNING_TIMESTAMP"] = last_time_running
-
-        if error_mesage is not None:
-            cache["ERROR_MESSAGE"] = error_mesage
-
-        if running is not None:
-            cache["RUNNING"] = int(running)
-
-        return cache
-
-    def merge_cache(self, cache):
-        update_sql = """INSERT OR REPLACE INTO VC_CLUSTER_CACHE (CLUSTER_ID, CLUSTTER_URL, RUNNING, CLUSTER_STATE, ERROR_MESSAGE, LAST_RUNNING_TIMESTAMP, CREATED_TIMESTAMP) values (?, ?, ?, ?, ?, ?, ?)"""
+    def merge(self, cache_entry: CacheEntry):
+        update_sql = """INSERT OR REPLACE INTO VC_CLUSTER_CACHE (CLUSTER_ID, CLUSTTER_URL, RUNNING, CLUSTER_STATE, ERROR_MESSAGE, LAST_RUNNING_TIMESTAMP, CREATED_TIMESTAMP) values (:CLUSTER_ID, :CLUSTTER_URL, :RUNNING, :CLUSTER_STATE, :ERROR_MESSAGE, :LAST_RUNNING_TIMESTAMP, :CREATED_TIMESTAMP)"""
         select_sql = """SELECT CLUSTER_ID, CLUSTTER_URL, RUNNING, CLUSTER_STATE, ERROR_MESSAGE, LAST_RUNNING_TIMESTAMP, CREATED_TIMESTAMP from VC_CLUSTER_CACHE where CLUSTER_ID=?"""
 
         db = self._db
@@ -68,47 +124,62 @@ class Cache:
             cursor = db.cursor()
             cursor.execute(
                 select_sql,
-                (0,),
+                (cache_entry.id,),
             )
 
             res = cursor.fetchone()
-            old_cache = {}
+            # is there already an entry in the cache
             if res is not None:
-                old_cache = dict(
-                    (cursor.description[idx][0], value) for idx, value in enumerate(res)
+                old_cache = CacheEntry.from_sql(
+                    dict(
+                        (cursor.description[idx][0], value)
+                        for idx, value in enumerate(res)
+                    )
                 )
 
-            self.__merge_value(cache, old_cache, "CLUSTER_STATE", "[]")
-            self.__merge_value(cache, old_cache, "RUNNING", 1)
-            self.__merge_value(cache, old_cache, "ERROR_MESSAGE", None)
-            self.__merge_value(
-                cache, old_cache, "LAST_RUNNING_TIMESTAMP", datetime.now()
-            )
+                if (
+                    cache_entry.error_mesage is None
+                    and old_cache.error_mesage is not None
+                ):
+                    cache_entry.error_mesage = old_cache.error_mesage
 
-            cursor.execute(
-                update_sql,
-                (
-                    0,
-                    config.get_connect_url(),
-                    cache["RUNNING"],
-                    cache["CLUSTER_STATE"],
-                    cache["ERROR_MESSAGE"],
-                    cache["LAST_RUNNING_TIMESTAMP"],
-                    datetime.now(),
-                ),
-            )
+                else:
+                    if len(cache_entry.error_mesage) == 0:
+                        cache_entry.error_mesage = None
 
-        return cache
+                if (
+                    cache_entry.last_time_running is None
+                    and old_cache.last_time_running is not None
+                ):
+                    cache_entry.last_time_running = old_cache.last_time_running
 
-    def __merge_value(self, new_cache, old_cache, key, defaul_value):
-        if key not in new_cache:
-            if key in old_cache:
-                new_cache[key] = old_cache[key]
+                if cache_entry.running is None and old_cache.running is not None:
+                    cache_entry.running = old_cache.running
+
+                if cache_entry.created is None and old_cache.created is not None:
+                    cache_entry.created = old_cache.created
+
+                if cache_entry.state is None and old_cache.state is not None:
+                    cache_entry.state = old_cache.state
+
+                if cache_entry.url is None and old_cache.url is not None:
+                    cache_entry.url = old_cache.url
+
+                cursor.execute(
+                    update_sql,
+                    cache_entry.to_sql(),
+                )
+
             else:
-                new_cache[key] = defaul_value
+                cursor.execute(
+                    update_sql,
+                    cache_entry.to_sql(),
+                )
+
+        return cache_entry
 
 
-def to_response(cache):
+def to_dict(cache: CacheEntry):
 
     resp = {}
 

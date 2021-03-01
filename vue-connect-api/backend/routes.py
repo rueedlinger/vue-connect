@@ -17,7 +17,7 @@ connect_api = Blueprint("connect_api", __name__)
 def get_store():
     cache = getattr(g, "_cache", None)
     if cache is None:
-        cache = g._store = store.Cache(config.get_db_url())
+        cache = g._store = store.CacheManager(config.get_db_url())
 
     return cache
 
@@ -160,29 +160,30 @@ def connect_config(id):
 @connect_api.route("/api/polling", strict_slashes=False)
 def polling():
     # load state from cache
-    return jsonify(store.to_response(get_store().load_cache()))
+    return jsonify(get_store().load().to_response())
 
 
 @connect_api.route("/api/status", strict_slashes=False)
 def connectors():
     try:
         state = connect.load_state()
-        get_store().merge_cache(
-            get_store().new_cache(
-                state=state,
-                running=True,
-                error_mesage=None,
-                last_time_running=datetime.now(),
-            )
+
+        cache_entry = store.CacheEntry(
+            state=state,
+            running=True,
+            error_mesage="",
+            last_time_running=datetime.now(),
         )
+
+        get_store().merge(cache_entry)
 
         return jsonify(state)
 
     # Connection error return last cached result
     except ConnectionError:
 
-        cache_entry = get_store().merge_cache(
-            get_store().new_cache(
+        cache_entry = get_store().merge(
+            store.CacheEntry(
                 running=False,
                 error_mesage=config.ERROR_MSG_CLUSTER_NOT_REACHABLE.format(
                     config.get_connect_url()
@@ -190,12 +191,12 @@ def connectors():
             )
         )
 
-        return jsonify(store.to_response(cache_entry)), 503
+        return jsonify(cache_entry.to_response()), 503
 
     # Timeout error return last cached result
     except Timeout:
-        cache_entry = get_store().merge_cache(
-            get_store().new_cache(
+        cache_entry = get_store().merge(
+            store.CacheEntry(
                 running=False,
                 error_mesage=config.ERROR_MSG_CLUSTER_TIMEOUT.format(
                     config.get_connect_url()
@@ -203,7 +204,7 @@ def connectors():
             )
         )
 
-        return jsonify(store.to_response(cache_entry)), 504
+        return jsonify(cache_entry.to_response()), 504
 
 
 @connect_api.route("/api/status/<id>", strict_slashes=False)

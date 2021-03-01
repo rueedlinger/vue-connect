@@ -22,11 +22,11 @@ class UpdateCacheJob(Job):
         super().__init__(config.get_poll_intervall())
 
     def run(self):
-        cache = store.Cache(config.get_db_url())
+        cache = store.CacheManager(config.get_db_url())
         try:
             state = connect.load_state()
-            cache.merge_cache(
-                cache.new_cache(
+            cache.merge(
+                store.CacheEntry(
                     state=state,
                     running=True,
                     error_mesage=None,
@@ -37,8 +37,8 @@ class UpdateCacheJob(Job):
             logging.info(
                 config.ERROR_MSG_CLUSTER_NOT_REACHABLE.format(config.get_connect_url())
             )
-            cache.merge_cache(
-                cache.new_cache(
+            cache.merge(
+                store.CacheEntry(
                     running=False,
                     error_mesage=config.ERROR_MSG_CLUSTER_NOT_REACHABLE.format(
                         config.get_connect_url()
@@ -52,8 +52,8 @@ class UpdateCacheJob(Job):
                 config.ERROR_MSG_CLUSTER_TIMEOUT.format(config.get_connect_url())
             )
 
-            cache.merge_cache(
-                cache.new_cache(
+            cache.merge(
+                store.CacheEntry(
                     running=False,
                     error_mesage=config.ERROR_MSG_CLUSTER_TIMEOUT.format(
                         config.get_connect_url()
@@ -65,8 +65,8 @@ class UpdateCacheJob(Job):
 
             logging.error("Could not update cache: %s", e)
 
-            cache.merge_cache(
-                cache.new_cache(
+            cache.merge(
+                store.CacheEntry(
                     running=False, error_mesage=config.ERROR_MSG_INTERNAL_SERVER_ERROR
                 )
             )
