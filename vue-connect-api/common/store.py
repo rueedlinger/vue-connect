@@ -39,6 +39,8 @@ class CacheEntry:
 
         if "CLUSTER_STATE" in sqlRow and sqlRow["CLUSTER_STATE"] is not None:
             kwargs["state"] = json.loads(sqlRow["CLUSTER_STATE"])
+        else:
+            kwargs["state"] = []
 
         if "RUNNING" in sqlRow:
             kwargs["running"] = bool(sqlRow["RUNNING"])

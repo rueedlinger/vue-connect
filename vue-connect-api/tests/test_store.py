@@ -15,10 +15,10 @@ def test_from_sql():
     DATE_FORMAT = "%Y-%m-%d %H:%M:%S.%f"
 
     entry = CacheEntry.from_sql({})
-    assert entry.state == None
+    assert entry.state == []
 
     entry = CacheEntry.from_sql({"CLUSTER_STATE": None})
-    assert entry.state == None
+    assert entry.state == []
 
     entry = CacheEntry.from_sql({"CLUSTER_STATE": '{"foo": "bar"}'})
     assert entry.state == {"foo": "bar"}
