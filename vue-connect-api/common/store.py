@@ -28,6 +28,8 @@ class CacheEntry:
     @staticmethod
     def from_sql(sqlRow):
 
+        DATE_FORMAT = "%Y-%m-%d %H:%M:%S.%f"
+
         kwargs = {}
         if "CLUSTER_ID" in sqlRow:
             kwargs["id"] = sqlRow["CLUSTER_ID"]
@@ -36,7 +38,10 @@ class CacheEntry:
             kwargs["url"] = sqlRow["CLUSTTER_URL"]
 
         if "CLUSTER_STATE" in sqlRow:
-            kwargs["state"] = json.loads(sqlRow["CLUSTER_STATE"])
+            if sqlRow["CLUSTER_STATE"] is None:
+                kwargs["state"] = []
+            else:
+                kwargs["state"] = json.loads(sqlRow["CLUSTER_STATE"])
 
         if "RUNNING" in sqlRow:
             kwargs["running"] = bool(sqlRow["RUNNING"])
@@ -44,11 +49,18 @@ class CacheEntry:
         if "ERROR_MESSAGE" in sqlRow:
             kwargs["error_mesage"] = sqlRow["ERROR_MESSAGE"]
 
-        if "LAST_RUNNING_TIMESTAMP" in sqlRow:
-            kwargs["last_time_running"] = sqlRow["LAST_RUNNING_TIMESTAMP"]
+        if (
+            "LAST_RUNNING_TIMESTAMP" in sqlRow
+            and sqlRow["LAST_RUNNING_TIMESTAMP"] is not None
+        ):
+            kwargs["last_time_running"] = datetime.strptime(
+                sqlRow["LAST_RUNNING_TIMESTAMP"], DATE_FORMAT
+            )
 
-        if "CREATED_TIMESTAMP" in sqlRow:
-            kwargs["created"] = sqlRow["CREATED_TIMESTAMP"]
+        if "CREATED_TIMESTAMP" in sqlRow and sqlRow["CREATED_TIMESTAMP"] is not None:
+            kwargs["created"] = datetime.strptime(
+                sqlRow["CREATED_TIMESTAMP"], DATE_FORMAT
+            )
 
         return CacheEntry(**kwargs)
 
@@ -94,7 +106,7 @@ class CacheManager:
         self._db.close()
 
     def load(self):
-        select_sql = """SELECT CLUSTER_ID, CLUSTTER_URL, RUNNING, CLUSTER_STATE, ERROR_MESSAGE, CREATED_TIMESTAMP from VC_CLUSTER_CACHE where CLUSTER_ID=?"""
+        select_sql = """SELECT * from VC_CLUSTER_CACHE where CLUSTER_ID=?"""
 
         db = self._db
         cur = db.cursor().execute(
@@ -113,7 +125,7 @@ class CacheManager:
 
     def merge(self, cache_entry: CacheEntry):
         update_sql = """INSERT OR REPLACE INTO VC_CLUSTER_CACHE (CLUSTER_ID, CLUSTTER_URL, RUNNING, CLUSTER_STATE, ERROR_MESSAGE, LAST_RUNNING_TIMESTAMP, CREATED_TIMESTAMP) values (:CLUSTER_ID, :CLUSTTER_URL, :RUNNING, :CLUSTER_STATE, :ERROR_MESSAGE, :LAST_RUNNING_TIMESTAMP, :CREATED_TIMESTAMP)"""
-        select_sql = """SELECT CLUSTER_ID, CLUSTTER_URL, RUNNING, CLUSTER_STATE, ERROR_MESSAGE, LAST_RUNNING_TIMESTAMP, CREATED_TIMESTAMP from VC_CLUSTER_CACHE where CLUSTER_ID=?"""
+        select_sql = """SELECT * from VC_CLUSTER_CACHE where CLUSTER_ID=?"""
 
         db = self._db
 
@@ -137,33 +149,14 @@ class CacheManager:
                     )
                 )
 
-                if (
-                    cache_entry.error_mesage is None
-                    and old_cache.error_mesage is not None
-                ):
-                    cache_entry.error_mesage = old_cache.error_mesage
+                self._merge_state(new_cache=cache_entry, old_cache=old_cache)
+                self._merge_error(new_cache=cache_entry, old_cache=old_cache)
 
-                else:
-                    if len(cache_entry.error_mesage) == 0:
-                        cache_entry.error_mesage = None
-
-                if (
-                    cache_entry.last_time_running is None
-                    and old_cache.last_time_running is not None
-                ):
-                    cache_entry.last_time_running = old_cache.last_time_running
-
-                if cache_entry.running is None and old_cache.running is not None:
-                    cache_entry.running = old_cache.running
-
-                if cache_entry.created is None and old_cache.created is not None:
-                    cache_entry.created = old_cache.created
-
-                if cache_entry.state is None and old_cache.state is not None:
-                    cache_entry.state = old_cache.state
-
-                if cache_entry.url is None and old_cache.url is not None:
-                    cache_entry.url = old_cache.url
+                self._merge_last_time_running(
+                    new_cache=cache_entry, old_cache=old_cache
+                )
+                self._merge_running(new_cache=cache_entry, old_cache=old_cache)
+                self._merge_url(new_cache=cache_entry, old_cache=old_cache)
 
                 cursor.execute(
                     update_sql,
@@ -178,20 +171,56 @@ class CacheManager:
 
         return cache_entry
 
+    def _merge_state(self, new_cache, old_cache):
+        if new_cache.state is None and old_cache.state is not None:
+            new_cache.state = old_cache.state
+        else:
+            self._merge_donwtime(new_cache=new_cache, old_cache=old_cache)
 
-def to_dict(cache: CacheEntry):
+    def _merge_url(self, new_cache, old_cache):
+        if new_cache.url is None and old_cache.url is not None:
+            new_cache.url = old_cache.url
 
-    resp = {}
+    def _merge_running(self, new_cache, old_cache):
+        if new_cache.running is None and old_cache.running is not None:
+            new_cache.running = old_cache.running
 
-    if "CLUSTER_STATE" in cache and cache["CLUSTER_STATE"] is not None:
-        resp["state"] = json.loads(cache["CLUSTER_STATE"])
-    else:
-        resp["state"] = []
+    def _merge_last_time_running(self, new_cache, old_cache):
+        if (
+            new_cache.last_time_running is None
+            and old_cache.last_time_running is not None
+        ):
+            new_cache.last_time_running = old_cache.last_time_running
 
-    if "ERROR_MESSAGE" in cache and cache["ERROR_MESSAGE"] is not None:
-        resp["message"] = cache["ERROR_MESSAGE"]
+    def _merge_donwtime(self, new_cache, old_cache):
+        failed = {}
+        for connector in old_cache.state:
+            name = connector["name"]
+            if connector["connector"]["state"] == "FAILED":
+                failed[name] = connector["connector"]["downtime"]
 
-    if "RUNNING" in cache and cache["RUNNING"] is not None:
-        resp["isConnectUp"] = bool(cache["RUNNING"])
+            for i, task in enumerate(connector["tasks"]):
+                if task["state"] == "FAILED":
+                    failed[name + ":" + str(i)] = task["downtime"]
 
-    return resp
+        if len(failed) > 0:
+            for connector in new_cache.state:
+                name = connector["name"]
+                if connector["connector"]["state"] == "FAILED":
+
+                    if name in failed:
+                        connector["connector"]["downtime"] = failed[name]
+
+                for i, task in enumerate(connector["tasks"]):
+                    if task["state"] == "FAILED":
+                        task_id = name + ":" + str(i)
+                        if task_id in failed:
+                            connector["tasks"][i]["downtime"] = failed[task_id]
+
+    def _merge_error(self, new_cache, old_cache):
+        if new_cache.error_mesage is None and old_cache.error_mesage is not None:
+            new_cache.error_mesage = old_cache.error_mesage
+
+        else:
+            if new_cache.error_mesage is not None and len(new_cache.error_mesage) == 0:
+                new_cache.error_mesage = None
