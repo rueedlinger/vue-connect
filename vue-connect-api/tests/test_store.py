@@ -10,6 +10,65 @@ def get_cache_manager():
     return cache
 
 
+def test_from_sql():
+
+    DATE_FORMAT = "%Y-%m-%d %H:%M:%S.%f"
+
+    entry = CacheEntry.from_sql({})
+    assert entry.state == None
+
+    entry = CacheEntry.from_sql({"CLUSTER_STATE": None})
+    assert entry.state == None
+
+    entry = CacheEntry.from_sql({"CLUSTER_STATE": '{"foo": "bar"}'})
+    assert entry.state == {"foo": "bar"}
+
+    entry = CacheEntry.from_sql({"CLUSTER_ID": 10})
+    assert entry.id == 10
+
+    entry = CacheEntry.from_sql({"CLUSTER_ID": None})
+    assert entry.id is None
+
+    entry = CacheEntry.from_sql({"CLUSTER_URL": "foo"})
+    assert entry.url == "foo"
+
+    entry = CacheEntry.from_sql({"CLUSTER_URL": None})
+    assert entry.url is None
+
+    entry = CacheEntry.from_sql({"RUNNING": 1})
+    assert entry.running == True
+
+    entry = CacheEntry.from_sql({"RUNNING": 0})
+    assert entry.running == False
+
+    entry = CacheEntry.from_sql({"RUNNING": None})
+    assert entry.running == False
+
+    entry = CacheEntry.from_sql({"ERROR_MESSAGE": None})
+    assert entry.error_mesage is None
+
+    entry = CacheEntry.from_sql({"ERROR_MESSAGE": ""})
+    assert entry.error_mesage is None
+
+    entry = CacheEntry.from_sql({"ERROR_MESSAGE": "foo"})
+    assert entry.error_mesage == "foo"
+
+    entry = CacheEntry.from_sql({"LAST_RUNNING_TIMESTAMP": None})
+    assert entry.last_time_running is None
+
+    entry = CacheEntry.from_sql(
+        {"LAST_RUNNING_TIMESTAMP": "2021-03-01 23:05:53.419967"}
+    )
+    assert entry.last_time_running is not None
+    assert entry.last_time_running == datetime.strptime(
+        "2021-03-01 23:05:53.419967", DATE_FORMAT
+    )
+
+    entry = CacheEntry.from_sql({"CREATED_TIMESTAMP": "2021-03-01 23:05:53.419967"})
+    assert entry.created is not None
+    assert entry.created == datetime.strptime("2021-03-01 23:05:53.419967", DATE_FORMAT)
+
+
 def test_default_cache_entry():
     entry = CacheEntry()
     assert entry.id == 0
@@ -31,8 +90,8 @@ def test_default_cache_entry():
     assert "CLUSTER_ID" in entry.to_sql()
     assert entry.to_sql()["CLUSTER_ID"] == 0
 
-    assert "CLUSTTER_URL" in entry.to_sql()
-    assert entry.to_sql()["CLUSTTER_URL"] is not None
+    assert "CLUSTER_URL" in entry.to_sql()
+    assert entry.to_sql()["CLUSTER_URL"] is not None
 
     assert "CLUSTER_STATE" in entry.to_sql()
     assert entry.to_sql()["CLUSTER_STATE"] is None

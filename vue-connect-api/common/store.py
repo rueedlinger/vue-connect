@@ -34,20 +34,23 @@ class CacheEntry:
         if "CLUSTER_ID" in sqlRow:
             kwargs["id"] = sqlRow["CLUSTER_ID"]
 
-        if "CLUSTTER_URL" in sqlRow:
-            kwargs["url"] = sqlRow["CLUSTTER_URL"]
+        if "CLUSTER_URL" in sqlRow:
+            kwargs["url"] = sqlRow["CLUSTER_URL"]
 
-        if "CLUSTER_STATE" in sqlRow:
-            if sqlRow["CLUSTER_STATE"] is None:
-                kwargs["state"] = []
-            else:
-                kwargs["state"] = json.loads(sqlRow["CLUSTER_STATE"])
+        if "CLUSTER_STATE" in sqlRow and sqlRow["CLUSTER_STATE"] is not None:
+            kwargs["state"] = json.loads(sqlRow["CLUSTER_STATE"])
 
         if "RUNNING" in sqlRow:
             kwargs["running"] = bool(sqlRow["RUNNING"])
 
         if "ERROR_MESSAGE" in sqlRow:
-            kwargs["error_mesage"] = sqlRow["ERROR_MESSAGE"]
+            if (
+                sqlRow["ERROR_MESSAGE"] is not None
+                and len(sqlRow["ERROR_MESSAGE"]) == 0
+            ):
+                kwargs["error_mesage"] = None
+            else:
+                kwargs["error_mesage"] = sqlRow["ERROR_MESSAGE"]
 
         if (
             "LAST_RUNNING_TIMESTAMP" in sqlRow
@@ -68,7 +71,7 @@ class CacheEntry:
 
         return {
             "CLUSTER_ID": self.id,
-            "CLUSTTER_URL": self.url,
+            "CLUSTER_URL": self.url,
             "CLUSTER_STATE": json.dumps(self.state) if self.state is not None else None,
             "RUNNING": int(self.running) if self.running is not None else None,
             "LAST_RUNNING_TIMESTAMP": self.last_time_running,
@@ -124,7 +127,7 @@ class CacheManager:
             )
 
     def merge(self, cache_entry: CacheEntry):
-        update_sql = """INSERT OR REPLACE INTO VC_CLUSTER_CACHE (CLUSTER_ID, CLUSTTER_URL, RUNNING, CLUSTER_STATE, ERROR_MESSAGE, LAST_RUNNING_TIMESTAMP, CREATED_TIMESTAMP) values (:CLUSTER_ID, :CLUSTTER_URL, :RUNNING, :CLUSTER_STATE, :ERROR_MESSAGE, :LAST_RUNNING_TIMESTAMP, :CREATED_TIMESTAMP)"""
+        update_sql = """INSERT OR REPLACE INTO VC_CLUSTER_CACHE (CLUSTER_ID, CLUSTER_URL, RUNNING, CLUSTER_STATE, ERROR_MESSAGE, LAST_RUNNING_TIMESTAMP, CREATED_TIMESTAMP) values (:CLUSTER_ID, :CLUSTER_URL, :RUNNING, :CLUSTER_STATE, :ERROR_MESSAGE, :LAST_RUNNING_TIMESTAMP, :CREATED_TIMESTAMP)"""
         select_sql = """SELECT * from VC_CLUSTER_CACHE where CLUSTER_ID=?"""
 
         db = self._db
@@ -220,7 +223,3 @@ class CacheManager:
     def _merge_error(self, new_cache, old_cache):
         if new_cache.error_mesage is None and old_cache.error_mesage is not None:
             new_cache.error_mesage = old_cache.error_mesage
-
-        else:
-            if new_cache.error_mesage is not None and len(new_cache.error_mesage) == 0:
-                new_cache.error_mesage = None
