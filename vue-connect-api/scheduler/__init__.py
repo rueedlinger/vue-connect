@@ -1,9 +1,6 @@
 import logging
 
 from apscheduler.schedulers.background import BlockingScheduler
-from common import config
-
-from scheduler import job
 
 
 class Scheduler:

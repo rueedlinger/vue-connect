@@ -1,11 +1,10 @@
-import logging
-import sqlite3
-import os
 import json
+import logging
+import os
+import sqlite3
 
 from common import config
-from flask import Flask, jsonify, g
-
+from flask import Flask, g, jsonify
 from flask_cors import CORS
 from requests.exceptions import ConnectionError, Timeout
 

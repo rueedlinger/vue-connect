@@ -1,4 +1,4 @@
-import os, tempfile
+import os
 
 DEFAULT_REST_ENDPOINT = "http://localhost:8083"
 DEFAULT_REQUEST_TIMEOUT_SEC = 5
