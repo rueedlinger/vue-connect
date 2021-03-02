@@ -57,6 +57,10 @@
                   <li><b>Connector ID:</b> {{ item.name }}</li>
                   <li><b>Type:</b> {{ item.type }}</li>
                   <li><b>Worker ID:</b> {{ item.connector.worker_id }}</li>
+                  <li v-if="item.connector.downtime" class="has-text-danger">
+                    <b>Downtime:</b>
+                    {{ new Date(item.connector.downtime).toLocaleString() }}
+                  </li>
                   <li
                     class="has-text-danger"
                     v-if="item.connector.traceMessage"
@@ -179,6 +183,10 @@
                         <ul id="detail">
                           <li><b>Task ID:</b> {{ task.id }}</li>
                           <li><b>Worker ID:</b> {{ task.worker_id }}</li>
+                          <li v-if="task.downtime" class="has-text-danger">
+                            <b>Downtime:</b>
+                            {{ new Date(task.downtime).toLocaleString() }}
+                          </li>
                           <li class="has-text-danger" v-if="task.traceMessage">
                             <b>Error:</b> {{ task.traceMessage }}
                           </li>
@@ -247,7 +255,7 @@ function sortedConnectors(connectors) {
 }
 
 function loadData() {
-  this.isLoading = `status`;
+  this.isLoading = "status";
   this.errors = null;
 
   connect
@@ -258,8 +266,8 @@ function loadData() {
     })
     .catch((e) => {
       // check if there is cached state in error response
-      if (e.response && e.response.data.cache) {
-        this.data = sortedConnectors(e.response.data.cache);
+      if (e.response && e.response.data.state) {
+        this.data = sortedConnectors(e.response.data.state);
       }
       this.errors = errorHandler.transform(e);
       this.isLoading = "";
@@ -313,6 +321,7 @@ export default {
   created() {
     loadData.bind(this)();
 
+    // polling new data from cache
     this.polling = setInterval(
       function() {
         connect

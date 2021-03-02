@@ -1,7 +1,7 @@
 #
 # Example Kafka Connect Docker image for testing different connectors
 #
-FROM confluentinc/cp-kafka-connect-base:6.0.1
+FROM confluentinc/cp-kafka-connect-base:6.1.0
 
 ## Install connectors
 RUN confluent-hub install --no-prompt confluentinc/kafka-connect-datagen:latest

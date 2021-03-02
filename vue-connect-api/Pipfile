@@ -7,6 +7,8 @@ verify_ssl = true
 pytest = "*"
 pytest-mock = "*"
 autopep8 = "*"
+pylint = "*"
+black = "*"
 
 [packages]
 flask = "*"
@@ -16,4 +18,7 @@ gunicorn = "*"
 apscheduler = "*"
 
 [requires]
-python_version = "3.7"
+python_version = "3.8"
+
+[pipenv]
+allow_prereleases = true

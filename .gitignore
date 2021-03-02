@@ -144,6 +144,9 @@ venv.bak/
 # mkdocs documentation
 /site
 
+# ignore sqlite db files
+*.db
+
 # mypy
 .mypy_cache/
 .dmypy.json
