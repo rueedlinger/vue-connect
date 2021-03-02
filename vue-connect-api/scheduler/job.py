@@ -23,7 +23,9 @@ class UpdateCacheJob(Job):
     def run(self):
         cache = store.CacheManager(config.get_db_url())
         try:
+            logging.info("loading cluster state")
             state = connect.load_state()
+            logging.info("merging cache")
             cache.merge(
                 store.CacheEntry(
                     state=state,

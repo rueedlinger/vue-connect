@@ -4,20 +4,13 @@ from unittest.mock import patch
 import backend
 import pytest
 
+from tests import MockResp
+
 TIMEOUT = 5
 
 
-class Resp:
-    def __init__(self, data=[], status_code=200):
-        self.data = data
-        self.status_code = status_code
-
-    def json(self):
-        return self.data
-
-
 @pytest.fixture
-def client(monkeypatch):
+def client():
 
     app = backend.create_app()
 
@@ -29,7 +22,7 @@ def test_status_empty(client):
 
     patcher = patch("requests.get")
     mock_get = patcher.start()
-    mock_get.return_value = Resp(data=[])
+    mock_get.return_value = MockResp(data=[])
 
     resp = client.get("/api/status")
     patcher.stop()
@@ -52,7 +45,7 @@ def test_status_with_data(client):
     }
     patcher = patch("requests.get")
     mock_get = patcher.start()
-    mock_get.return_value = Resp(data=data)
+    mock_get.return_value = MockResp(data=data)
 
     resp = client.get("/api/status")
     patcher.stop()
@@ -71,7 +64,7 @@ def test_status_with_id(client):
 
     patcher = patch("requests.get")
     mock_get = patcher.start()
-    mock_get.return_value = Resp(data=status)
+    mock_get.return_value = MockResp(data=status)
 
     resp = client.get("/api/status/foo")
     patcher.stop()
@@ -88,7 +81,7 @@ def test_new_missing_data(client):
 
     patcher = patch("requests.post")
     mock_post = patcher.start()
-    mock_post.return_value = Resp()
+    mock_post.return_value = MockResp()
 
     resp = client.post("/api/connectors")
     patcher.stop()
@@ -107,7 +100,7 @@ def test_new_missing_name_attribute(client):
 
     patcher = patch("requests.post")
     mock_post = patcher.start()
-    mock_post.return_value = Resp()
+    mock_post.return_value = MockResp()
 
     resp = client.post(
         "/api/connectors", data=json.dumps(data), content_type="application/json"
@@ -127,7 +120,7 @@ def test_new(client):
 
     patcher = patch("requests.post")
     mock_post = patcher.start()
-    mock_post.return_value = Resp(data={"foo": "bar"})
+    mock_post.return_value = MockResp(data={"foo": "bar"})
 
     resp = client.post(
         "/api/connectors", data=json.dumps(data), content_type="application/json"
@@ -148,7 +141,7 @@ def test_update(client):
 
     patcher = patch("requests.put")
     mock_put = patcher.start()
-    mock_put.return_value = Resp(data={"foo": "bar"})
+    mock_put.return_value = MockResp(data={"foo": "bar"})
 
     resp = client.post(
         "/api/connectors/foo/config",
@@ -169,7 +162,7 @@ def test_update_missing_data(client):
 
     patcher = patch("requests.put")
     mock_put = patcher.start()
-    mock_put.return_value = Resp()
+    mock_put.return_value = MockResp()
 
     resp = client.post("/api/connectors/foo/config")
     patcher.stop()
@@ -187,11 +180,11 @@ def test_restart(client):
 
     patcherPost = patch("requests.post")
     mock_post = patcherPost.start()
-    mock_post.return_value = Resp()
+    mock_post.return_value = MockResp()
 
     patcherGet = patch("requests.get")
     mock_get = patcherGet.start()
-    mock_get.return_value = Resp(
+    mock_get.return_value = MockResp(
         data={"foo": {"name": {}, "status": {"connector": {}, "tasks": []}}}
     )
 
@@ -215,11 +208,11 @@ def test_task_restart(client):
 
     patcherPost = patch("requests.post")
     mock_post = patcherPost.start()
-    mock_post.return_value = Resp()
+    mock_post.return_value = MockResp()
 
     patcherGet = patch("requests.get")
     mock_get = patcherGet.start()
-    mock_get.return_value = Resp(
+    mock_get.return_value = MockResp(
         data={"foo": {"name": {}, "status": {"connector": {}, "tasks": []}}}
     )
 
@@ -243,11 +236,11 @@ def test_delete(client):
 
     patcherDelete = patch("requests.delete")
     mock_delete = patcherDelete.start()
-    mock_delete.return_value = Resp()
+    mock_delete.return_value = MockResp()
 
     patcherGet = patch("requests.get")
     mock_get = patcherGet.start()
-    mock_get.return_value = Resp(
+    mock_get.return_value = MockResp(
         data={"foo": {"name": {}, "status": {"connector": {}, "tasks": []}}}
     )
 
@@ -271,11 +264,11 @@ def test_pause(client):
 
     patcherPut = patch("requests.put")
     mock_put = patcherPut.start()
-    mock_put.return_value = Resp()
+    mock_put.return_value = MockResp()
 
     patcherGet = patch("requests.get")
     mock_get = patcherGet.start()
-    mock_get.return_value = Resp(
+    mock_get.return_value = MockResp(
         data={"foo": {"name": {}, "status": {"connector": {}, "tasks": []}}}
     )
 
@@ -299,11 +292,11 @@ def test_resume(client):
 
     patcherPut = patch("requests.put")
     mock_put = patcherPut.start()
-    mock_put.return_value = Resp()
+    mock_put.return_value = MockResp()
 
     patcherGet = patch("requests.get")
     mock_get = patcherGet.start()
-    mock_get.return_value = Resp(
+    mock_get.return_value = MockResp(
         data={"foo": {"name": {}, "status": {"connector": {}, "tasks": []}}}
     )
 
@@ -326,7 +319,7 @@ def test_resume(client):
 def test_polling(client):
     patcherGet = patch("requests.get")
     mock_get = patcherGet.start()
-    mock_get.return_value = Resp()
+    mock_get.return_value = MockResp()
 
     resp = client.get("/api/polling")
     patcherGet.stop()
@@ -340,7 +333,7 @@ def test_polling(client):
 def test_config(client):
     patcherGet = patch("requests.get")
     mock_get = patcherGet.start()
-    mock_get.return_value = Resp(data={"foo": "bar"})
+    mock_get.return_value = MockResp(data={"foo": "bar"})
 
     resp = client.get("/api/config/foo")
     patcherGet.stop()
@@ -356,7 +349,7 @@ def test_config(client):
 def test_plugins(client):
     patcherGet = patch("requests.get")
     mock_get = patcherGet.start()
-    mock_get.return_value = Resp(data=[{"class": "foo.bar"}])
+    mock_get.return_value = MockResp(data=[{"class": "foo.bar"}])
 
     resp = client.get("/api/plugins")
     patcherGet.stop()
@@ -375,7 +368,7 @@ def test_validate(client):
 
     patcherPut = patch("requests.put")
     mock_put = patcherPut.start()
-    mock_put.return_value = Resp(data={"class": "foo.bar"})
+    mock_put.return_value = MockResp(data={"class": "foo.bar"})
 
     resp = client.post(
         "/api/plugins/foo/config/validate",
@@ -398,7 +391,7 @@ def test_app_info(client):
 
     patcherGet = patch("requests.get")
     mock_get = patcherGet.start()
-    mock_get.return_value = Resp()
+    mock_get.return_value = MockResp()
 
     resp = client.get("/api/app/info")
     patcherGet.stop()
@@ -413,7 +406,7 @@ def test_info(client):
 
     patcherGet = patch("requests.get")
     mock_get = patcherGet.start()
-    mock_get.return_value = Resp(data={"foo": "bar"})
+    mock_get.return_value = MockResp(data={"foo": "bar"})
 
     resp = client.get("/api/info")
     patcherGet.stop()
