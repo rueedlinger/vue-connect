@@ -16,7 +16,7 @@ def test_add_job():
     assert len(scheduler._scheduler._pending_jobs) == 1
 
 
-def test_cache_job(monkeypatch):
+def test_cache_job():
 
     cache = job.UpdateCacheJob()
 
@@ -28,7 +28,6 @@ def test_cache_job(monkeypatch):
 
     patcher_cache = patch("common.store.CacheManager")
     mock_cache = patcher_cache.start()
-    # mock_cache.return_value = ()
 
     cache.run()
 
