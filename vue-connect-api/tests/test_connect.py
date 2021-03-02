@@ -27,6 +27,25 @@ def test_load_state(data):
     assert resp == []
 
 
+def test_cluster_info():
+    patcherGet = patch("requests.get")
+    mock_get = patcherGet.start()
+    mock_get.return_value = MockResp(
+        data={"foo": {"status": {"connector": {}, "tasks": []}}}
+    )
+
+    resp = connect.load_state(0)
+    patcherGet.stop()
+
+    mock_get.assert_called_once_with(
+        "http://localhost:8083/connectors?expand=info&expand=status", timeout=TIMEOUT
+    )
+
+    assert resp[0]["cluster"] is not None
+    assert resp[0]["cluster"]["url"] is not None
+    assert resp[0]["cluster"]["id"] is not None
+
+
 def test_error_message():
     patcherGet = patch("requests.get")
     mock_get = patcherGet.start()

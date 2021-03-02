@@ -55,7 +55,10 @@ def test_status_with_data(client):
     )
 
     assert 200 == resp.status_code
-    assert b'[{"connector":{"state":"RUNNING"},"name":"foo","tasks":[]}]' in resp.data
+    assert (
+        b'{"errors":[],"state":[{"cluster":{"id":0,"url":"http://localhost:8083"},"connector":{"state":"RUNNING"},"name":"foo","tasks":[]}]}'
+        in resp.data
+    )
 
 
 def test_status_with_id(client):
@@ -205,7 +208,10 @@ def test_restart(client):
     )
 
     assert 200 == resp.status_code
-    assert b'[{"connector":{},"tasks":[]}]' in resp.data
+    assert (
+        b'{"errors":[],"state":[{"cluster":{"id":0,"url":"http://localhost:8083"},"connector":{},"tasks":[]}]}'
+        in resp.data
+    )
 
 
 def test_task_restart(client):
@@ -233,7 +239,10 @@ def test_task_restart(client):
     )
 
     assert 200 == resp.status_code
-    assert b'[{"connector":{},"tasks":[]}]' in resp.data
+    assert (
+        b'{"errors":[],"state":[{"cluster":{"id":0,"url":"http://localhost:8083"},"connector":{},"tasks":[]}]}'
+        in resp.data
+    )
 
 
 def test_delete(client):
@@ -261,7 +270,10 @@ def test_delete(client):
     )
 
     assert 200 == resp.status_code
-    assert b'[{"connector":{},"tasks":[]}]' in resp.data
+    assert (
+        b'{"errors":[],"state":[{"cluster":{"id":0,"url":"http://localhost:8083"},"connector":{},"tasks":[]}]}'
+        in resp.data
+    )
 
 
 def test_pause(client):
@@ -289,7 +301,10 @@ def test_pause(client):
     )
 
     assert 200 == resp.status_code
-    assert b'[{"connector":{},"tasks":[]}]' in resp.data
+    assert (
+        b'{"errors":[],"state":[{"cluster":{"id":0,"url":"http://localhost:8083"},"connector":{},"tasks":[]}]}'
+        in resp.data
+    )
 
 
 def test_resume(client):
@@ -317,7 +332,10 @@ def test_resume(client):
     )
 
     assert 200 == resp.status_code
-    assert b'[{"connector":{},"tasks":[]}]' in resp.data
+    assert (
+        b'{"errors":[],"state":[{"cluster":{"id":0,"url":"http://localhost:8083"},"connector":{},"tasks":[]}]}'
+        in resp.data
+    )
 
 
 def test_polling(client):

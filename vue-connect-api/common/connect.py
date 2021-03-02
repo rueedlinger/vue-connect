@@ -26,8 +26,6 @@ def load_state(cluster_id):
     for name in connectors:
         connector = connectors[name]
 
-        connector["cluster"] = cluster
-
         if "status" not in connector:
             continue
 
@@ -66,5 +64,6 @@ def load_state(cluster_id):
                     task["downtime"] = str(datetime.now().isoformat())
 
         if len(connector_state) > 0:
+            connector_state["cluster"] = cluster
             state.append(connector_state)
     return state
