@@ -1,11 +1,8 @@
-import logging
-
 from apscheduler.schedulers.background import BlockingScheduler
 
 
 class Scheduler:
     def __init__(self):
-        logging.basicConfig(level=logging.INFO)
         self._scheduler = BlockingScheduler(daemon=True)
 
     def add_job(self, job):

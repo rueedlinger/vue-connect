@@ -3,14 +3,23 @@ import json
 import pytest
 import backend
 
-path_get = ["/api/plugins", "/api/status/foo", "/api/config/foo", "/api/info"]
+path_get_for_cluster = [
+    "/api/cluster/0/status/foo",
+    "/api/cluster/0/config/foo",
+]
 
-path_post = [
-    "/api/connectors/foo/tasks/0/restart",
-    "/api/connectors/foo/resume",
-    "/api/connectors/foo/pause",
-    "/api/connectors/foo/delete",
-    "/api/connectors/foo/restart",
+path_get_for_all = [
+    "/api/plugins",
+    "/api/status/",
+]
+
+
+path_post_for_cluster = [
+    "/api/cluster/0/connectors/foo/tasks/0/restart",
+    "/api/cluster/0/connectors/foo/resume",
+    "/api/cluster/0/connectors/foo/pause",
+    "/api/cluster/0/connectors/foo/delete",
+    "/api/cluster/0/connectors/foo/restart",
 ]
 
 
@@ -40,14 +49,14 @@ def test_api_not_allowed(client):
 
 
 def test_api_missing_data_with_post(client):
-    resp = client.post("/api/connectors/foo/config")
+    resp = client.post("/api/cluster/0/connectors/foo/config")
     assert (
         b'{"message":"Missing data. There is no connector configuration for \'foo\'."}'
         in resp.data
     )
     assert 400 == resp.status_code
 
-    resp = client.post("/api/connectors")
+    resp = client.post("/api/cluster/0/connectors")
     assert (
         b'{"message":"Missing data. There was no connector configuration provided."}'
         in resp.data
@@ -57,29 +66,31 @@ def test_api_missing_data_with_post(client):
 
 def test_api_post_with_data(client):
     resp = client.post(
-        "/api/connectors/foo/config",
+        "/api/cluster/0/connectors/foo/config",
         data=json.dumps({}),
         content_type="application/json",
     )
     assertNotReachable(resp)
 
     resp = client.post(
-        "/api/connectors",
+        "/api/cluster/0/connectors",
         data=json.dumps({"name": "foo"}),
         content_type="application/json",
     )
     assertNotReachable(resp)
 
     resp = client.post(
-        "/api/connectors", data=json.dumps({}), content_type="application/json"
+        "/api/cluster/0/connectors",
+        data=json.dumps({}),
+        content_type="application/json",
     )
     assert b'{"message":"Missing configuration property \'name\'."}' in resp.data
     assert 400 == resp.status_code
 
 
-def test_api_polling(client):
-    resp = client.get("/api/polling")
-    assert b'{"state":[]}' in resp.data
+def test_api_cache(client):
+    resp = client.get("/api/cache")
+    assert b'{"errors":[],"state":[]}' in resp.data
     assert 200 == resp.status_code
 
 
@@ -89,16 +100,32 @@ def test_api_app_info(client):
     assert 200 == resp.status_code
 
 
-@pytest.mark.parametrize("path", path_get)
-def test_api_get(client, path):
+def test_api_cluster_info(client):
+    resp = client.get("/api/cluster/info")
+    assert (
+        b'[{"error":"Cluster http://foo:1234 not reachable!","id":0,"url":"http://foo:1234"}]'
+        in resp.data
+    )
+    assert 200 == resp.status_code
+
+
+@pytest.mark.parametrize("path", path_get_for_cluster)
+def test_api_get_for_cluster(client, path):
     resp = client.get(path)
     assertNotReachable(resp)
 
 
-@pytest.mark.parametrize("path", path_post)
-def test_api_post(client, path):
+@pytest.mark.parametrize("path", path_post_for_cluster)
+def test_api_post_for_cluster(client, path):
     resp = client.post(path)
     assertNotReachable(resp)
+
+
+@pytest.mark.parametrize("path", path_get_for_all)
+def test_api_get_all(client, path):
+    resp = client.get(path)
+    assert b'"Cluster http://foo:1234 not reachable!"' in resp.data
+    assert 200 == resp.status_code
 
 
 def assertNotReachable(response):

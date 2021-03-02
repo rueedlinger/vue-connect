@@ -1,17 +1,52 @@
 from common import config
 
 
-def test_get_connect_url(monkeypatch):
-    assert config.get_connect_url() == "http://localhost:8083"
+def test_get_connect_clusters(monkeypatch):
+    assert config.get_connect_clusters() == [{"url": "http://localhost:8083", "id": 0}]
 
     monkeypatch.setenv("CONNECT_URL", "http://connect:8083")
-    assert config.get_connect_url() == "http://connect:8083"
+    assert config.get_connect_clusters() == [{"url": "http://connect:8083", "id": 0}]
 
     monkeypatch.setenv("CONNECT_URL", "http://connect:8083//")
-    assert config.get_connect_url() == "http://connect:8083"
+    assert config.get_connect_clusters() == [{"url": "http://connect:8083", "id": 0}]
 
     monkeypatch.setenv("CONNECT_URL", "http://connect:8083/foo/bar/")
-    assert config.get_connect_url() == "http://connect:8083/foo/bar"
+    assert config.get_connect_clusters() == [
+        {"url": "http://connect:8083/foo/bar", "id": 0}
+    ]
+
+
+def test_multiple_clusters(monkeypatch):
+
+    monkeypatch.setenv("CONNECT_URL", "http://connect-a:8083;http://connect-b:8084")
+    assert config.get_connect_clusters() == [
+        {"url": "http://connect-a:8083", "id": 0},
+        {"url": "http://connect-b:8084", "id": 1},
+    ]
+
+
+def test_multiple_cluster_with_names(monkeypatch):
+
+    monkeypatch.setenv(
+        "CONNECT_URL", "http://connect-a:8083,Cluster A;http://connect-b:8084,Cluster B"
+    )
+    assert config.get_connect_clusters() == [
+        {"url": "http://connect-a:8083", "name": "Cluster A", "id": 0},
+        {"url": "http://connect-b:8084", "name": "Cluster B", "id": 1},
+    ]
+
+
+def test_multiple_clusters_mix(monkeypatch):
+
+    monkeypatch.setenv(
+        "CONNECT_URL",
+        "http://connect-a:8083,Cluster A;http://connect-b:8084;http://connect-c:8085,Cluster C",
+    )
+    assert config.get_connect_clusters() == [
+        {"url": "http://connect-a:8083", "name": "Cluster A", "id": 0},
+        {"url": "http://connect-b:8084", "id": 1},
+        {"url": "http://connect-c:8085", "name": "Cluster C", "id": 2},
+    ]
 
 
 def test_get_db_url(monkeypatch):

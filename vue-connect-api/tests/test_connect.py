@@ -17,7 +17,7 @@ def test_load_state(data):
     mock_get = patcherGet.start()
     mock_get.return_value = MockResp(data=data)
 
-    resp = connect.load_state()
+    resp = connect.load_state(0)
     patcherGet.stop()
 
     mock_get.assert_called_once_with(
@@ -34,7 +34,7 @@ def test_error_message():
         data={"foo": {"status": {"connector": {"trace": "foo"}}}}
     )
 
-    resp = connect.load_state()
+    resp = connect.load_state(0)
     patcherGet.stop()
 
     mock_get.assert_called_once_with(
@@ -53,7 +53,7 @@ def test_error_message_task():
         data={"foo": {"status": {"tasks": [{"trace": "foo"}]}}}
     )
 
-    resp = connect.load_state()
+    resp = connect.load_state(0)
     patcherGet.stop()
 
     mock_get.assert_called_once_with(
@@ -72,7 +72,7 @@ def test_trace_short():
         data={"foo": {"status": {"connector": {"trace": "foo\nbar"}}}}
     )
 
-    resp = connect.load_state()
+    resp = connect.load_state(0)
     patcherGet.stop()
 
     mock_get.assert_called_once_with(
@@ -91,7 +91,7 @@ def test_trace_short_task():
         data={"foo": {"status": {"tasks": [{"trace": "foo\nbar"}]}}}
     )
 
-    resp = connect.load_state()
+    resp = connect.load_state(0)
     patcherGet.stop()
 
     mock_get.assert_called_once_with(
@@ -116,7 +116,7 @@ at com.ericgoebelbecker.stacktraces.StackTrace.d(StackTrace.java:23)
         data={"foo": {"status": {"connector": {"trace": stacktrace}}}}
     )
 
-    resp = connect.load_state()
+    resp = connect.load_state(0)
     patcherGet.stop()
 
     mock_get.assert_called_once_with(
@@ -142,7 +142,7 @@ at com.ericgoebelbecker.stacktraces.StackTrace.d(StackTrace.java:23)
         data={"foo": {"status": {"tasks": [{"trace": stacktrace}]}}}
     )
 
-    resp = connect.load_state()
+    resp = connect.load_state(0)
     patcherGet.stop()
 
     mock_get.assert_called_once_with(

@@ -66,7 +66,7 @@ def test_status_with_id(client):
     mock_get = patcher.start()
     mock_get.return_value = MockResp(data=status)
 
-    resp = client.get("/api/status/foo")
+    resp = client.get("/api/cluster/0/status/foo")
     patcher.stop()
 
     mock_get.assert_called_once_with(
@@ -83,7 +83,7 @@ def test_new_missing_data(client):
     mock_post = patcher.start()
     mock_post.return_value = MockResp()
 
-    resp = client.post("/api/connectors")
+    resp = client.post("/api/cluster/0/connectors")
     patcher.stop()
 
     mock_post.assert_not_called()
@@ -103,7 +103,9 @@ def test_new_missing_name_attribute(client):
     mock_post.return_value = MockResp()
 
     resp = client.post(
-        "/api/connectors", data=json.dumps(data), content_type="application/json"
+        "/api/cluster/0/connectors",
+        data=json.dumps(data),
+        content_type="application/json",
     )
     patcher.stop()
 
@@ -123,7 +125,9 @@ def test_new(client):
     mock_post.return_value = MockResp(data={"foo": "bar"})
 
     resp = client.post(
-        "/api/connectors", data=json.dumps(data), content_type="application/json"
+        "/api/cluster/0/connectors",
+        data=json.dumps(data),
+        content_type="application/json",
     )
     patcher.stop()
 
@@ -144,7 +148,7 @@ def test_update(client):
     mock_put.return_value = MockResp(data={"foo": "bar"})
 
     resp = client.post(
-        "/api/connectors/foo/config",
+        "/api/cluster/0/connectors/foo/config",
         data=json.dumps(data),
         content_type="application/json",
     )
@@ -164,7 +168,7 @@ def test_update_missing_data(client):
     mock_put = patcher.start()
     mock_put.return_value = MockResp()
 
-    resp = client.post("/api/connectors/foo/config")
+    resp = client.post("/api/cluster/0/connectors/foo/config")
     patcher.stop()
 
     mock_put.assert_not_called()
@@ -188,7 +192,7 @@ def test_restart(client):
         data={"foo": {"name": {}, "status": {"connector": {}, "tasks": []}}}
     )
 
-    resp = client.post("/api/connectors/foo/restart")
+    resp = client.post("/api/cluster/0/connectors/foo/restart")
     patcherPost.stop()
     patcherGet.stop()
 
@@ -216,7 +220,7 @@ def test_task_restart(client):
         data={"foo": {"name": {}, "status": {"connector": {}, "tasks": []}}}
     )
 
-    resp = client.post("/api/connectors/foo/tasks/0/restart")
+    resp = client.post("/api/cluster/0/connectors/foo/tasks/0/restart")
     patcherPost.stop()
     patcherGet.stop()
 
@@ -244,7 +248,7 @@ def test_delete(client):
         data={"foo": {"name": {}, "status": {"connector": {}, "tasks": []}}}
     )
 
-    resp = client.post("/api/connectors/foo/delete")
+    resp = client.post("/api/cluster/0/connectors/foo/delete")
     patcherDelete.stop()
     patcherGet.stop()
 
@@ -272,7 +276,7 @@ def test_pause(client):
         data={"foo": {"name": {}, "status": {"connector": {}, "tasks": []}}}
     )
 
-    resp = client.post("/api/connectors/foo/pause")
+    resp = client.post("/api/cluster/0/connectors/foo/pause")
     patcherPut.stop()
     patcherGet.stop()
 
@@ -300,7 +304,7 @@ def test_resume(client):
         data={"foo": {"name": {}, "status": {"connector": {}, "tasks": []}}}
     )
 
-    resp = client.post("/api/connectors/foo/resume")
+    resp = client.post("/api/cluster/0/connectors/foo/resume")
     patcherPut.stop()
     patcherGet.stop()
 
@@ -321,13 +325,13 @@ def test_polling(client):
     mock_get = patcherGet.start()
     mock_get.return_value = MockResp()
 
-    resp = client.get("/api/polling")
+    resp = client.get("/api/cache")
     patcherGet.stop()
 
     mock_get.assert_not_called()
 
     assert 200 == resp.status_code
-    assert b'{"state":[]}' in resp.data
+    assert b'{"errors":[],"state":[]' in resp.data
 
 
 def test_config(client):
@@ -335,7 +339,7 @@ def test_config(client):
     mock_get = patcherGet.start()
     mock_get.return_value = MockResp(data={"foo": "bar"})
 
-    resp = client.get("/api/config/foo")
+    resp = client.get("/api/cluster/0/config/foo")
     patcherGet.stop()
 
     mock_get.assert_called_once_with(
@@ -371,7 +375,7 @@ def test_validate(client):
     mock_put.return_value = MockResp(data={"class": "foo.bar"})
 
     resp = client.post(
-        "/api/plugins/foo/config/validate",
+        "/api/cluster/0/plugins/foo/config/validate",
         data=json.dumps(data),
         content_type="application/json",
     )
@@ -402,16 +406,16 @@ def test_app_info(client):
     assert b'{"build_time":null,"sha":null,"tags":null,"vc_version":"dev"}' in resp.data
 
 
-def test_info(client):
+def test_cluster_info(client):
 
     patcherGet = patch("requests.get")
     mock_get = patcherGet.start()
     mock_get.return_value = MockResp(data={"foo": "bar"})
 
-    resp = client.get("/api/info")
+    resp = client.get("/api/cluster/info")
     patcherGet.stop()
 
     mock_get.assert_called_once_with("http://localhost:8083", timeout=TIMEOUT)
 
     assert 200 == resp.status_code
-    assert b'{"endpoint":"http://localhost:8083","foo":"bar"}' in resp.data
+    assert b'[{"id":0,"info":{"foo":"bar"},"url":"http://localhost:8083"}]' in resp.data

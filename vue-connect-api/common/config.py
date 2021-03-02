@@ -39,11 +39,40 @@ def get_str_config(env_name, default_value):
         return default_value
 
 
-def get_connect_url():
+def get_connect_url(cluster_id):
+
+    for cluster in get_connect_clusters():
+        if cluster["id"] == int(cluster_id):
+            return cluster["url"]
+
+    raise AttributeError("Cluster id {} does not exist.".format(cluster_id))
+
+
+def get_cluster_from_url(url):
+    for cluster in get_connect_clusters():
+        if cluster["url"] in url:
+            return cluster["url"]
+
+    raise AttributeError("Cluster for url {} does not exist.".format(url))
+
+
+def get_connect_clusters():
     if os.getenv("CONNECT_URL") is not None:
-        return os.getenv("CONNECT_URL").rstrip("/")
+        connections = []
+        urls = os.getenv("CONNECT_URL").split(";")
+
+        for id, url in enumerate(urls):
+            connection = url.split(",")
+            if len(connection) == 2:
+                connections.append(
+                    {"url": connection[0].rstrip("/"), "name": connection[1], "id": id}
+                )
+            else:
+                connections.append({"url": connection[0].rstrip("/"), "id": id})
+
+        return connections
     else:
-        return DEFAULT_REST_ENDPOINT
+        return [{"url": DEFAULT_REST_ENDPOINT, "id": 0}]
 
 
 def get_db_url():

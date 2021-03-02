@@ -11,28 +11,20 @@ from requests.exceptions import ConnectionError, Timeout
 from backend import routes
 
 
-def handle_timeout_error(e):
+def handle_timeout_error(e: TimeoutError):
+    url = config.get_cluster_from_url(e.request.url)
+
     return (
-        jsonify(
-            {
-                "message": config.ERROR_MSG_CLUSTER_TIMEOUT.format(
-                    config.get_connect_url()
-                )
-            }
-        ),
+        jsonify({"message": config.ERROR_MSG_CLUSTER_TIMEOUT.format(url)}),
         504,
     )
 
 
-def handle_connection_error(e):
+def handle_connection_error(e: ConnectionError):
+    url = config.get_cluster_from_url(e.request.url)
+
     return (
-        jsonify(
-            {
-                "message": config.ERROR_MSG_CLUSTER_NOT_REACHABLE.format(
-                    config.get_connect_url()
-                )
-            }
-        ),
+        jsonify({"message": config.ERROR_MSG_CLUSTER_NOT_REACHABLE.format(url)}),
         503,
     )
 
