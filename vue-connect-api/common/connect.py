@@ -15,11 +15,19 @@ def load_state():
         timeout=request_timeout_sec,
     )
     connectors = r.json()
+
+    if connectors is None:
+        return state
+
     for name in connectors:
         connector = connectors[name]
+
+        if "status" not in connector:
+            continue
+
         connector_state = connector["status"]
 
-        if "trace" in connector_state["connector"]:
+        if "connector" in connector_state and "trace" in connector_state["connector"]:
             trace_short_connector = connector_state["connector"]["trace"].split("\n")
             if len(trace_short_connector) > 0:
                 connector_state["connector"]["traceShort"] = trace_short_connector[0]
@@ -36,19 +44,21 @@ def load_state():
 
             connector_state["connector"]["downtime"] = str(datetime.now().isoformat())
 
-        for task in connector_state["tasks"]:
-            if "trace" in task:
-                trace_short_task = task["trace"].split("\n")
-                if len(trace_short_task) > 0:
-                    task["traceShort"] = trace_short_task[0]
+        if "tasks" in connector_state:
+            for task in connector_state["tasks"]:
+                if "trace" in task:
+                    trace_short_task = task["trace"].split("\n")
+                    if len(trace_short_task) > 0:
+                        task["traceShort"] = trace_short_task[0]
 
-                    short_task_parts = trace_short_task[0].split(":")
+                        short_task_parts = trace_short_task[0].split(":")
 
-                    if len(short_task_parts) > 1:
-                        task["traceException"] = short_task_parts[0].strip()
-                        task["traceMessage"] = short_task_parts[1].strip()
+                        if len(short_task_parts) > 1:
+                            task["traceException"] = short_task_parts[0].strip()
+                            task["traceMessage"] = short_task_parts[1].strip()
 
-                task["downtime"] = str(datetime.now().isoformat())
+                    task["downtime"] = str(datetime.now().isoformat())
 
-        state.append(connector_state)
+        if len(connector_state) > 0:
+            state.append(connector_state)
     return state
