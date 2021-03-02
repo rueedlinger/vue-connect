@@ -16,10 +16,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 [i32]: https://github.com/rueedlinger/vue-connect/issues/32
 
-## [0.4.0] - 2021-02-24
+## [0.4.0] - 2021-02-23
 
 ### Added
-
 - Support front-end filtering ([#11][i11])
 
 ### Changed
