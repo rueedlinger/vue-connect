@@ -4,7 +4,7 @@ import os
 import sqlite3
 
 from common import config
-from flask import Flask, g, jsonify
+from flask import Flask, jsonify
 from flask_cors import CORS
 from requests.exceptions import ConnectionError, Timeout
 

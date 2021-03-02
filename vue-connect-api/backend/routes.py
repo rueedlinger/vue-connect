@@ -2,7 +2,7 @@ from datetime import datetime
 
 import requests
 from common import config, connect, store
-from flask import Blueprint, current_app, g, jsonify, request
+from flask import Blueprint, g, jsonify, request
 from requests.exceptions import ConnectionError, Timeout
 
 # config
