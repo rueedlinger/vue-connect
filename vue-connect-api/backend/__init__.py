@@ -11,6 +11,13 @@ from requests.exceptions import ConnectionError, Timeout
 from backend import routes
 
 
+def handle_attribute_error(e: AttributeError):
+    return (
+        jsonify({"message": config.ERROR_MSG_BAD_REQUEST.format(e)}),
+        400,
+    )
+
+
 def handle_timeout_error(e: TimeoutError):
     url = config.get_cluster_from_url(e.request.url)
 
@@ -54,6 +61,7 @@ def create_app():
     # handle exceptions
     app.register_error_handler(Timeout, handle_timeout_error)
     app.register_error_handler(ConnectionError, handle_connection_error)
+    app.register_error_handler(AttributeError, handle_attribute_error)
 
     # handler HTTP error codes
     app.register_error_handler(404, page_not_found)

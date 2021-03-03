@@ -185,7 +185,7 @@ def polling():
         cache_entry = get_store().load(cluster_id)
         cluster_states.extend(cache_entry.get_state())
         if cache_entry.error_mesage is not None and cache_entry.running == False:
-            errors.append(cache_entry.error_mesage)
+            errors.append({"message": cache_entry.error_mesage})
 
     return jsonify(resp)
 
@@ -223,7 +223,7 @@ def connectors():
             )
 
             cluster_states.extend(cache_entry.get_state())
-            errors.append(error_msg)
+            errors.append({"message": error_msg})
 
         except Timeout:
             error_msg = config.ERROR_MSG_CLUSTER_TIMEOUT.format(cluster_url)
@@ -232,7 +232,7 @@ def connectors():
                 store.CacheEntry(id=cluster_id, running=False, error_mesage=error_msg)
             )
             cluster_states.extend(cache_entry.get_state())
-            errors.append(error_msg)
+            errors.append({"message": error_msg})
 
         return jsonify(resp)
 

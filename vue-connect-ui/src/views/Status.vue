@@ -28,13 +28,14 @@
     </div>
 
     <div class="box">
-      <error-message :error="errors"></error-message>
+      <error-message :errors="errors"></error-message>
 
       <div class="table-container">
         <table v-if="filterdata.length > 0" class="table is-hoverable">
           <thead>
             <tr>
               <th>State</th>
+              <th>Cluster</th>
               <th>Connector</th>
               <th></th>
               <th></th>
@@ -45,12 +46,16 @@
               <td>
                 <button
                   v-bind:class="item.connector.state"
-                  v-on:click="detail(item.name)"
+                  v-on:click="detail(item.cluster.id, item.name)"
                   v-bind:data-tooltip="item.connector.traceShort"
                   class="button is-rounded is-small is-fullwidth has-tooltip-right has-tooltip-multiline has-tooltip-danger"
                 >
                   {{ item.connector.state }}
                 </button>
+              </td>
+              <td>
+                <span v-if="item.cluster.name">{{ item.cluster.name }}</span>
+                <span v-else>{{ item.cluster.url }}</span>
               </td>
               <td>
                 <ul id="detail">
@@ -75,7 +80,7 @@
                     <td>
                       <a
                         class="button is-primary is-small"
-                        v-on:click="detail(item.name)"
+                        v-on:click="detail(item.cluster.id, item.name)"
                         ><font-awesome-icon
                           icon="info-circle"
                         ></font-awesome-icon
@@ -84,14 +89,14 @@
                     <td>
                       <a
                         class="button is-primary is-small"
-                        v-on:click="edit(item.name)"
+                        v-on:click="edit(item.cluster.id, item.name)"
                         ><font-awesome-icon icon="edit"></font-awesome-icon
                       ></a>
                     </td>
                     <td>
                       <a
                         class="button is-primary is-small"
-                        v-on:click="del(item.name)"
+                        v-on:click="del(item.cluster.id, item.name)"
                         v-bind:class="[
                           isLoading == `delete-${item.name}`
                             ? `is-loading`
@@ -103,7 +108,7 @@
                     <td>
                       <a
                         class="button is-primary is-small"
-                        v-on:click="resume(item.name)"
+                        v-on:click="resume(item.cluster.id, item.name)"
                         v-bind:class="[
                           isLoading == `resume-${item.name}`
                             ? `is-loading`
@@ -118,7 +123,7 @@
                     <td>
                       <a
                         class="button is-primary is-small"
-                        v-on:click="pause(item.name)"
+                        v-on:click="pause(item.cluster.id, item.name)"
                         v-bind:class="[
                           isLoading == `pause-${item.name}` ? `is-loading` : ``,
                         ]"
@@ -131,7 +136,7 @@
                     <td>
                       <a
                         class="button is-primary is-small"
-                        v-on:click="restart(item.name)"
+                        v-on:click="restart(item.cluster.id, item.name)"
                         v-bind:class="[
                           isLoading == `restart-${item.name}`
                             ? `is-loading`
@@ -174,7 +179,7 @@
                           v-bind:class="task.state"
                           v-bind:data-tooltip="task.traceShort"
                           class="button is-rounded is-small is-fullwidth has-tooltip-multiline has-tooltip-danger has-tooltip-right"
-                          v-on:click="detail(item.name)"
+                          v-on:click="detail(item.cluster.id, item.name)"
                         >
                           {{ task.state }}
                         </button>
@@ -195,7 +200,9 @@
                       <td>
                         <a
                           class="button is-primary is-small"
-                          v-on:click="restartTask(item.name, task.id)"
+                          v-on:click="
+                            restartTask(item.cluster.id, item.name, task.id)
+                          "
                           v-bind:class="[
                             isLoading == `restart-${item.name}-${task.id}`
                               ? `is-loading`
@@ -256,39 +263,43 @@ function sortedConnectors(connectors) {
 
 function loadData() {
   this.isLoading = "status";
-  this.errors = null;
-
+  this.errors = [];
   connect
     .getAllConnectorStatus()
     .then((response) => {
-      this.data = sortedConnectors(response.data);
+      this.data = sortedConnectors(response.data.state);
+      this.errors = response.data.errors;
       this.isLoading = "";
     })
     .catch((e) => {
-      // check if there is cached state in error response
-      if (e.response && e.response.data.state) {
-        this.data = sortedConnectors(e.response.data.state);
-      }
-      this.errors = errorHandler.transform(e);
+      this.errors.push(errorHandler.transform(e));
       this.isLoading = "";
     });
 }
 
-function runConnectOperation(operation, operationName, connectorId, taskId) {
+function runConnectOperation(
+  operation,
+  operationName,
+  clusterId,
+  connectorId,
+  taskId
+) {
+  this.errors = [];
+
   if (taskId != null) {
     this.isLoading = `${operationName}-${connectorId}-${taskId}`;
   } else {
     this.isLoading = `${operationName}-${connectorId}`;
   }
 
-  this.errors = null;
-  operation(connectorId, taskId)
+  operation(clusterId, connectorId, taskId)
     .then((resp) => {
-      this.data = sortedConnectors(resp.data);
+      this.data = sortedConnectors(resp.data.state);
+      this.errors = resp.data.errors;
       this.isLoading = "";
     })
     .catch((e) => {
-      this.errors = errorHandler.transform(e);
+      this.errors.push(errorHandler.transform(e));
       this.isLoading = "";
     });
 }
@@ -298,7 +309,7 @@ export default {
   data() {
     return {
       data: [],
-      errors: null,
+      errors: [],
       polling: null,
       isLoading: "",
       searchText: "",
@@ -327,20 +338,11 @@ export default {
         connect
           .pollConnectorStatus()
           .then((response) => {
-            if (response.data.state != null && response.data.state.length > 0) {
-              this.data = sortedConnectors(response.data.state);
-              if (response.data.isConnectUp) {
-                // connect is running again
-                this.errors = null;
-              }
-              if (!response.data.isConnectUp && this.errors == null) {
-                // set error from cache
-                this.errors = { message: response.data.message };
-              }
-            }
+            this.data = sortedConnectors(response.data.state);
+            this.errors = response.data.errors;
           })
           .catch((e) => {
-            this.errors = errorHandler.transform(e);
+            this.errors = [errorHandler.transform(e)];
           });
       }.bind(this),
       10000
@@ -355,28 +357,49 @@ export default {
     reload() {
       loadData.bind(this)();
     },
-    detail: function(id) {
-      this.$router.push("/detail/" + id);
+    detail: function(clusterId, id) {
+      this.$router.push("/detail/" + clusterId + "/" + id);
     },
-    edit: function(id) {
-      this.$router.push("/edit/" + id);
+    edit: function(clusterId, id) {
+      this.$router.push("/edit/" + clusterId + "/" + id);
     },
-    del: function(id) {
-      runConnectOperation.bind(this)(connect.deleteConnector, "delete", id);
+    del: function(clusterId, id) {
+      runConnectOperation.bind(this)(
+        connect.deleteConnector,
+        "delete",
+        clusterId,
+        id
+      );
     },
-    restart: function(id) {
-      runConnectOperation.bind(this)(connect.restartConnector, "restart", id);
+    restart: function(clusterId, id) {
+      runConnectOperation.bind(this)(
+        connect.restartConnector,
+        "restart",
+        clusterId,
+        id
+      );
     },
-    pause: function(id) {
-      runConnectOperation.bind(this)(connect.pauseConnector, "pause", id);
+    pause: function(clusterId, id) {
+      runConnectOperation.bind(this)(
+        connect.pauseConnector,
+        "pause",
+        clusterId,
+        id
+      );
     },
-    resume: function(id) {
-      runConnectOperation.bind(this)(connect.resumeConnector, "resume", id);
+    resume: function(clusterId, id) {
+      runConnectOperation.bind(this)(
+        connect.resumeConnector,
+        "resume",
+        clusterId,
+        id
+      );
     },
-    restartTask: function(id, task_id) {
+    restartTask: function(clusterId, id, task_id) {
       runConnectOperation.bind(this)(
         connect.restartTask,
         "restart",
+        clusterId,
         id,
         task_id
       );

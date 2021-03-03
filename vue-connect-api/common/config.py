@@ -17,6 +17,7 @@ ERROR_MSG_NOT_FOUND = "Resource not found."
 ERROR_MSG_NOT_ALLOWED = "The method is not allowed for this resource."
 ERROR_MSG_INTERNAL_SERVER_ERROR = "Internal server error."
 ERROR_MSG_NO_DATA = "Missing data. {}."
+ERROR_MSG_BAD_REQUEST = "Bad request. {}"
 
 
 def get_int_config(env_name, default_value):
@@ -40,12 +41,14 @@ def get_str_config(env_name, default_value):
 
 
 def get_connect_url(cluster_id):
+    try:
+        for cluster in get_connect_clusters():
+            if cluster["id"] == int(cluster_id):
+                return cluster["url"]
 
-    for cluster in get_connect_clusters():
-        if cluster["id"] == int(cluster_id):
-            return cluster["url"]
-
-    raise AttributeError("Cluster id {} does not exist.".format(cluster_id))
+        raise AttributeError("Cluster id '{}' does not exist.".format(cluster_id))
+    except ValueError:
+        raise AttributeError("Cluster id '{}' is not valid.".format(cluster_id))
 
 
 def get_cluster_from_url(url):

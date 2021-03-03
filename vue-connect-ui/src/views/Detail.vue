@@ -7,8 +7,7 @@
             {{ $route.name }}
           </p>
         </div>
-        <div class="column is-8 is-offset-1">
-        </div>
+        <div class="column is-8 is-offset-1"></div>
         <div class="column is-1 is-offset-1">
           <button
             v-on:click="reload()"
@@ -22,11 +21,10 @@
     </div>
 
     <div class="box content">
-      <error-message :error="errors"></error-message>
+      <h2>Connector {{ $route.params.id }}</h2>
+      <error-message :errors="errors"></error-message>
 
       <div v-if="status.connector">
-        <h2>Connector {{ status.name }}</h2>
-
         <table class="table">
           <thead>
             <tr>
@@ -114,8 +112,14 @@ function loadData() {
   this.isLoading = "detail";
   axios
     .all([
-      connect.getConnectorStatus(this.$route.params.id),
-      connect.getConnectorConfig(this.$route.params.id),
+      connect.getConnectorStatus(
+        this.$route.params.cluster,
+        this.$route.params.id
+      ),
+      connect.getConnectorConfig(
+        this.$route.params.cluster,
+        this.$route.params.id
+      ),
     ])
     .then((respAll) => {
       this.status = respAll[0].data;
@@ -123,7 +127,7 @@ function loadData() {
       this.isLoading = "";
     })
     .catch((e) => {
-      this.errors = errorHandler.transform(e);
+      this.errors.push(errorHandler.transform(e));
       this.isLoading = "";
     });
 }
@@ -135,7 +139,7 @@ export default {
       status: [],
       config: [],
       topics: [],
-      errors: null,
+      errors: [],
       isLoading: "",
     };
   },

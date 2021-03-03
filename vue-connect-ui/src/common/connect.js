@@ -5,51 +5,65 @@ const connect = {
     return axiosGet("/app/info");
   },
   getInfo: () => {
-    return axiosGet("/info");
+    return axiosGet("/cluster/info");
   },
   getAllConnectorStatus: () => {
     return axiosGet("/status");
   },
   pollConnectorStatus: () => {
-    return axiosGet("/polling");
+    return axiosGet("/cache");
   },
-  getConnectorStatus: (connectorName) => {
-    return axiosGet("/status/" + connectorName);
+  getConnectorStatus: (clusterId, connectorName) => {
+    return axiosGet("/cluster/" + clusterId + "/status/" + connectorName);
   },
-  getConnectorConfig: (connectorName) => {
-    return axiosGet("/config/" + connectorName);
+  getConnectorConfig: (clusterId, connectorName) => {
+    return axiosGet("/cluster/" + clusterId + "/config/" + connectorName);
   },
-  updateConnector: (connectorName, config) => {
+  updateConnector: (clusterId, connectorName, config) => {
     return axiosPostWithData(
-      "/connectors/" + connectorName + "/config",
+      "/cluster/" + clusterId + "/connectors/" + connectorName + "/config",
       config
     );
   },
-  deleteConnector: (connectorName) => {
-    return axiosPost("/connectors/" + connectorName + "/delete");
-  },
-  validateConfig: (pluginName, config) => {
-    return axiosPostWithData(
-      "/plugins/" + pluginName + "/config/validate",
-      config
-    );
-  },
-  newConnector: (config) => {
-    return axiosPostWithData("/connectors", config);
-  },
-  restartConnector: (connectorName) => {
-    return axiosPost("/connectors/" + connectorName + "/restart");
-  },
-  restartTask: (connectorName, taskId) => {
+  deleteConnector: (clusterId, connectorName) => {
     return axiosPost(
-      "/connectors/" + connectorName + "/tasks/" + taskId + "/restart"
+      "/cluster/" + clusterId + "/connectors/" + connectorName + "/delete"
     );
   },
-  pauseConnector: (connectorName) => {
-    return axiosPost("/connectors/" + connectorName + "/pause");
+  validateConfig: (clusterId, pluginName, config) => {
+    return axiosPostWithData(
+      "/cluster/" + clusterId + "/plugins/" + pluginName + "/config/validate",
+      config
+    );
   },
-  resumeConnector: (connectorName) => {
-    return axiosPost("/connectors/" + connectorName + "/resume");
+  newConnector: (clusterId, config) => {
+    return axiosPostWithData("/cluster/" + clusterId + "/connectors", config);
+  },
+  restartConnector: (clusterId, connectorName) => {
+    return axiosPost(
+      "/cluster/" + clusterId + "/connectors/" + connectorName + "/restart"
+    );
+  },
+  restartTask: (clusterId, connectorName, taskId) => {
+    return axiosPost(
+      "/cluster/" +
+        clusterId +
+        "/connectors/" +
+        connectorName +
+        "/tasks/" +
+        taskId +
+        "/restart"
+    );
+  },
+  pauseConnector: (clusterId, connectorName) => {
+    return axiosPost(
+      "/cluster/" + clusterId + "/connectors/" + connectorName + "/pause"
+    );
+  },
+  resumeConnector: (clusterId, connectorName) => {
+    return axiosPost(
+      "/cluster/" + clusterId + "/connectors/" + connectorName + "/resume"
+    );
   },
   getPlugins: () => {
     return axiosGet("/plugins");

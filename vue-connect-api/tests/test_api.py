@@ -88,6 +88,16 @@ def test_api_post_with_data(client):
     assert 400 == resp.status_code
 
 
+def test_api_invalid_cluster(client):
+    resp = client.get("/api/cluster/1/status/foo")
+    assert b'{"message":"Bad request. Cluster id \'1\' does not exist."}' in resp.data
+    assert 400 == resp.status_code
+
+    resp = client.get("/api/cluster/hello/status/foo")
+    assert b'{"message":"Bad request. Cluster id \'hello\' is not valid."}' in resp.data
+    assert 400 == resp.status_code
+
+
 def test_api_cache(client):
     resp = client.get("/api/cache")
     assert b'{"errors":[],"state":[]}' in resp.data

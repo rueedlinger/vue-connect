@@ -1,5 +1,5 @@
 <template>
-  <div class="">
+  <div>
     <div class="box notification is-primary">
       <div class="columns">
         <div class="column is-1">
@@ -7,8 +7,7 @@
             {{ $route.name }}
           </p>
         </div>
-        <div class="column is-8 is-offset-1">
-        </div>
+        <div class="column is-8 is-offset-1"></div>
         <div class="column is-1 is-offset-1">
           <button
             v-on:click="reload()"
@@ -22,10 +21,10 @@
     </div>
 
     <div class="box content">
-      <error-message :error="errors"></error-message>
+      <h2>Conector {{ $route.params.id }}</h2>
+      <error-message :errors="errors"></error-message>
 
       <div v-if="config.name">
-        <h2>Conector {{ status.name }}</h2>
         <ul>
           <li>Class: {{ config["connector.class"] }}</li>
           <li>Type: {{ status.type }}</li>
@@ -45,7 +44,7 @@
         <div class="control">
           <button
             class="button is-primary is-small"
-            v-on:click="save($route.params.id)"
+            v-on:click="save($route.params.cluster, $route.params.id)"
           >
             <font-awesome-icon icon="edit"></font-awesome-icon
             ><span class="pl-1">Save</span>
@@ -64,10 +63,17 @@ import ErrorMessage from "../components/ErrorMessage.vue";
 
 function loadData() {
   this.isLoading = "edit";
+  this.errors = [];
   axios
     .all([
-      connect.getConnectorStatus(this.$route.params.id),
-      connect.getConnectorConfig(this.$route.params.id),
+      connect.getConnectorStatus(
+        this.$route.params.cluster,
+        this.$route.params.id
+      ),
+      connect.getConnectorConfig(
+        this.$route.params.cluster,
+        this.$route.params.id
+      ),
     ])
     .then((respAll) => {
       this.status = respAll[0].data;
@@ -76,7 +82,7 @@ function loadData() {
       this.isLoading = "";
     })
     .catch((e) => {
-      this.errors = errorHandler.transform(e);
+      this.errors.push(errorHandler.transform(e));
       this.isLoading = "";
     });
 }
@@ -88,7 +94,7 @@ export default {
       status: [],
       config: [],
       jsonConfig: "",
-      errors: null,
+      errors: [],
       isLoading: "",
     };
   },
@@ -99,19 +105,19 @@ export default {
   },
 
   methods: {
-    save: function(id) {
+    save: function(clusterId, id) {
       try {
         let data = JSON.parse(this.jsonConfig);
         connect
-          .updateConnector(id, data)
+          .updateConnector(clusterId, id, data)
           .then(() => {
             this.$router.push("/");
           })
           .catch((e) => {
-            this.errors = errorHandler.transform(e);
+            this.errors.push(errorHandler.transform(e));
           });
       } catch (e) {
-        this.errors = errorHandler.transform(e);
+        this.errors.push(errorHandler.transform(e));
       }
     },
     reload: function() {
