@@ -177,7 +177,7 @@ def polling():
     errors = []
     resp = {"state": cluster_states, "errors": errors}
 
-    # TODO do one db call
+    # TODO one db call
     # load state from cache
     for cluster in config.get_connect_clusters():
         logging.info("loading cluster state from cahche {}".format(cluster))
@@ -200,6 +200,7 @@ def connectors():
     for cluster in config.get_connect_clusters():
         cluster_url = cluster["url"]
         cluster_id = cluster["id"]
+
         try:
             logging.info("get cluster state {}".format(cluster))
 
@@ -211,9 +212,9 @@ def connectors():
                 error_mesage="",
                 last_time_running=datetime.now(),
             )
-
-            get_store().merge(cache_entry)
+            # cluster_states.extend([{"foo": cluster_id}])
             cluster_states.extend(state)
+            print(state)
 
         except ConnectionError:
             error_msg = config.ERROR_MSG_CLUSTER_NOT_REACHABLE.format(cluster_url)
@@ -233,8 +234,8 @@ def connectors():
             )
             cluster_states.extend(cache_entry.get_state())
             errors.append({"message": error_msg})
-
-        return jsonify(resp)
+    print(resp)
+    return jsonify(resp)
 
 
 @connect_api.route("/api/cluster/<cluster_id>/status/<id>", strict_slashes=False)

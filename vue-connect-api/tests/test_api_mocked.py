@@ -437,3 +437,24 @@ def test_cluster_info(client):
 
     assert 200 == resp.status_code
     assert b'[{"id":0,"info":{"foo":"bar"},"url":"http://localhost:8083"}]' in resp.data
+
+
+def test_multi_cluster_call(client, monkeypatch):
+    monkeypatch.setenv("CONNECT_URL", "http://foo:1234;http://bar:1234")
+
+    data = {
+        "foo": {
+            "info": {},
+            "status": {"name": "foo", "connector": {"state": "RUNNING"}, "tasks": []},
+        }
+    }
+    patcher = patch("requests.get")
+    mock_get = patcher.start()
+    mock_get.return_value = MockResp(data=data)
+
+    resp = client.get("/api/status")
+    patcher.stop()
+
+    assert mock_get.call_count == 2
+
+    assert 200 == resp.status_code

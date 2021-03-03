@@ -118,7 +118,7 @@ services:
         - "8080:8080"
       environment:
         #TZ: "Europe/Zurich"
-        CONNECT_URL: "http://connect:8083,Connect Cluster A;http://connect:8084,Connect CLuster B"
+        CONNECT_URL: "http://connect-a:8083,Cluster A;http://connect-b:8084,Cluster B"
         VC_POLLING_INTERVAL_SEC: "20"
         VC_REQUEST_TIMEOUT_SEC: "5"
         
