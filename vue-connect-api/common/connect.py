@@ -64,6 +64,6 @@ def load_state(cluster_id):
                     task["downtime"] = str(datetime.now().isoformat())
 
         if len(connector_state) > 0:
-            connector_state["cluster"] = {"id": cluster_id, "url": url}
+            connector_state["cluster"] = cluster
             state.append(connector_state)
     return state
