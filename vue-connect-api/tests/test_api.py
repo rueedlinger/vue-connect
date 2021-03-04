@@ -26,6 +26,8 @@ path_post_for_cluster = [
 @pytest.fixture
 def client(monkeypatch):
 
+    # disable scheduler
+    monkeypatch.setenv("VC_RUN_SCHEDULER", "false")
     monkeypatch.setenv("CONNECT_URL", "http://foo:1234")
 
     app = backend.create_app()

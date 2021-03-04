@@ -1,8 +1,8 @@
-import os
+import os, logging
 
 DEFAULT_REST_ENDPOINT = "http://localhost:8083"
 DEFAULT_REQUEST_TIMEOUT_SEC = 5
-DEFAULT_POLLING_INTERVAL_SEC = 60
+DEFAULT_POLLING_INTERVAL_SEC = 30
 
 DEFAULT_SQLITE_FILE_PATH = "vue-connect.db"
 
@@ -16,9 +16,14 @@ ERROR_MSG_CLUSTER_NOT_REACHABLE = "Cluster {} not reachable!"
 ERROR_MSG_CLUSTER_TIMEOUT = "Request timeout cluster {} was not reachable!"
 ERROR_MSG_NOT_FOUND = "Resource not found."
 ERROR_MSG_NOT_ALLOWED = "The method is not allowed for this resource."
-ERROR_MSG_INTERNAL_SERVER_ERROR = "Internal server error."
+ERROR_MSG_INTERNAL_SERVER_ERROR = "Internal server error. {}"
+ERROR_MSG_DB_ERROR = "DB error. {}"
 ERROR_MSG_NO_DATA = "Missing data. {}."
 ERROR_MSG_BAD_REQUEST = "Bad request. {}"
+
+
+def get_logger(logger_name):
+    return logging.getLogger("vue.connect." + logger_name)
 
 
 def get_int_config(env_name, default_value):

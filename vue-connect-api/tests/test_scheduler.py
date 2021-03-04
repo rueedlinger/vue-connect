@@ -18,7 +18,7 @@ def test_add_job():
 
 def test_cache_job():
 
-    cache = job.UpdateCacheJob(cluster_id=0)
+    cache = job.UpdateCacheJob()
 
     assert cache.get_poll_intervall() > 0
 

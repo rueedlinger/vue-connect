@@ -1,5 +1,4 @@
 from datetime import datetime
-import logging
 
 import requests
 from common import config, connect, store
@@ -10,6 +9,7 @@ from requests.exceptions import ConnectionError, Timeout
 REQUEST_TIMEOUT_SEC = config.get_request_timeout()
 
 connect_api = Blueprint("connect_api", __name__)
+logger = config.get_logger("routes")
 
 
 def get_store():
@@ -180,7 +180,7 @@ def polling():
     # TODO one db call
     # load state from cache
     for cluster in config.get_connect_clusters():
-        logging.info("loading cluster state from cahche {}".format(cluster))
+        logger.info("load state from cache {}".format(cluster))
         cluster_id = cluster["id"]
         cache_entry = get_store().load(cluster_id)
         cluster_states.extend(cache_entry.get_state())
@@ -202,23 +202,23 @@ def connectors():
         cluster_id = cluster["id"]
 
         try:
-            logging.info("get cluster state {}".format(cluster))
+            logger.info("request connect cluster state {}".format(cluster))
 
             state = connect.load_state(cluster_id)
-            cache_entry = store.CacheEntry(
-                id=cluster_id,
-                state=state,
-                running=True,
-                error_mesage="",
-                last_time_running=datetime.now(),
+            cache_entry = get_store().merge(
+                store.CacheEntry(
+                    id=cluster_id,
+                    state=state,
+                    running=True,
+                    error_mesage="",
+                    last_time_running=datetime.now(),
+                )
             )
-            # cluster_states.extend([{"foo": cluster_id}])
-            cluster_states.extend(state)
-            print(state)
+            cluster_states.extend(cache_entry.get_state())
 
         except ConnectionError:
             error_msg = config.ERROR_MSG_CLUSTER_NOT_REACHABLE.format(cluster_url)
-            logging.info(error_msg)
+            logger.info(error_msg)
             cache_entry = get_store().merge(
                 store.CacheEntry(id=cluster_id, running=False, error_mesage=error_msg)
             )
@@ -228,13 +228,12 @@ def connectors():
 
         except Timeout:
             error_msg = config.ERROR_MSG_CLUSTER_TIMEOUT.format(cluster_url)
-            logging.info(error_msg)
+            logger.info(error_msg)
             get_store().merge(
                 store.CacheEntry(id=cluster_id, running=False, error_mesage=error_msg)
             )
             cluster_states.extend(cache_entry.get_state())
             errors.append({"message": error_msg})
-    print(resp)
     return jsonify(resp)
 
 

@@ -42,7 +42,10 @@
             </tr>
           </thead>
           <tbody>
-            <tr v-for="item in filterdata" v-bind:key="item.name">
+            <tr
+              v-for="item in filterdata"
+              v-bind:key="item.cluster.id + '-' + item.name"
+            >
               <td>
                 <button
                   v-bind:class="item.connector.state"

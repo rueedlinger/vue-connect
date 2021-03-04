@@ -10,7 +10,10 @@ TIMEOUT = 5
 
 
 @pytest.fixture
-def client():
+def client(monkeypatch):
+
+    # disable scheduler
+    monkeypatch.setenv("VC_RUN_SCHEDULER", "false")
 
     app = backend.create_app()
 

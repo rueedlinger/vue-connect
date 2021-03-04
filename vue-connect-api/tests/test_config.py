@@ -65,13 +65,13 @@ def test_is_scheduler_activated(monkeypatch):
 
 
 def test_get_poll_intervall(monkeypatch):
-    assert config.get_poll_intervall() == 60
-
-    monkeypatch.setenv("VC_POLLING_INTERVAL_SEC", "30")
     assert config.get_poll_intervall() == 30
 
-    monkeypatch.setenv("VC_POLLING_INTERVAL_SEC", "FOO")
+    monkeypatch.setenv("VC_POLLING_INTERVAL_SEC", "60")
     assert config.get_poll_intervall() == 60
+
+    monkeypatch.setenv("VC_POLLING_INTERVAL_SEC", "FOO")
+    assert config.get_poll_intervall() == 30
 
 
 def test_get_request_timeout(monkeypatch):
