@@ -6,6 +6,7 @@ DEFAULT_POLLING_INTERVAL_SEC = 60
 
 DEFAULT_SQLITE_FILE_PATH = "vue-connect.db"
 
+ENV_RUN_SCHEDULER_CONFIG_NAME = "VC_RUN_SCHEDULER"
 ENV_POLLING_INTERVALL_CONFIG_NAME = "VC_POLLING_INTERVAL_SEC"
 ENV_REQUEST_TIMEOUT_CONFIG_NAME = "VC_REQUEST_TIMEOUT_SEC"
 ENV_SQLITE_FILE_PATH = "VC_SQLITE_FILE_PATH"
@@ -24,6 +25,23 @@ def get_int_config(env_name, default_value):
     if os.getenv(env_name) is not None:
         try:
             return int(os.getenv(env_name))
+        except ValueError:
+            return default_value
+    else:
+        return default_value
+
+
+def get_bool_config(env_name, default_value=False):
+    if os.getenv(env_name) is not None:
+        try:
+
+            val = os.getenv(env_name).lower()
+            print(val)
+            if val == "true" or val == "1":
+                return True
+            else:
+                return False
+
         except ValueError:
             return default_value
     else:
@@ -84,6 +102,10 @@ def get_db_url():
 
 def get_request_timeout():
     return get_int_config(ENV_REQUEST_TIMEOUT_CONFIG_NAME, DEFAULT_REQUEST_TIMEOUT_SEC)
+
+
+def is_scheduler_activated():
+    return get_bool_config(ENV_RUN_SCHEDULER_CONFIG_NAME, True)
 
 
 def get_poll_intervall():

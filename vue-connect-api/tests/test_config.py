@@ -56,6 +56,14 @@ def test_get_db_url(monkeypatch):
     assert config.get_db_url() == "/tmp/foo"
 
 
+def test_is_scheduler_activated(monkeypatch):
+
+    assert config.is_scheduler_activated() == True
+
+    monkeypatch.setenv("VC_RUN_SCHEDULER", "false")
+    assert config.is_scheduler_activated() == False
+
+
 def test_get_poll_intervall(monkeypatch):
     assert config.get_poll_intervall() == 60
 
@@ -88,3 +96,22 @@ def test_get_int_config(monkeypatch):
 
     monkeypatch.setenv("FOO", "100")
     assert config.get_int_config("FOO", "1") == 100
+
+
+def test_get_bool_config(monkeypatch):
+    assert config.get_bool_config("FOO") == False
+
+    monkeypatch.setenv("FOO", "1")
+    assert config.get_bool_config("FOO") == True
+
+    monkeypatch.setenv("FOO", "0")
+    assert config.get_bool_config("FOO") == False
+
+    monkeypatch.setenv("FOO", "tRue")
+    assert config.get_bool_config("FOO") == True
+
+    monkeypatch.setenv("FOO", "fAlse")
+    assert config.get_bool_config("FOO") == False
+
+    assert config.get_bool_config("BAR", False) == False
+    assert config.get_bool_config("BAR", True) == True

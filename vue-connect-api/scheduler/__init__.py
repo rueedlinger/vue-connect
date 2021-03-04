@@ -1,9 +1,9 @@
-from apscheduler.schedulers.background import BlockingScheduler
+from apscheduler.schedulers.background import BackgroundScheduler
 
 
 class Scheduler:
     def __init__(self):
-        self._scheduler = BlockingScheduler(daemon=True)
+        self._scheduler = BackgroundScheduler(daemon=True)
 
     def add_job(self, job):
         # add job

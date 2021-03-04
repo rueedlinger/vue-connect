@@ -9,6 +9,7 @@ from flask_cors import CORS
 from requests.exceptions import ConnectionError, Timeout
 
 from backend import routes
+from scheduler import Scheduler, job
 
 
 def handle_attribute_error(e: AttributeError):
@@ -49,6 +50,19 @@ def internal_error(e):
     return jsonify({"message": config.ERROR_MSG_INTERNAL_SERVER_ERROR}), 500
 
 
+def start_scheduler():
+
+    if config.is_scheduler_activated():
+        s = Scheduler()
+
+        for cluster in config.get_connect_clusters():
+            logging.info("register job for {}".format(cluster))
+            s.add_job(job.UpdateCacheJob(cluster_id=cluster["id"]))
+
+        logging.info("starting scheduler")
+        s.run()
+
+
 def create_app():
 
     logging.basicConfig(level=logging.INFO)
@@ -79,5 +93,7 @@ def create_app():
                 db.commit()
 
             db.close()
+
+    start_scheduler()
 
     return app
