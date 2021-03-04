@@ -24,58 +24,57 @@
       <error-message :errors="errors"></error-message>
       <h2>Plugins</h2>
 
-      <div v-for="cluster in data" :key="cluster.id">
-        <h4>Cluster {{ cluster.name }} ({{ cluster.url }})</h4>
+      <table class="table is-hoverable">
+        <thead>
+          <tr>
+            <th>Cluster ID</th>
+            <th>Name</th>
+            <th>URL</th>
+            <th>Installed Plugins</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr v-for="cluster in data" :key="cluster.id">
+            <td>{{ cluster.id }}</td>
+            <td>{{ cluster.name }}</td>
+            <td>{{ cluster.url }}</td>
+            <td>{{ cluster.plugins.length }}</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
 
-        <ul>
-          <li><b>Cluster ID:</b> {{ cluster.id }}</li>
-          <li v-if="cluster.name"><b>Cluster Name:</b> {{ cluster.name }}</li>
-          <li v-if="cluster.plugins">
-            <b>Total Plugins:</b> {{ cluster.plugins.length }}
-          </li>
-          <li><b>Endpoint:</b> {{ cluster.url }}</li>
-        </ul>
+    <div v-for="cluster in data" :key="cluster.id" class="box content">
+      <h2 v-if="cluster.name">Installed Plugins {{ cluster.name }}</h2>
+      <h2 v-else>Installed Plugins {{ cluster.url }}</h2>
 
-        <div class="message is-danger" v-if="cluster.error">
-          <div class="message-header">
-            <p>Error</p>
-          </div>
-          <div class="message-body">
-            {{ cluster.error }}
-          </div>
-        </div>
-
-        <table v-if="cluster.plugins" class="table is-hoverable">
-          <thead>
-            <tr>
-              <th></th>
-              <th></th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr v-for="plugin in cluster.plugins" :key="plugin.class">
-              <td>
-                <b>{{ plugin.name }}</b>
-                <ul>
-                  <li>Class: {{ plugin.class }}</li>
-                  <li>Type: {{ plugin.type }}</li>
-                  <li>Version: {{ plugin.version }}</li>
-                </ul>
-              </td>
-              <td>
-                <a
-                  class="button is-primary is-small"
-                  v-on:click="
-                    newConnector(cluster.id, plugin.class, plugin.type)
-                  "
-                  ><font-awesome-icon icon="plus-circle"></font-awesome-icon
-                  ><span class="pl-1">New connector</span></a
-                >
-              </td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
+      <table class="table is-hoverable">
+        <thead>
+          <tr>
+            <th>Name</th>
+            <th>Type</th>
+            <th>Version</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr v-for="plugin in cluster.plugins" :key="plugin.class">
+            <td>
+              {{ plugin.name }}
+            </td>
+            <td>{{ plugin.type }}</td>
+            <td>{{ plugin.version }}</td>
+            <td>
+              <a
+                class="button is-primary is-small has-tooltip-left"
+                v-bind:data-tooltip="plugin.class"
+                v-on:click="newConnector(cluster.id, plugin.class, plugin.type)"
+                ><font-awesome-icon icon="plus-circle"></font-awesome-icon
+              ></a>
+            </td>
+          </tr>
+        </tbody>
+      </table>
     </div>
   </div>
 </template>

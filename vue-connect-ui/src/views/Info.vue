@@ -46,55 +46,62 @@
           </tr>
         </tbody>
       </table>
+    </div>
 
-      <div v-for="cluster in cluster_info" v-bind:key="cluster.id">
-        <h2>Connect Cluster {{ cluster.name }} ({{ cluster.url }})</h2>
-        <div class="message is-danger" v-if="cluster.error">
-          <div class="message-header">
-            <p>Error</p>
-          </div>
-          <div class="message-body">
-            {{ cluster.error }}
-          </div>
+    <div
+      v-for="cluster in cluster_info"
+      v-bind:key="cluster.id"
+      class="box content"
+    >
+      <h2 v-if="cluster.name">{{ cluster.name }}</h2>
+      <h2 v-else>
+        {{ cluster.url }}
+      </h2>
+      <div class="message is-danger" v-if="cluster.error">
+        <div class="message-header">
+          <p>Error</p>
         </div>
-
-        <table class="table is-hoverable">
-          <thead>
-            <tr>
-              <th></th>
-              <th></th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr>
-              <td>ID</td>
-              <td>{{ cluster.id }}</td>
-            </tr>
-            <tr v-if="cluster.name">
-              <td>Name</td>
-              <td>{{ cluster.name }}</td>
-            </tr>
-            <tr v-if="cluster.info">
-              <td>Connect worker version</td>
-              <td>{{ cluster.info.version }}</td>
-            </tr>
-            <tr v-if="cluster.info">
-              <td>Connect git commit ID</td>
-              <td>{{ cluster.info.commit }}</td>
-            </tr>
-            <tr v-if="cluster.info">
-              <td>Kafka cluster ID</td>
-              <td>{{ cluster.info.kafka_cluster_id }}</td>
-            </tr>
-            <tr>
-              <td>Connect API endpoint</td>
-              <td>
-                <a v-bind:href="cluster.url">{{ cluster.url }}</a>
-              </td>
-            </tr>
-          </tbody>
-        </table>
+        <div class="message-body">
+          {{ cluster.error }}
+        </div>
       </div>
+
+      <table class="table is-hoverable">
+        <thead>
+          <tr>
+            <th></th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>ID</td>
+            <td>{{ cluster.id }}</td>
+          </tr>
+          <tr v-if="cluster.name">
+            <td>Name</td>
+            <td>{{ cluster.name }}</td>
+          </tr>
+          <tr v-if="cluster.info">
+            <td>Connect worker version</td>
+            <td>{{ cluster.info.version }}</td>
+          </tr>
+          <tr v-if="cluster.info">
+            <td>Connect git commit ID</td>
+            <td>{{ cluster.info.commit }}</td>
+          </tr>
+          <tr v-if="cluster.info">
+            <td>Kafka cluster ID</td>
+            <td>{{ cluster.info.kafka_cluster_id }}</td>
+          </tr>
+          <tr>
+            <td>Connect API endpoint</td>
+            <td>
+              <a v-bind:href="cluster.url">{{ cluster.url }}</a>
+            </td>
+          </tr>
+        </tbody>
+      </table>
     </div>
   </div>
 </template>
