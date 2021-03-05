@@ -1,25 +1,10 @@
 <template>
   <div>
-    <div class="box notification is-primary">
-      <div class="columns">
-        <div class="column is-1">
-          <p class="title">
-            {{ $route.name }}
-          </p>
-        </div>
-        <div class="column is-8 is-offset-1"></div>
-        <div class="column is-1 is-offset-1">
-          <button
-            v-on:click="reload()"
-            v-bind:class="[isLoading != `` ? `is-loading` : ``]"
-            class="button"
-          >
-            <font-awesome-icon icon="sync-alt"></font-awesome-icon>
-          </button>
-        </div>
-      </div>
-    </div>
-
+    <title-header
+      :isLoading="isLoading"
+      :title="$route.name"
+      :reloadData="reload"
+    ></title-header>
     <div class="box content">
       <error-message :errors="errors"></error-message>
       <h2>Plugins</h2>
@@ -90,6 +75,7 @@
 <script>
 import connect from "../common/connect";
 import errorHandler from "../common/error";
+import TitleHeader from "../components/TitleHeader.vue";
 import ErrorMessage from "../components/ErrorMessage.vue";
 
 function loadData() {
@@ -108,7 +94,7 @@ function loadData() {
 }
 
 export default {
-  components: { ErrorMessage },
+  components: { ErrorMessage, TitleHeader },
   data() {
     return {
       data: [],

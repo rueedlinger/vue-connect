@@ -1,6 +1,6 @@
 <template>
   <ul v-if="keys.length > 0">
-    <li v-for="(key, index) in keys" :key="key">
+    <li v-for="(key, index) in keys" :key="index">
       <b>{{ key }}:</b> {{ values[index] }}
     </li>
   </ul>
