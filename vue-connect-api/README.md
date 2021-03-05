@@ -1,4 +1,4 @@
-# vue-connect-ui
+# vue-connect-api
 
 ## Project setup
 

@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- Added multiple connect clusters support ([#5][i5])
+
+[i5]: https://github.com/rueedlinger/vue-connect/issues/5
+
 ### Changed
 
 - Store shared state in SQLite DB ([#32][i32])
@@ -16,9 +22,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 [i32]: https://github.com/rueedlinger/vue-connect/issues/32
 
+### Fixes
+
+- Mitigated SQLite db locks ([#44][i44])
+
+[i44]: https://github.com/rueedlinger/vue-connect/issues/44
+
 ## [0.4.0] - 2021-02-23
 
 ### Added
+
 - Support front-end filtering ([#11][i11])
 
 ### Changed
