@@ -2,11 +2,11 @@
   <div class="box notification is-primary">
     <div class="columns">
       <div class="column is-1">
-        <p class="title">
+        <p class="is-size-4 is-uppercase has-text-weight-bold">
           {{ title }}
         </p>
       </div>
-      <div class="column is-8 is-offset-1">
+      <div class="column is-offset-1">
         <input
           v-if="hasSearchText"
           class="input is-primary is-rounded"
