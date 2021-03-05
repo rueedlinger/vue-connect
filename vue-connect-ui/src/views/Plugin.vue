@@ -35,8 +35,12 @@
         </thead>
         <tbody>
           <tr v-for="cluster in data" :key="cluster.id">
-            <td>{{ cluster.id }}</td>
-            <td>{{ cluster.name }}</td>
+            <td>
+              <a v-bind:href="'#plugins-' + cluster.id">{{ cluster.id }}</a>
+            </td>
+            <td>
+              <a v-bind:href="'#plugins-' + cluster.id">{{ cluster.name }}</a>
+            </td>
             <td>{{ cluster.url }}</td>
             <td>{{ cluster.plugins.length }}</td>
           </tr>
@@ -44,7 +48,12 @@
       </table>
     </div>
 
-    <div v-for="cluster in data" :key="cluster.id" class="box content">
+    <div
+      v-for="cluster in data"
+      :key="cluster.id"
+      class="box content"
+      v-bind:id="'plugins-' + cluster.id"
+    >
       <h2 v-if="cluster.name">Installed Plugins {{ cluster.name }}</h2>
       <h2 v-else>Installed Plugins {{ cluster.url }}</h2>
 
