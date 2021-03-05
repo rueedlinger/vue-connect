@@ -29,15 +29,10 @@ The Docker images are published to Docker Hub.
 | `master`                  | This is the current release of the master branch.                  |
 | `<major>.<minor>.<patch>` | For example Docker tag `0.1.0` corresponds to the git tag `v0.1.0` |
 
-## Issues / Improvements / Feature Requests / Contributing
-
-- see [Issues](https://github.com/rueedlinger/vue-connect/issues)
-- see [Contributing](docs/CONTRIBUTING.md)
-
 ## Run vue-connect
 
 `CONNECT_URL` is the Kafka Connect Rest Endpoint URL which you want to access
-with vue-connect.
+with vue-connect. You can also configure multiple connect clusters with `CONNECT_URL="http://connect-a:8083,Cluster A;http://connect-b:8084,Cluster B"`
 
 ```
 docker run --rm -it -p 8080:8080 \
@@ -47,7 +42,7 @@ docker run --rm -it -p 8080:8080 \
 
 The _vue-connect_ Web UI will be available at http://localhost:8080
 
-> **Note:** When you want to access the Connect Rest API from another Docker container you could use `host.docker.internal` as endpoint hostname. For example `CONNECT_URL=http://host.docker.internal:8083`
+> **Note:** When you want to access the Connect Rest API from another Docker container you could use `host.docker.internal` as endpoint hostname. `CONNECT_URL=http://host.docker.internal:8083`
 
 You can modify the Docker Compose file [docker-compose.yml](docker-compose.yml) and use the latest vue-connect Docker image version from Docker Hub.
 
@@ -77,6 +72,11 @@ The following environment variables can be used to configure _vue-connect_.
 | `VC_REQUEST_TIMEOUT_SEC`  | The default request timeout when communicating with the Connect API.                                                                                                                                                                                                                    | 5 seconds             |
 | `VC_RUN_SCHEDULER`        | Option to enable (`true`) or disable (`false`) the backend scheduler.                                                                                                                                                                                                                   | true                  |
 | `TZ`                      | Set the timezone.                                                                                                                                                                                                                                                                       | `UTC`                 |
+
+## Issues / Improvements / Feature Requests / Contributing
+
+- see [Issues](https://github.com/rueedlinger/vue-connect/issues)
+- see [Contributing](docs/CONTRIBUTING.md)
 
 ## License
 
