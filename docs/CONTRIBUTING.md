@@ -6,7 +6,7 @@ When contributing to this repository, please first discuss the change you wish t
 
 - Code formatter
   - For python files use [black](https://github.com/psf/black)
-  - For other files sue [prettier](https://prettier.io/)
+  - For other files use [prettier](https://prettier.io/)
 - Check CI build & tests
   - Docker
   - Python
