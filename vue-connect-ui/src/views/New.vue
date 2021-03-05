@@ -25,10 +25,14 @@
       <error-message :errors="errors"></error-message>
 
       <div v-if="configParams.length">
-        <ul>
-          <li>Class: {{ $route.params.id }}</li>
-          <li>Type: {{ $route.params.type }}</li>
-        </ul>
+        <key-value-list
+          :keys="['Class', 'Type', 'Cluster']"
+          :values="[
+            $route.params.id,
+            $route.params.type,
+            $route.params.cluster,
+          ]"
+        ></key-value-list>
 
         <div class="field">
           <label class="label">Configuration</label>
@@ -83,6 +87,7 @@
 import connect from "../common/connect";
 import errorHandler from "../common/error";
 import ErrorMessage from "../components/ErrorMessage.vue";
+import KeyValueList from "../components/KeyValueList.vue";
 
 function loadData() {
   this.isLoading = "new";
@@ -135,7 +140,7 @@ function loadData() {
 }
 
 export default {
-  components: { ErrorMessage },
+  components: { ErrorMessage, KeyValueList },
   data() {
     return {
       connectorName: "",

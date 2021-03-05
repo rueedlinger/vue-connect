@@ -25,10 +25,10 @@
       <error-message :errors="errors"></error-message>
 
       <div v-if="config.name">
-        <ul>
-          <li>Class: {{ config["connector.class"] }}</li>
-          <li>Type: {{ status.type }}</li>
-        </ul>
+        <key-value-list
+          :keys="['Class', 'Type']"
+          :values="[status.type, config['connector.class']]"
+        ></key-value-list>
 
         <div class="field">
           <label class="label">Configuration</label>
@@ -60,6 +60,7 @@ import connect from "../common/connect";
 import errorHandler from "../common/error";
 import axios from "axios";
 import ErrorMessage from "../components/ErrorMessage.vue";
+import KeyValueList from "../components/KeyValueList.vue";
 
 function loadData() {
   this.isLoading = "edit";
@@ -88,11 +89,11 @@ function loadData() {
 }
 
 export default {
-  components: { ErrorMessage },
+  components: { ErrorMessage, KeyValueList },
   data() {
     return {
-      status: [],
-      config: [],
+      status: {},
+      config: {},
       jsonConfig: "",
       errors: [],
       isLoading: "",
