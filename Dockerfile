@@ -26,16 +26,15 @@ ENV VC_IMAGE_BUILD_TIME=$IMAGE_BUILD_TIME
 ENV VC_IMAGE_GITHUB_SHA=$IMAGE_GITHUB_SHA
 ENV VC_IMAGE_GITHUB_REPO=$IMAGE_GITHUB_REPO
 
-
-RUN mkdir -p /dist/html \
-    mkdir -p /dist/python \
-    mkdir -p /dist/db \
-    mkdir -p /var/log/supervisord \
+RUN mkdir -p /dist/html && \
+    mkdir -p /dist/python && \
+    mkdir -p /dist/db && \
+    mkdir -p /var/log/supervisord && \
     mkdir -p /var/run/supervisord
 
-RUN addgroup -S gunicorn && \ 
-    adduser gunicorn -S gunicorn -G gunicorn && \
-    chown gunicorn:gunicorn /dist/db
+RUN addgroup gunicorn --gid 500 && \ 
+    adduser gunicorn --uid 500 -S -G gunicorn && \
+    chown -R 500:500 /dist/db
 
 ENV PYTHONUNBUFFERED=1
 RUN apk add --no-cache nginx python3 supervisor sqlite tzdata && \
