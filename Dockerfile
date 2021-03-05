@@ -32,10 +32,12 @@ RUN mkdir -p /dist/html && \
     mkdir -p /var/log/supervisord && \
     mkdir -p /var/run/supervisord
 
+
 # used fixed UID and GID for gunicorn user
 RUN addgroup gunicorn --gid 500 && \ 
     adduser gunicorn --uid 500 -S -G gunicorn && \
     chown -R gunicorn:gunicorn /dist/db
+
 
 ENV PYTHONUNBUFFERED=1
 RUN apk add --no-cache nginx python3 supervisor sqlite tzdata && \
