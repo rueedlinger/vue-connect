@@ -14,7 +14,7 @@ if [ -f "$VC_SQLITE_FILE_PATH" ]; then
 else 
     echo "$VC_SQLITE_FILE_PATH does not exist. Running SQL script $SQL_SCRIPT."
     sqlite3 $VC_SQLITE_FILE_PATH < /dist/python/schema.sql 
-    chown 500:500  $VC_SQLITE_FILE_PATH
+    chown gunicorn:gunicorn $VC_SQLITE_FILE_PATH
 fi
 
 echo "Starting vue-connect"
