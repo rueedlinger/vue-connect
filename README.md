@@ -81,6 +81,10 @@ The following environment variables can be used to configure _vue-connect_.
 - see [Issues](https://github.com/rueedlinger/vue-connect/issues)
 - see [Contributing](docs/CONTRIBUTING.md)
 
+## How to Build the Project
+
+- see [Build](docs/BUILD.md)
+
 ## License
 
 This project is licensed under the terms of the [Apache](LICENSE) license.

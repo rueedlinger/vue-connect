@@ -1,4 +1,4 @@
-# Build from scratch
+# How to Build the Project
 
 - See [Readme (vue-connect-ui)](../vue-connect-ui/README.md) how to build the _Vue.js_ frontend.
 - See [Readme (vue-connect-api)](../vue-connect-api/README.md) how to build the _Python_ backend.
