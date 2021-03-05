@@ -290,9 +290,9 @@ function runConnectOperation(
   this.errors = [];
 
   if (taskId != null) {
-    this.isLoading = `${operationName}-${connectorId}-${taskId}`;
+    this.isLoading = `${clusterId}-${operationName}-${connectorId}-${taskId}`;
   } else {
-    this.isLoading = `${operationName}-${connectorId}`;
+    this.isLoading = `${clusterId}-${operationName}-${connectorId}`;
   }
 
   operation(clusterId, connectorId, taskId)
