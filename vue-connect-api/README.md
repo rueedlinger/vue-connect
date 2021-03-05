@@ -25,9 +25,3 @@ pipenv run pytest
 ```bash
 pipenv run python wsgi.py
 ```
-
-### Run the scheduler (APScheduler)
-
-```bash
-pipenv run python scheduler.py
-```
