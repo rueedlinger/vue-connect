@@ -24,6 +24,9 @@ The Docker images are published to Docker Hub.
 
 - See https://hub.docker.com/r/rueedlinger/vue-connect
 
+- [![Publish Docker image](https://github.com/rueedlinger/vue-connect/actions/workflows/release.yml/badge.svg)](https://github.com/rueedlinger/vue-connect/actions/workflows/release.yml)
+- [![Publish Master](https://github.com/rueedlinger/vue-connect/actions/workflows/master.yml/badge.svg)](https://github.com/rueedlinger/vue-connect/actions/workflows/master.yml)
+
 | Docker Tag                | Description                                                        |
 | ------------------------- | ------------------------------------------------------------------ |
 | `master`                  | This is the current release of the master branch.                  |
