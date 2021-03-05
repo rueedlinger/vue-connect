@@ -39,10 +39,10 @@ services:
       SCHEMA_REGISTRY_HOST_NAME: schema-registry
       SCHEMA_REGISTRY_KAFKASTORE_CONNECTION_URL: "zookeeper:2181"
 
-  connect:
+  connect-a:
     build:
       context: connect
-    hostname: connect
+    hostname: connect-a
     depends_on:
       - zookeeper
       - broker
@@ -51,15 +51,15 @@ services:
       - "8083:8083"
     environment:
       CONNECT_BOOTSTRAP_SERVERS: "broker:29092"
-      CONNECT_REST_ADVERTISED_HOST_NAME: connect
+      CONNECT_REST_ADVERTISED_HOST_NAME: connect-a
       CONNECT_REST_PORT: 8083
-      CONNECT_GROUP_ID: compose-connect-group
-      CONNECT_CONFIG_STORAGE_TOPIC: docker-connect-configs
+      CONNECT_GROUP_ID: cluster-a
+      CONNECT_CONFIG_STORAGE_TOPIC: connect-a-configs
       CONNECT_CONFIG_STORAGE_REPLICATION_FACTOR: 1
       CONNECT_OFFSET_FLUSH_INTERVAL_MS: 10000
-      CONNECT_OFFSET_STORAGE_TOPIC: docker-connect-offsets
+      CONNECT_OFFSET_STORAGE_TOPIC: connect-a-offsets
       CONNECT_OFFSET_STORAGE_REPLICATION_FACTOR: 1
-      CONNECT_STATUS_STORAGE_TOPIC: docker-connect-status
+      CONNECT_STATUS_STORAGE_TOPIC: connect-a-status
       CONNECT_STATUS_STORAGE_REPLICATION_FACTOR: 1
       CONNECT_KEY_CONVERTER: io.confluent.connect.avro.AvroConverter
       CONNECT_KEY_CONVERTER_SCHEMA_REGISTRY_URL:  http://schema-registry:8081
@@ -72,20 +72,53 @@ services:
       CONNECT_LOG4J_ROOT_LOGLEVEL: "INFO"
       CONNECT_LOG4J_LOGGERS: org.apache.zookeeper=ERROR,org.I0Itec.zkclient=ERROR,org.reflections=ERROR
       CONNECT_CONNECTOR_CLIENT_CONFIG_OVERRIDE_POLICY: "All"
-      #CONNECT_ACCESS_CONTROL_ALLOW_ORIGIN: "*"
-      #CONNECT_ACCESS_CONTROL_ALLOW_METHODS: "GET,OPTIONS,HEAD,POST,PUT,DELETE"
+
+  connect-b:
+    build:
+      context: connect
+    hostname: connect-b
+    depends_on:
+      - zookeeper
+      - broker
+      - schema-registry
+    ports:
+      - "8084:8084"
+    environment:
+      CONNECT_BOOTSTRAP_SERVERS: "broker:29092"
+      CONNECT_REST_ADVERTISED_HOST_NAME: connect-b
+      CONNECT_REST_PORT: 8084
+      CONNECT_GROUP_ID: cluster-b
+      CONNECT_CONFIG_STORAGE_TOPIC: connect-b-configs
+      CONNECT_CONFIG_STORAGE_REPLICATION_FACTOR: 1
+      CONNECT_OFFSET_FLUSH_INTERVAL_MS: 10000
+      CONNECT_OFFSET_STORAGE_TOPIC: connect-b-offsets
+      CONNECT_OFFSET_STORAGE_REPLICATION_FACTOR: 1
+      CONNECT_STATUS_STORAGE_TOPIC: connect-b-status
+      CONNECT_STATUS_STORAGE_REPLICATION_FACTOR: 1
+      CONNECT_KEY_CONVERTER: io.confluent.connect.avro.AvroConverter
+      CONNECT_KEY_CONVERTER_SCHEMA_REGISTRY_URL:  http://schema-registry:8081
+      CONNECT_VALUE_CONVERTER: io.confluent.connect.avro.AvroConverter
+      CONNECT_VALUE_CONVERTER_SCHEMA_REGISTRY_URL: http://schema-registry:8081
+      CONNECT_INTERNAL_KEY_CONVERTER: "org.apache.kafka.connect.json.JsonConverter"
+      CONNECT_INTERNAL_VALUE_CONVERTER: "org.apache.kafka.connect.json.JsonConverter"
+      CONNECT_ZOOKEEPER_CONNECT: "zookeeper:2181"
+      CONNECT_PLUGIN_PATH: "/usr/share/java,/usr/share/confluent-hub-components,/etc/kafka-connect/jars"
+      CONNECT_LOG4J_ROOT_LOGLEVEL: "INFO"
+      CONNECT_LOG4J_LOGGERS: org.apache.zookeeper=ERROR,org.I0Itec.zkclient=ERROR,org.reflections=ERROR
+      CONNECT_CONNECTOR_CLIENT_CONFIG_OVERRIDE_POLICY: "All"
 
   vue-connect:
       #image: rueedlinger/vue-connect:master
       build: .
       hostname: vue-connect
       depends_on:
-        - connect
+        - connect-a
+        - connect-b
       ports:
         - "8080:8080"
       environment:
         #TZ: "Europe/Zurich"
-        CONNECT_URL: "http://connect:8083"
+        CONNECT_URL: "http://connect-a:8083,Cluster A;http://connect-b:8084,Cluster B"
         VC_POLLING_INTERVAL_SEC: "20"
         VC_REQUEST_TIMEOUT_SEC: "5"
         

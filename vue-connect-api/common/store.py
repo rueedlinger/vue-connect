@@ -8,8 +8,8 @@ from common import config
 class CacheEntry:
     def __init__(
         self,
-        id=0,
-        url=config.get_connect_url(),
+        id=None,
+        url=None,
         state=None,
         last_time_running=None,
         running=None,
@@ -68,6 +68,12 @@ class CacheEntry:
 
         return CacheEntry(**kwargs)
 
+    def get_state(self):
+        if self.state is None:
+            return []
+        else:
+            return self.state
+
     def to_sql(self):
 
         return {
@@ -79,23 +85,6 @@ class CacheEntry:
             "ERROR_MESSAGE": self.error_mesage,
             "CREATED_TIMESTAMP": self.created,
         }
-
-    def to_response(self):
-
-        out = {}
-
-        if self.state is not None:
-            out["state"] = self.state
-        else:
-            out["state"] = []
-
-        if self.error_mesage is not None:
-            out["message"] = self.error_mesage
-
-        if self.running is not None:
-            out["isConnectUp"] = self.running
-
-        return out
 
 
 class CacheManager:
@@ -109,19 +98,19 @@ class CacheManager:
     def close(self):
         self._db.close()
 
-    def load(self):
+    def load(self, id):
         select_sql = """SELECT * from VC_CLUSTER_CACHE where CLUSTER_ID=?"""
 
         db = self._db
         cur = db.cursor().execute(
             select_sql,
-            (0,),
+            (id,),
         )
 
         res = cur.fetchone()
 
         if res == None:
-            return CacheEntry(state=[])
+            return CacheEntry(id=id, url=config.get_connect_url(id), state=[])
         else:
             return CacheEntry.from_sql(
                 dict((cur.description[idx][0], value) for idx, value in enumerate(res))
@@ -132,6 +121,12 @@ class CacheManager:
         select_sql = """SELECT * from VC_CLUSTER_CACHE where CLUSTER_ID=?"""
 
         db = self._db
+
+        if cache_entry.id is None:
+            raise AssertionError("cache entry id is not set!")
+
+        if cache_entry.url is None:
+            cache_entry.url = config.get_connect_url(cache_entry.id)
 
         with db:
             # explicit begin transaction before reading data
@@ -154,11 +149,15 @@ class CacheManager:
                 )
 
                 self._merge_state(new_cache=cache_entry, old_cache=old_cache)
-                self._merge_error(new_cache=cache_entry, old_cache=old_cache)
 
                 self._merge_last_time_running(
                     new_cache=cache_entry, old_cache=old_cache
                 )
+
+                # only merge error message when state was not running
+                if cache_entry.running == False:
+                    self._merge_error(new_cache=cache_entry, old_cache=old_cache)
+
                 self._merge_running(new_cache=cache_entry, old_cache=old_cache)
                 self._merge_url(new_cache=cache_entry, old_cache=old_cache)
 

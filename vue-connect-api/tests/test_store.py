@@ -1,3 +1,4 @@
+from common import config
 from common.store import CacheEntry, CacheManager
 from datetime import datetime
 
@@ -23,8 +24,8 @@ def test_from_sql():
     entry = CacheEntry.from_sql({"CLUSTER_STATE": '{"foo": "bar"}'})
     assert entry.state == {"foo": "bar"}
 
-    entry = CacheEntry.from_sql({"CLUSTER_ID": 10})
-    assert entry.id == 10
+    entry = CacheEntry.from_sql({"CLUSTER_ID": 0})
+    assert entry.id == 0
 
     entry = CacheEntry.from_sql({"CLUSTER_ID": None})
     assert entry.id is None
@@ -71,27 +72,24 @@ def test_from_sql():
 
 def test_default_cache_entry():
     entry = CacheEntry()
-    assert entry.id == 0
-    assert entry.url is not None
+    assert entry.id is None
+    assert entry.url is None
     assert entry.running is None
     assert entry.state is None
     assert entry.last_time_running is None
     assert entry.error_mesage is None
     assert entry.created is not None
 
-    assert entry.to_response() is not None
+    assert entry.get_state() == []
     assert entry.to_sql() is not None
-
-    assert "state" in entry.to_response()
-    assert [] == entry.to_response()["state"]
 
     assert len(entry.to_sql()) == 7
 
     assert "CLUSTER_ID" in entry.to_sql()
-    assert entry.to_sql()["CLUSTER_ID"] == 0
+    assert entry.to_sql()["CLUSTER_ID"] is None
 
     assert "CLUSTER_URL" in entry.to_sql()
-    assert entry.to_sql()["CLUSTER_URL"] is not None
+    assert entry.to_sql()["CLUSTER_URL"] is None
 
     assert "CLUSTER_STATE" in entry.to_sql()
     assert entry.to_sql()["CLUSTER_STATE"] is None
@@ -111,56 +109,62 @@ def test_default_cache_entry():
 
 def test_load():
     cache = get_cache_manager()
-    resp = cache.load()
+    resp = cache.load(0)
     assert resp is not None
     assert resp.state == []
+    assert resp.id == 0
+    assert resp.url == config.get_connect_url(0)
 
 
 def test_merge():
     cache = get_cache_manager()
-    resp = cache.load()
+    resp = cache.load(0)
     assert resp is not None
     assert resp.state == []
     assert resp.error_mesage is None
     assert resp.created is not None
     assert resp.running is None
     assert resp.last_time_running is None
-    assert resp.id is not None
-    assert resp.url is not None
+    assert resp.id == 0
+    assert resp.url == config.get_connect_url(0)
 
     now = datetime.now()
 
-    merged = cache.merge(CacheEntry(state={"foo": "bar"}, last_time_running=now))
+    merged = cache.merge(CacheEntry(id=0, state={"foo": "bar"}, last_time_running=now))
     assert merged.state == {"foo": "bar"}
     assert merged.error_mesage is None
     assert merged.created is not None
     assert merged.running is None
     assert merged.last_time_running == now
-    assert merged.id is not None
-    assert merged.url is not None
+    assert merged.id == 0
+    assert merged.url == config.get_connect_url(0)
 
-    resp = cache.load()
+    resp = cache.load(0)
     assert resp.state == {"foo": "bar"}
     assert resp.error_mesage is None
     assert resp.created is not None
     assert resp.last_time_running == now
+    assert resp.id == 0
+    assert resp.url == config.get_connect_url(0)
 
-    merged = cache.merge(CacheEntry(error_mesage="foo", running=True))
+    merged = cache.merge(CacheEntry(id=0, error_mesage="foo", running=True))
     assert merged.state == {"foo": "bar"}
     assert merged.error_mesage == "foo"
     assert merged.running == True
 
-    resp = cache.load()
+    resp = cache.load(0)
     assert resp.state == {"foo": "bar"}
     assert resp.error_mesage == "foo"
     assert resp.running == True
+    assert resp.id == 0
+    assert resp.url == config.get_connect_url(0)
 
 
 def test_merge_without_initial_load():
     cache = get_cache_manager()
-    cache.merge(CacheEntry(state={"foo": "bar"}))
-    cache.merge(CacheEntry(error_mesage="baz"))
-    cache_entry = cache.load()
+    cache.merge(CacheEntry(id=0, state={"foo": "bar"}))
+    cache.merge(CacheEntry(id=0, error_mesage="baz"))
+    cache_entry = cache.load(0)
 
     assert cache_entry.state == {"foo": "bar"}
     assert cache_entry.error_mesage == "baz"
@@ -190,8 +194,8 @@ def test_downtime_both():
         }
     ]
 
-    cache.merge(CacheEntry(state=old_state))
-    cache_entry = cache.merge(CacheEntry(state=new_state))
+    cache.merge(CacheEntry(id=0, state=old_state))
+    cache_entry = cache.merge(CacheEntry(id=0, state=new_state))
 
     assert cache_entry.state[0]["connector"]["downtime"] == "2021-02-01T10:10:10.000000"
     assert cache_entry.state[0]["tasks"][0]["downtime"] == "2021-02-01T10:10:10.000000"
@@ -221,8 +225,8 @@ def test_downtime_connector():
         }
     ]
 
-    cache.merge(CacheEntry(state=old_state))
-    cache_entry = cache.merge(CacheEntry(state=new_state))
+    cache.merge(CacheEntry(id=0, state=old_state))
+    cache_entry = cache.merge(CacheEntry(id=0, state=new_state))
 
     assert cache_entry.state[0]["connector"]["downtime"] == "2021-02-01T10:10:10.000000"
     assert "downtime" not in cache_entry.state[0]["tasks"][0]
@@ -252,8 +256,8 @@ def test_downtime_connector_only_task():
         }
     ]
 
-    cache.merge(CacheEntry(state=old_state))
-    cache_entry = cache.merge(CacheEntry(state=new_state))
+    cache.merge(CacheEntry(id=0, state=old_state))
+    cache_entry = cache.merge(CacheEntry(id=0, state=new_state))
 
     assert cache_entry.state[0]["tasks"][0]["downtime"] == "2021-02-01T10:10:10.000000"
     assert "downtime" not in cache_entry.state[0]["connector"]
@@ -283,8 +287,8 @@ def test_no_merge_downtime():
         }
     ]
 
-    cache.merge(CacheEntry(state=old_state))
-    cache_entry = cache.merge(CacheEntry(state=new_state))
+    cache.merge(CacheEntry(id=0, state=old_state))
+    cache_entry = cache.merge(CacheEntry(id=0, state=new_state))
 
     assert "downtime" not in cache_entry.state[0]["connector"]
     assert "downtime" not in cache_entry.state[0]["tasks"][0]

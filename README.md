@@ -1,8 +1,8 @@
 # Web UI for Apache Kafka Connect (vue-connect)
 
-**vue-connect** is a simple and open source Web UI for managing _Apache Kafka Connect_ connectors.
+**vue-connect** is a simple and open-source Web UI for managing _Apache Kafka Connect_ connectors.
 
-> **Note**: This project is under development and fare away from production ready.
+> **Note**: This project is under development and was build as proof of concept.
 
 ## Features
 
@@ -14,9 +14,13 @@
 
 ![vue-connect ui](docs/images/demo.gif)
 
+## Architecture & Components
+
+see [Architecture](docs/ARCHITECTURE.md)
+
 ## Releases & Docker Images
 
-The Docker images are published in Docker Hub.
+The Docker images are published to Docker Hub.
 
 - See https://hub.docker.com/r/rueedlinger/vue-connect
 
@@ -25,34 +29,10 @@ The Docker images are published in Docker Hub.
 | `master`                  | This is the current release of the master branch.                  |
 | `<major>.<minor>.<patch>` | For example Docker tag `0.1.0` corresponds to the git tag `v0.1.0` |
 
-## Issues / Improvements / Feature Requests
-
-- See https://github.com/rueedlinger/vue-connect/issues
-
-## Architecture
-
-### Components
-
-vue-connect is build with [Vue.js](https://vuejs.org/) and [Python](https://www.python.org/).
-
-- [vue-connect-api](vue-connect-api) - the backend service project. ![Build API](https://github.com/rueedlinger/vue-connect/workflows/Build%20API/badge.svg)
-- [vue-connect-ui](vue-connect-ui) - the ui project. ![Build UI](https://github.com/rueedlinger/vue-connect/workflows/Build%20UI/badge.svg)
-- The UI and API are bundled together in a [Docker](Dockerfile) image with the nginx web server. ![Build Docker](https://github.com/rueedlinger/vue-connect/workflows/Build%20Docker/badge.svg)
-
-![architecture](docs/images/architecture.png)
-
-### Syncing Cluster State and UI State
-
-- The _API scheduler_ constantly keeps the cache in sync with the cluster state when the Connect API is available. By default every minute the cache is synced with the cluster state.
-- The _UI scheduler_ is responsible to keep the client state in sync with the cached cluster state from the backend service (API).
-- Frontend operations communicate through the backend service directly with Connect API. The cache is only used when Connect API is down.
-
-![cache](docs/images/cache.png)
-
 ## Run vue-connect
 
 `CONNECT_URL` is the Kafka Connect Rest Endpoint URL which you want to access
-with vue-connect.
+with vue-connect. You can also configure multiple connect clusters with `CONNECT_URL="http://connect-a:8083,Cluster A;http://connect-b:8084,Cluster B"`
 
 ```
 docker run --rm -it -p 8080:8080 \
@@ -62,7 +42,7 @@ docker run --rm -it -p 8080:8080 \
 
 The _vue-connect_ Web UI will be available at http://localhost:8080
 
-> **Note:** When you want to access the Connect Rest API from another Docker container you could use `host.docker.internal` as endpoint hostname. For example `CONNECT_URL=http://host.docker.internal:8083`
+> **Note:** When you want to access the Connect Rest API from another Docker container you could use `host.docker.internal` as endpoint hostname. `CONNECT_URL=http://host.docker.internal:8083`
 
 You can modify the Docker Compose file [docker-compose.yml](docker-compose.yml) and use the latest vue-connect Docker image version from Docker Hub.
 
@@ -85,40 +65,19 @@ vue-connect:
 
 The following environment variables can be used to configure _vue-connect_.
 
-| Environment Variable      | Description                                                                                             | Default Value         |
-| ------------------------- | ------------------------------------------------------------------------------------------------------- | --------------------- |
-| `CONNECT_URL`             | The URL of the Connect API.                                                                             | http://localhost:8083 |
-| `VC_POLLING_INTERVAL_SEC` | The Connect API polling interval in seconds. If the value is smaller than 1 the polling is deactivated. | 60 seconds            |
-| `VC_REQUEST_TIMEOUT_SEC`  | The default request timeout when communicating with the Connect API.                                    | 5 seconds             |
+| Environment Variable      | Description                                                                                                                                                                                                                                                                             | Default Value         |
+| ------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | --------------------- |
+| `CONNECT_URL`             | The URL of the Connect API. You can use the cluster url's separator (`;`) to add multiple connect clsuters. `"http://connect-a:8083;http:/connect-b:8084"`. You can also add a name separator (`,`) to the clusters `"http://connect-a:8083,Cluster A;http://connect-b:8084,Cluster B"` | http://localhost:8083 |
+| `VC_POLLING_INTERVAL_SEC` | The Connect API polling interval in seconds. If the value is smaller than 1 the polling is deactivated.                                                                                                                                                                                 | 60 seconds            |
+| `VC_REQUEST_TIMEOUT_SEC`  | The default request timeout when communicating with the Connect API.                                                                                                                                                                                                                    | 5 seconds             |
+| `VC_RUN_SCHEDULER`        | Option to enable (`true`) or disable (`false`) the backend scheduler.                                                                                                                                                                                                                   | true                  |
+| `TZ`                      | Set the timezone.                                                                                                                                                                                                                                                                       | `UTC`                 |
 
-## Build from scratch
+## Issues / Improvements / Feature Requests / Contributing
 
-- See [vue-connect-ui](vue-connect-ui/README.md) how to build the _Vue.js_ frontend.
-- See [vue-connect-api](vue-connect-api/README.md) how to build the _Python_ backend.
-
-### Docker Image
-
-To run the vue-connect locally you can use the Docker image. This image will
-bundle the frontend and backend together in one Docker image.
-
-```
-docker build . -t vue-connect
-```
-
-Next we can start the Docker image. With `CONNECT_URL`you can set the _Connect Rest Endpoint_ which should be used by vue-connect. The vue-connect Web UI will be listening on port `8080`.
-
-```
-docker run --rm -it -p 8080:8080 -e "CONNECT_URL=http://localhost:8083" vue-connect
-```
-
-### Docker Compose
-
-Or you can use the Docker Compose file [docker-compose.yml](docker-compose.yml) which starts a Kafka Connect cluster with the latest vue-connect version from this branch.
-
-```
-docker-compose up --build
-```
+- see [Issues](https://github.com/rueedlinger/vue-connect/issues)
+- see [Contributing](docs/CONTRIBUTING.md)
 
 ## License
 
-The project is licensed under the [Apache](LICENSE) license.
+This project is licensed under the terms of the [Apache](LICENSE) license.

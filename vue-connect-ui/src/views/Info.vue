@@ -1,31 +1,15 @@
 <template>
   <div>
-    <div class="box notification is-primary">
-      <div class="columns">
-        <div class="column is-1">
-          <p class="title">
-            {{ $route.name }}
-          </p>
-        </div>
-        <div class="column is-8 is-offset-1">
-        </div>
-        <div class="column is-1 is-offset-1">
-          <button
-            v-on:click="reload()"
-            v-bind:class="[isLoading != `` ? `is-loading` : ``]"
-            class="button"
-          >
-            <font-awesome-icon icon="sync-alt"></font-awesome-icon>
-          </button>
-        </div>
-      </div>
-    </div>
+    <title-header
+      :isLoading="isLoading"
+      :title="$route.name"
+      :reloadData="reload"
+    ></title-header>
 
     <div class="box content">
-      <error-message :error="errors"></error-message>
+      <error-message :errors="errors"></error-message>
 
       <h2>Application Info</h2>
-
       <table class="table is-hoverable">
         <thead>
           <tr>
@@ -48,8 +32,25 @@
           </tr>
         </tbody>
       </table>
+    </div>
 
-      <h2>Cluster Info</h2>
+    <div
+      v-for="cluster in cluster_info"
+      v-bind:key="cluster.id"
+      class="box content"
+    >
+      <h2 v-if="cluster.name">{{ cluster.name }}</h2>
+      <h2 v-else>
+        {{ cluster.url }}
+      </h2>
+      <div class="message is-danger" v-if="cluster.error">
+        <div class="message-header">
+          <p>Error</p>
+        </div>
+        <div class="message-body">
+          {{ cluster.error }}
+        </div>
+      </div>
 
       <table class="table is-hoverable">
         <thead>
@@ -60,23 +61,29 @@
         </thead>
         <tbody>
           <tr>
+            <td>ID</td>
+            <td>{{ cluster.id }}</td>
+          </tr>
+          <tr v-if="cluster.name">
+            <td>Name</td>
+            <td>{{ cluster.name }}</td>
+          </tr>
+          <tr v-if="cluster.info">
             <td>Connect worker version</td>
-            <td>{{ cluster_info.version }}</td>
+            <td>{{ cluster.info.version }}</td>
           </tr>
-          <tr>
+          <tr v-if="cluster.info">
             <td>Connect git commit ID</td>
-            <td>{{ cluster_info.commit }}</td>
+            <td>{{ cluster.info.commit }}</td>
           </tr>
-          <tr>
+          <tr v-if="cluster.info">
             <td>Kafka cluster ID</td>
-            <td>{{ cluster_info.kafka_cluster_id }}</td>
+            <td>{{ cluster.info.kafka_cluster_id }}</td>
           </tr>
           <tr>
             <td>Connect API endpoint</td>
             <td>
-              <a v-bind:href="cluster_info.endpoint">{{
-                cluster_info.endpoint
-              }}</a>
+              <a v-bind:href="cluster.url">{{ cluster.url }}</a>
             </td>
           </tr>
         </tbody>
@@ -88,39 +95,34 @@
 <script>
 import connect from "../common/connect";
 import errorHandler from "../common/error";
+import TitleHeader from "../components/TitleHeader";
 import ErrorMessage from "../components/ErrorMessage";
+import axios from "axios";
 
 function loadData() {
   this.isLoading = "info";
+  this.errors = [];
 
-  connect
-    .getAppInfo()
-    .then((response) => {
-      this.app_info = response.data;
-    })
-    .catch(() => {
-      // ignore
-    });
-
-  connect
-    .getInfo()
-    .then((response) => {
-      this.cluster_info = response.data;
+  axios
+    .all([connect.getAppInfo(), connect.getInfo()])
+    .then((respAll) => {
+      this.app_info = respAll[0].data;
+      this.cluster_info = respAll[1].data;
       this.isLoading = "";
     })
     .catch((e) => {
-      this.errors = errorHandler.transform(e);
+      this.errors.push(errorHandler.transform(e));
       this.isLoading = "";
     });
 }
 
 export default {
-  components: { ErrorMessage },
+  components: { ErrorMessage, TitleHeader },
   data() {
     return {
       cluster_info: {},
       app_info: {},
-      errors: null,
+      errors: [],
       isLoading: "",
     };
   },

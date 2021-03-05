@@ -9,6 +9,7 @@ from requests.exceptions import ConnectionError, Timeout
 REQUEST_TIMEOUT_SEC = config.get_request_timeout()
 
 connect_api = Blueprint("connect_api", __name__)
+logger = config.get_logger("routes")
 
 
 def get_store():
@@ -26,8 +27,10 @@ def close_cache(exception):
         cache.close()
 
 
-@connect_api.route("/api/connectors", strict_slashes=False, methods=["POST"])
-def new():
+@connect_api.route(
+    "/api/cluster/<cluster_id>/connectors", strict_slashes=False, methods=["POST"]
+)
+def new(cluster_id):
     data = request.get_json()
     if data is None:
         return (
@@ -48,7 +51,7 @@ def new():
         cfg = {"name": name, "config": data}
 
         r = requests.post(
-            config.get_connect_url() + "/connectors/",
+            config.get_connect_url(cluster_id) + "/connectors/",
             json=cfg,
             timeout=REQUEST_TIMEOUT_SEC,
         )
@@ -59,9 +62,11 @@ def new():
 
 
 @connect_api.route(
-    "/api/connectors/<id>/config", strict_slashes=False, methods=["POST"]
+    "/api/cluster/<cluster_id>/connectors/<id>/config",
+    strict_slashes=False,
+    methods=["POST"],
 )
-def update(id):
+def update(cluster_id, id):
     data = request.get_json()
 
     if data is None:
@@ -77,7 +82,7 @@ def update(id):
         )
 
     r = requests.put(
-        config.get_connect_url() + "/connectors/" + id + "/config",
+        config.get_connect_url(cluster_id) + "/connectors/" + id + "/config",
         json=data,
         timeout=REQUEST_TIMEOUT_SEC,
     )
@@ -86,54 +91,65 @@ def update(id):
 
 
 @connect_api.route(
-    "/api/connectors/<id>/restart", strict_slashes=False, methods=["POST"]
-)
-def restart(id):
-    requests.post(
-        config.get_connect_url() + "/connectors/" + id + "/restart",
-        timeout=REQUEST_TIMEOUT_SEC,
-    )
-    return connectors()
-
-
-@connect_api.route(
-    "/api/connectors/<id>/delete", strict_slashes=False, methods=["POST"]
-)
-def delete(id):
-    requests.delete(
-        config.get_connect_url() + "/connectors/" + id, timeout=REQUEST_TIMEOUT_SEC
-    )
-    return connectors()
-
-
-@connect_api.route("/api/connectors/<id>/pause", strict_slashes=False, methods=["POST"])
-def pause(id):
-    requests.put(
-        config.get_connect_url() + "/connectors/" + id + "/pause",
-        timeout=REQUEST_TIMEOUT_SEC,
-    )
-    return connectors()
-
-
-@connect_api.route(
-    "/api/connectors/<id>/resume", strict_slashes=False, methods=["POST"]
-)
-def resume(id):
-    requests.put(
-        config.get_connect_url() + "/connectors/" + id + "/resume",
-        timeout=REQUEST_TIMEOUT_SEC,
-    )
-    return connectors()
-
-
-@connect_api.route(
-    "/api/connectors/<id>/tasks/<task_id>/restart",
+    "/api/cluster/<cluster_id>/connectors/<id>/restart",
     strict_slashes=False,
     methods=["POST"],
 )
-def task_restart(id, task_id):
+def restart(cluster_id, id):
     requests.post(
-        config.get_connect_url()
+        config.get_connect_url(cluster_id) + "/connectors/" + id + "/restart",
+        timeout=REQUEST_TIMEOUT_SEC,
+    )
+    return connectors()
+
+
+@connect_api.route(
+    "/api/cluster/<cluster_id>/connectors/<id>/delete",
+    strict_slashes=False,
+    methods=["POST"],
+)
+def delete(cluster_id, id):
+    requests.delete(
+        config.get_connect_url(cluster_id) + "/connectors/" + id,
+        timeout=REQUEST_TIMEOUT_SEC,
+    )
+    return connectors()
+
+
+@connect_api.route(
+    "/api/cluster/<cluster_id>/connectors/<id>/pause",
+    strict_slashes=False,
+    methods=["POST"],
+)
+def pause(cluster_id, id):
+    requests.put(
+        config.get_connect_url(cluster_id) + "/connectors/" + id + "/pause",
+        timeout=REQUEST_TIMEOUT_SEC,
+    )
+    return connectors()
+
+
+@connect_api.route(
+    "/api/cluster/<cluster_id>/connectors/<id>/resume",
+    strict_slashes=False,
+    methods=["POST"],
+)
+def resume(cluster_id, id):
+    requests.put(
+        config.get_connect_url(cluster_id) + "/connectors/" + id + "/resume",
+        timeout=REQUEST_TIMEOUT_SEC,
+    )
+    return connectors()
+
+
+@connect_api.route(
+    "/api/cluster/<cluster_id>/connectors/<id>/tasks/<task_id>/restart",
+    strict_slashes=False,
+    methods=["POST"],
+)
+def task_restart(cluster_id, id, task_id):
+    requests.post(
+        config.get_connect_url(cluster_id)
         + "/connectors/"
         + id
         + "/tasks/"
@@ -144,70 +160,87 @@ def task_restart(id, task_id):
     return connectors()
 
 
-@connect_api.route("/api/config/<id>", strict_slashes=False)
-def connect_config(id):
+@connect_api.route("/api/cluster/<cluster_id>/config/<id>", strict_slashes=False)
+def connect_config(cluster_id, id):
     r = requests.get(
-        config.get_connect_url() + "/connectors/" + id + "/config",
+        config.get_connect_url(cluster_id) + "/connectors/" + id + "/config",
         timeout=REQUEST_TIMEOUT_SEC,
     )
 
     return jsonify(r.json())
 
 
-@connect_api.route("/api/polling", strict_slashes=False)
+@connect_api.route("/api/cache", strict_slashes=False)
 def polling():
+
+    cluster_states = []
+    errors = []
+    resp = {"state": cluster_states, "errors": errors}
+
+    # TODO one db call
     # load state from cache
-    return jsonify(get_store().load().to_response())
+    for cluster in config.get_connect_clusters():
+        logger.info("load state from cache {}".format(cluster))
+        cluster_id = cluster["id"]
+        cache_entry = get_store().load(cluster_id)
+        cluster_states.extend(cache_entry.get_state())
+        if cache_entry.error_mesage is not None and cache_entry.running == False:
+            errors.append({"message": cache_entry.error_mesage})
+
+    return jsonify(resp)
 
 
 @connect_api.route("/api/status", strict_slashes=False)
 def connectors():
-    try:
-        state = connect.load_state()
+    cluster_states = []
+    errors = []
 
-        cache_entry = store.CacheEntry(
-            state=state,
-            running=True,
-            error_mesage="",
-            last_time_running=datetime.now(),
-        )
+    resp = {"state": cluster_states, "errors": errors}
 
-        get_store().merge(cache_entry)
+    for cluster in config.get_connect_clusters():
+        cluster_url = cluster["url"]
+        cluster_id = cluster["id"]
 
-        return jsonify(state)
+        try:
+            logger.info("request connect cluster state {}".format(cluster))
 
-    # Connection error return last cached result
-    except ConnectionError:
-
-        cache_entry = get_store().merge(
-            store.CacheEntry(
-                running=False,
-                error_mesage=config.ERROR_MSG_CLUSTER_NOT_REACHABLE.format(
-                    config.get_connect_url()
-                ),
+            state = connect.load_state(cluster_id)
+            cache_entry = get_store().merge(
+                store.CacheEntry(
+                    id=cluster_id,
+                    state=state,
+                    running=True,
+                    error_mesage="",
+                    last_time_running=datetime.now(),
+                )
             )
-        )
+            cluster_states.extend(cache_entry.get_state())
 
-        return jsonify(cache_entry.to_response()), 503
-
-    # Timeout error return last cached result
-    except Timeout:
-        cache_entry = get_store().merge(
-            store.CacheEntry(
-                running=False,
-                error_mesage=config.ERROR_MSG_CLUSTER_TIMEOUT.format(
-                    config.get_connect_url()
-                ),
+        except ConnectionError:
+            error_msg = config.ERROR_MSG_CLUSTER_NOT_REACHABLE.format(cluster_url)
+            logger.info(error_msg)
+            cache_entry = get_store().merge(
+                store.CacheEntry(id=cluster_id, running=False, error_mesage=error_msg)
             )
-        )
 
-        return jsonify(cache_entry.to_response()), 504
+            cluster_states.extend(cache_entry.get_state())
+            errors.append({"message": error_msg})
+
+        except Timeout:
+            error_msg = config.ERROR_MSG_CLUSTER_TIMEOUT.format(cluster_url)
+            logger.info(error_msg)
+            get_store().merge(
+                store.CacheEntry(id=cluster_id, running=False, error_mesage=error_msg)
+            )
+            cluster_states.extend(cache_entry.get_state())
+            errors.append({"message": error_msg})
+    return jsonify(resp)
 
 
-@connect_api.route("/api/status/<id>", strict_slashes=False)
-def status(id):
+@connect_api.route("/api/cluster/<cluster_id>/status/<id>", strict_slashes=False)
+def status(cluster_id, id):
     r = requests.get(
-        config.get_connect_url() + "/connectors/" + id + "/status",
+        config.get_connect_url(cluster_id) + "/connectors/" + id + "/status",
         timeout=REQUEST_TIMEOUT_SEC,
     )
 
@@ -215,9 +248,11 @@ def status(id):
 
 
 @connect_api.route(
-    "/api/plugins/<name>/config/validate", strict_slashes=False, methods=["POST"]
+    "/api/cluster/<cluster_id>/plugins/<name>/config/validate",
+    strict_slashes=False,
+    methods=["POST"],
 )
-def validate(name):
+def validate(cluster_id, name):
     data = request.get_json()
     if data is None:
         return (
@@ -228,7 +263,10 @@ def validate(name):
         )
 
     r = requests.put(
-        config.get_connect_url() + "/connector-plugins/" + name + "/config/validate",
+        config.get_connect_url(cluster_id)
+        + "/connector-plugins/"
+        + name
+        + "/config/validate",
         json=data,
         timeout=REQUEST_TIMEOUT_SEC,
     )
@@ -238,17 +276,37 @@ def validate(name):
 
 @connect_api.route("/api/plugins", strict_slashes=False)
 def plugins():
-    r = requests.get(
-        config.get_connect_url() + "/connector-plugins", timeout=REQUEST_TIMEOUT_SEC
-    )
-    plugins = r.json()
 
-    for plugin in plugins:
-        plugin["name"] = plugin["class"].split(".")[-1]
+    plugins = []
 
-        # replace string null with None
-        if "version" not in plugin or plugin["version"] == "null":
-            plugin["version"] = None
+    for cluster in config.get_connect_clusters():
+        cluster_url = cluster["url"]
+
+        try:
+            r = requests.get(
+                cluster_url + "/connector-plugins", timeout=REQUEST_TIMEOUT_SEC
+            )
+            cluster_plugins = r.json()
+
+            for plugin in cluster_plugins:
+                plugin["name"] = plugin["class"].split(".")[-1]
+
+                # replace string null with None
+                if "version" not in plugin or plugin["version"] == "null":
+                    plugin["version"] = None
+
+            cluster["plugins"] = cluster_plugins
+            plugins.append(cluster)
+
+        except ConnectionError:
+            cluster["error"] = config.ERROR_MSG_CLUSTER_NOT_REACHABLE.format(
+                cluster_url
+            )
+            plugins.append(cluster)
+
+        except Timeout:
+            cluster["error"] = config.ERROR_MSG_CLUSTER_TIMEOUT.format(cluster_url)
+            plugins.append(cluster)
 
     return jsonify(plugins)
 
@@ -264,9 +322,26 @@ def app_info():
     return jsonify(app_info)
 
 
-@connect_api.route("/api/info", strict_slashes=False)
+@connect_api.route("/api/cluster/info", strict_slashes=False)
 def info():
-    r = requests.get(config.get_connect_url(), timeout=REQUEST_TIMEOUT_SEC)
-    info = r.json()
-    info["endpoint"] = config.get_connect_url()
-    return jsonify(info)
+
+    cluster_state = []
+
+    for cluster in config.get_connect_clusters():
+        cluster_url = cluster["url"]
+        try:
+            r = requests.get(cluster_url, timeout=REQUEST_TIMEOUT_SEC)
+            cluster["info"] = r.json()
+            cluster_state.append(cluster)
+
+        except ConnectionError:
+            cluster["error"] = config.ERROR_MSG_CLUSTER_NOT_REACHABLE.format(
+                cluster_url
+            )
+            cluster_state.append(cluster)
+
+        except Timeout:
+            cluster["error"] = config.ERROR_MSG_CLUSTER_TIMEOUT.format(cluster_url)
+            cluster_state.append(cluster)
+
+    return jsonify(cluster_state)

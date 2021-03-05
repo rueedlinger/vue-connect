@@ -21,17 +21,17 @@ const routes = [
     component: Plugin,
   },
   {
-    path: "/detail/:id",
+    path: "/detail/:cluster/:id",
     name: "Detail",
     component: Detail,
   },
   {
-    path: "/edit/:id",
+    path: "/edit/:cluster/:id",
     name: "Edit",
     component: Edit,
   },
   {
-    path: "/new/:id/:type",
+    path: "/new/:cluster/:id/:type",
     name: "New",
     component: New,
   },

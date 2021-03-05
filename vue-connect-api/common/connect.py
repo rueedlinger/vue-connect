@@ -8,10 +8,14 @@ request_timeout_sec = config.get_request_timeout()
 poll_intervall_sec = config.get_poll_intervall()
 
 
-def load_state():
+def load_state(cluster_id):
+
+    cluster = config.get_connect_clusters()[cluster_id]
+    url = cluster["url"]
+
     state = []
     r = requests.get(
-        config.get_connect_url() + "/connectors?expand=info&expand=status",
+        url + "/connectors?expand=info&expand=status",
         timeout=request_timeout_sec,
     )
     connectors = r.json()
@@ -60,5 +64,6 @@ def load_state():
                     task["downtime"] = str(datetime.now().isoformat())
 
         if len(connector_state) > 0:
+            connector_state["cluster"] = cluster
             state.append(connector_state)
     return state
