@@ -27,7 +27,7 @@
               <a v-bind:href="'#plugins-' + cluster.id">{{ cluster.name }}</a>
             </td>
             <td>{{ cluster.url }}</td>
-            <td>{{ cluster.plugins.length }}</td>
+            <td v-if="cluster.plugins">{{ cluster.plugins.length }}</td>
           </tr>
         </tbody>
       </table>
