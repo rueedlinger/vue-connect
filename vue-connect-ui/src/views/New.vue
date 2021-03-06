@@ -23,16 +23,17 @@
         <div class="field">
           <label class="label">Configuration</label>
           <div class="control">
-            <textarea
-              class="textarea is-small is-primary"
-              placeholder=""
+            <v-jsoneditor
               v-model="jsonConfig"
-            ></textarea>
+              :options="options"
+              height="400px"
+            ></v-jsoneditor>
           </div>
         </div>
 
         <div class="control">
           <button
+            :disabled="isSaveDisabled"
             class="button is-primary is-small"
             v-on:click="save($route.params.cluster)"
           >
@@ -75,6 +76,7 @@ import errorHandler from "../common/error";
 import TitleHeader from "../components/TitleHeader.vue";
 import ErrorMessage from "../components/ErrorMessage.vue";
 import KeyValueList from "../components/KeyValueList.vue";
+import vJsoneditor from "v-jsoneditor";
 
 function loadData() {
   this.isLoading = "new";
@@ -118,7 +120,7 @@ function loadData() {
         });
       });
       this.isLoading = "";
-      this.jsonConfig = JSON.stringify(data, null, 2);
+      this.jsonConfig = data;
     })
     .catch((e) => {
       this.isLoading = "";
@@ -127,14 +129,30 @@ function loadData() {
 }
 
 export default {
-  components: { ErrorMessage, KeyValueList, TitleHeader },
+  components: { ErrorMessage, KeyValueList, TitleHeader, vJsoneditor },
   data() {
     return {
       connectorName: "",
       configParams: [],
-      jsonConfig: "",
       errors: [],
+      jsonConfig: {},
       isLoading: "",
+      isSaveDisabled: false,
+      options: {
+        mode: "code",
+        mainMenuBar: false,
+        onChangeText: (data) => {
+          try {
+            // validate json
+            JSON.parse(data);
+            this.errors = [];
+            this.isSaveDisabled = false;
+          } catch (e) {
+            this.errors = [errorHandler.transform(e)];
+            this.isSaveDisabled = true;
+          }
+        },
+      },
     };
   },
 
@@ -144,20 +162,14 @@ export default {
 
   methods: {
     save: function(clusterId) {
-      this.errors = [];
-      try {
-        let data = JSON.parse(this.jsonConfig);
-        connect
-          .newConnector(clusterId, data)
-          .then(() => {
-            this.$router.push("/");
-          })
-          .catch((e) => {
-            this.errors.push(errorHandler.transform(e));
-          });
-      } catch (error) {
-        this.errors.push(errorHandler.transform(error));
-      }
+      connect
+        .newConnector(clusterId, this.jsonConfig)
+        .then(() => {
+          this.$router.push("/");
+        })
+        .catch((e) => {
+          this.errors = [errorHandler.transform(e)];
+        });
     },
     reload: function() {
       loadData.bind(this)();
