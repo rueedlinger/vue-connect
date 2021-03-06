@@ -10,8 +10,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 
 - Added multiple connect clusters support ([#5][i5])
+- Added JSON editor to improve user experience ([#37][i37])
 
 [i5]: https://github.com/rueedlinger/vue-connect/issues/5
+[i37]: https://github.com/rueedlinger/vue-connect/issues/37
 
 ### Changed
 
