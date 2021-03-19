@@ -1,8 +1,11 @@
 import json
-import sqlite3
 from datetime import datetime
 
+import redis
+
 from common import config
+
+logger = config.get_logger("store")
 
 
 class CacheEntry:
@@ -25,46 +28,41 @@ class CacheEntry:
         self.created = created
 
     @staticmethod
-    def from_sql(sqlRow):
-
-        DATE_FORMAT = "%Y-%m-%d %H:%M:%S.%f"
+    def from_dict(data):
 
         kwargs = {}
-        if "CLUSTER_ID" in sqlRow:
-            kwargs["id"] = sqlRow["CLUSTER_ID"]
+        if "CLUSTER_ID" in data:
+            kwargs["id"] = data["CLUSTER_ID"]
 
-        if "CLUSTER_URL" in sqlRow:
-            kwargs["url"] = sqlRow["CLUSTER_URL"]
+        if "CLUSTER_URL" in data:
+            kwargs["url"] = data["CLUSTER_URL"]
 
-        if "CLUSTER_STATE" in sqlRow and sqlRow["CLUSTER_STATE"] is not None:
-            kwargs["state"] = json.loads(sqlRow["CLUSTER_STATE"])
+        if "CLUSTER_STATE" in data and data["CLUSTER_STATE"] is not None:
+            kwargs["state"] = data["CLUSTER_STATE"]
         else:
             kwargs["state"] = []
 
-        if "RUNNING" in sqlRow:
-            kwargs["running"] = bool(sqlRow["RUNNING"])
-
-        if "ERROR_MESSAGE" in sqlRow:
-            if (
-                sqlRow["ERROR_MESSAGE"] is not None
-                and len(sqlRow["ERROR_MESSAGE"]) == 0
-            ):
-                kwargs["error_mesage"] = None
-            else:
-                kwargs["error_mesage"] = sqlRow["ERROR_MESSAGE"]
+        if "RUNNING" in data:
+            kwargs["running"] = data["RUNNING"]
 
         if (
-            "LAST_RUNNING_TIMESTAMP" in sqlRow
-            and sqlRow["LAST_RUNNING_TIMESTAMP"] is not None
+            "ERROR_MESSAGE" in data
+            and data["ERROR_MESSAGE"] is not None
+            and len(data["ERROR_MESSAGE"]) > 0
         ):
-            kwargs["last_time_running"] = datetime.strptime(
-                sqlRow["LAST_RUNNING_TIMESTAMP"], DATE_FORMAT
+            kwargs["error_mesage"] = data["ERROR_MESSAGE"]
+
+        if (
+            "LAST_RUNNING_TIMESTAMP" in data
+            and data["LAST_RUNNING_TIMESTAMP"] is not None
+        ):
+
+            kwargs["last_time_running"] = datetime.fromisoformat(
+                data["LAST_RUNNING_TIMESTAMP"]
             )
 
-        if "CREATED_TIMESTAMP" in sqlRow and sqlRow["CREATED_TIMESTAMP"] is not None:
-            kwargs["created"] = datetime.strptime(
-                sqlRow["CREATED_TIMESTAMP"], DATE_FORMAT
-            )
+        if "CREATED_TIMESTAMP" in data and data["CREATED_TIMESTAMP"] is not None:
+            kwargs["created"] = datetime.fromisoformat(data["CREATED_TIMESTAMP"])
 
         return CacheEntry(**kwargs)
 
@@ -74,53 +72,48 @@ class CacheEntry:
         else:
             return self.state
 
-    def to_sql(self):
+    def to_dict(self):
 
         return {
             "CLUSTER_ID": self.id,
             "CLUSTER_URL": self.url,
-            "CLUSTER_STATE": json.dumps(self.state) if self.state is not None else None,
-            "RUNNING": int(self.running) if self.running is not None else None,
-            "LAST_RUNNING_TIMESTAMP": self.last_time_running,
+            "CLUSTER_STATE": self.state,
+            "RUNNING": self.running,
+            "LAST_RUNNING_TIMESTAMP": self.last_time_running.isoformat()
+            if self.last_time_running is not None
+            else None,
             "ERROR_MESSAGE": self.error_mesage,
-            "CREATED_TIMESTAMP": self.created,
+            "CREATED_TIMESTAMP": self.created.isoformat()
+            if self.created is not None
+            else None,
         }
+
+    def __eq__(self, other: object) -> bool:
+        return self.to_dict() == other.to_dict()
+
+    def __str__(self) -> str:
+        return str(self.to_dict())
 
 
 class CacheManager:
-    def __init__(self, url):
-        self._url = url
-        self._db = sqlite3.connect(url)
-
-    def connect(self):
-        self._db = sqlite3.connect(self._url)
+    def __init__(self, redis_connection: redis.Redis):
+        self._redis = redis_connection
 
     def close(self):
-        self._db.close()
+        pass
 
     def load(self, id):
-        select_sql = """SELECT * from VC_CLUSTER_CACHE where CLUSTER_ID=?"""
 
-        db = self._db
-        cur = db.cursor().execute(
-            select_sql,
-            (id,),
-        )
-
-        res = cur.fetchone()
+        res = self._redis.get(id)
 
         if res == None:
             return CacheEntry(id=id, url=config.get_connect_url(id), state=[])
         else:
-            return CacheEntry.from_sql(
-                dict((cur.description[idx][0], value) for idx, value in enumerate(res))
-            )
+            return CacheEntry.from_dict(json.loads(res))
 
     def merge(self, cache_entry: CacheEntry):
-        update_sql = """INSERT OR REPLACE INTO VC_CLUSTER_CACHE (CLUSTER_ID, CLUSTER_URL, RUNNING, CLUSTER_STATE, ERROR_MESSAGE, LAST_RUNNING_TIMESTAMP, CREATED_TIMESTAMP) values (:CLUSTER_ID, :CLUSTER_URL, :RUNNING, :CLUSTER_STATE, :ERROR_MESSAGE, :LAST_RUNNING_TIMESTAMP, :CREATED_TIMESTAMP)"""
-        select_sql = """SELECT * from VC_CLUSTER_CACHE where CLUSTER_ID=?"""
 
-        db = self._db
+        cache_ttl = config.get_cache_ttl()
 
         if cache_entry.id is None:
             raise AssertionError("cache entry id is not set!")
@@ -128,49 +121,41 @@ class CacheManager:
         if cache_entry.url is None:
             cache_entry.url = config.get_connect_url(cache_entry.id)
 
-        with db:
-            # explicit begin transaction before reading data
-            db.execute("BEGIN")
+        redis = self._redis
 
-            cursor = db.cursor()
-            cursor.execute(
-                select_sql,
-                (cache_entry.id,),
-            )
+        res = redis.get(cache_entry.id)
 
-            res = cursor.fetchone()
-            # is there already an entry in the cache
-            if res is not None:
-                old_cache = CacheEntry.from_sql(
-                    dict(
-                        (cursor.description[idx][0], value)
-                        for idx, value in enumerate(res)
+        # is there already an entry in the cache
+        if res is not None:
+            old_cache = CacheEntry.from_dict(json.loads(res))
+
+            self._merge_state(new_cache=cache_entry, old_cache=old_cache)
+
+            self._merge_last_time_running(new_cache=cache_entry, old_cache=old_cache)
+            self._merge_created(new_cache=cache_entry, old_cache=old_cache)
+
+            # only merge error message when state was not running
+            if cache_entry.running == False:
+                self._merge_error(new_cache=cache_entry, old_cache=old_cache)
+
+            self._merge_running(new_cache=cache_entry, old_cache=old_cache)
+            self._merge_url(new_cache=cache_entry, old_cache=old_cache)
+
+            # only update cache when state was updated the last seconds
+            if cache_entry != old_cache:
+                redis.set(
+                    cache_entry.id, json.dumps(cache_entry.to_dict()), ex=cache_ttl
+                )
+            else:
+                logger.info(
+                    "The cache entry for cluster state (id '{}') will not be updated, because there were no changes.".format(
+                        cache_entry.id
                     )
                 )
 
-                self._merge_state(new_cache=cache_entry, old_cache=old_cache)
+        else:
 
-                self._merge_last_time_running(
-                    new_cache=cache_entry, old_cache=old_cache
-                )
-
-                # only merge error message when state was not running
-                if cache_entry.running == False:
-                    self._merge_error(new_cache=cache_entry, old_cache=old_cache)
-
-                self._merge_running(new_cache=cache_entry, old_cache=old_cache)
-                self._merge_url(new_cache=cache_entry, old_cache=old_cache)
-
-                cursor.execute(
-                    update_sql,
-                    cache_entry.to_sql(),
-                )
-
-            else:
-                cursor.execute(
-                    update_sql,
-                    cache_entry.to_sql(),
-                )
+            redis.set(cache_entry.id, json.dumps(cache_entry.to_dict()), ex=cache_ttl)
 
         return cache_entry
 
@@ -187,6 +172,10 @@ class CacheManager:
     def _merge_running(self, new_cache, old_cache):
         if new_cache.running is None and old_cache.running is not None:
             new_cache.running = old_cache.running
+
+    def _merge_created(self, new_cache, old_cache):
+        if old_cache.created is not None:
+            new_cache.created = old_cache.created
 
     def _merge_last_time_running(self, new_cache, old_cache):
         if (

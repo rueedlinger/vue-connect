@@ -15,7 +15,7 @@ logger = config.get_logger("routes")
 def get_store():
     cache = getattr(g, "_cache", None)
     if cache is None:
-        cache = g._store = store.CacheManager(config.get_db_url())
+        cache = g._store = store.CacheManager(config.get_redis())
 
     return cache
 

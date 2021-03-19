@@ -5,7 +5,6 @@ from common import connect
 
 from tests import MockResp
 
-
 TIMEOUT = 5
 
 status_repsonses = [None, {}, {"foo": {}}, {"foo": {"status": {}}}]

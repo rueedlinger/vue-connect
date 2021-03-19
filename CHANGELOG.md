@@ -17,18 +17,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
-- Store shared state in SQLite DB ([#32][i32])
+- Store shared state ([#32][i32], [#49][i49])
+  - replaced SQLite with Redis
   - connect cluster state
   - error message
   - downtime of the failed connector
 
 [i32]: https://github.com/rueedlinger/vue-connect/issues/32
-
-### Fixes
-
-- Mitigated SQLite db locks ([#44][i44])
-
-[i44]: https://github.com/rueedlinger/vue-connect/issues/44
+[i49]: https://github.com/rueedlinger/vue-connect/issues/32
 
 ## [0.4.0] - 2021-02-23
 

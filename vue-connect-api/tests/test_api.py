@@ -3,6 +3,10 @@ import json
 import pytest
 import backend
 
+import fakeredis
+
+from unittest.mock import patch
+
 path_get_for_cluster = [
     "/api/cluster/0/status/foo",
     "/api/cluster/0/config/foo",
@@ -29,6 +33,12 @@ def client(monkeypatch):
     # disable scheduler
     monkeypatch.setenv("VC_RUN_SCHEDULER", "false")
     monkeypatch.setenv("CONNECT_URL", "http://foo:1234")
+
+    monkeypatch.setenv("CONNECT_URL", "http://foo:1234")
+
+    redisPatch = patch("common.config.get_redis")
+    mockRedis = redisPatch.start()
+    mockRedis.return_value = fakeredis.FakeStrictRedis()
 
     app = backend.create_app()
 
@@ -101,6 +111,7 @@ def test_api_invalid_cluster(client):
 
 
 def test_api_cache(client):
+
     resp = client.get("/api/cache")
     assert b'{"errors":[],"state":[]}' in resp.data
     assert 200 == resp.status_code

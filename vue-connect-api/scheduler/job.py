@@ -22,7 +22,7 @@ class UpdateCacheJob(Job):
         super().__init__(config.get_poll_intervall())
 
     def run(self):
-        cache = store.CacheManager(config.get_db_url())
+        cache = store.CacheManager(config.get_redis())
         for cluster in config.get_connect_clusters():
             try:
                 cluster_id = cluster["id"]

@@ -49,13 +49,6 @@ def test_multiple_clusters_mix(monkeypatch):
     ]
 
 
-def test_get_db_url(monkeypatch):
-    assert config.get_db_url() == "vue-connect.db"
-
-    monkeypatch.setenv("VC_SQLITE_FILE_PATH", "/tmp/foo")
-    assert config.get_db_url() == "/tmp/foo"
-
-
 def test_is_scheduler_activated(monkeypatch):
 
     assert config.is_scheduler_activated() == True
@@ -72,6 +65,16 @@ def test_get_poll_intervall(monkeypatch):
 
     monkeypatch.setenv("VC_POLLING_INTERVAL_SEC", "FOO")
     assert config.get_poll_intervall() == 30
+
+
+def test_get_cache_ttl(monkeypatch):
+    assert config.get_cache_ttl() == 1800
+
+    monkeypatch.setenv("VC_CACHE_TTL_SEC", "60")
+    assert config.get_cache_ttl() == 60
+
+    monkeypatch.setenv("VC_CACHE_TTL_SEC", "FOO")
+    assert config.get_cache_ttl() == 1800
 
 
 def test_get_request_timeout(monkeypatch):

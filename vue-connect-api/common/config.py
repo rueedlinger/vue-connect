@@ -1,17 +1,22 @@
 import os, logging
+import redis
+
+from distutils.util import strtobool
 
 DEFAULT_REST_ENDPOINT = "http://localhost:8083"
 DEFAULT_REQUEST_TIMEOUT_SEC = 5
 DEFAULT_POLLING_INTERVAL_SEC = 30
+DEFAULT_CACHE_TTL_SEC = 1800
 
-DEFAULT_SQLITE_FILE_PATH = "vue-connect.db"
+DEFAULT_REDIS_HOST = "localhost"
+DEFAULT_REDIS_PORT = 6379
 
 ENV_RUN_SCHEDULER_CONFIG_NAME = "VC_RUN_SCHEDULER"
 ENV_POLLING_INTERVALL_CONFIG_NAME = "VC_POLLING_INTERVAL_SEC"
 ENV_REQUEST_TIMEOUT_CONFIG_NAME = "VC_REQUEST_TIMEOUT_SEC"
-ENV_SQLITE_FILE_PATH = "VC_SQLITE_FILE_PATH"
+ENV_CACHE_TTL_CONFIG_NAME = "VC_CACHE_TTL_SEC"
 
-
+ERROR_MSG_REDIS_ERROR = "Redis error. {}"
 ERROR_MSG_CLUSTER_NOT_REACHABLE = "Cluster {} not reachable!"
 ERROR_MSG_CLUSTER_TIMEOUT = "Request timeout cluster {} was not reachable!"
 ERROR_MSG_NOT_FOUND = "Resource not found."
@@ -41,11 +46,7 @@ def get_bool_config(env_name, default_value=False):
         try:
 
             val = os.getenv(env_name).lower()
-            print(val)
-            if val == "true" or val == "1":
-                return True
-            else:
-                return False
+            return strtobool(val)
 
         except ValueError:
             return default_value
@@ -61,6 +62,10 @@ def get_str_config(env_name, default_value):
             return default_value
     else:
         return default_value
+
+
+def get_redis():
+    return redis.Redis(host=DEFAULT_REDIS_HOST, port=DEFAULT_REDIS_PORT)
 
 
 def get_connect_url(cluster_id):
@@ -101,8 +106,8 @@ def get_connect_clusters():
         return [{"url": DEFAULT_REST_ENDPOINT, "id": 0}]
 
 
-def get_db_url():
-    return get_str_config(ENV_SQLITE_FILE_PATH, DEFAULT_SQLITE_FILE_PATH)
+def get_cache_ttl():
+    return get_int_config(ENV_CACHE_TTL_CONFIG_NAME, DEFAULT_CACHE_TTL_SEC)
 
 
 def get_request_timeout():

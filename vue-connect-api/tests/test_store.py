@@ -1,63 +1,62 @@
+from datetime import datetime
+
+import fakeredis
 from common import config
 from common.store import CacheEntry, CacheManager
-from datetime import datetime
 
 
 def get_cache_manager():
-    cache = CacheManager(url=":memory:")
-    with open("schema.sql", mode="r") as f:
-        cache._db.cursor().executescript(f.read())
-
+    cache = CacheManager(fakeredis.FakeStrictRedis())
     return cache
 
 
-def test_from_sql():
+def test_from_dict():
 
     DATE_FORMAT = "%Y-%m-%d %H:%M:%S.%f"
 
-    entry = CacheEntry.from_sql({})
+    entry = CacheEntry.from_dict({})
     assert entry.state == []
 
-    entry = CacheEntry.from_sql({"CLUSTER_STATE": None})
+    entry = CacheEntry.from_dict({"CLUSTER_STATE": None})
     assert entry.state == []
 
-    entry = CacheEntry.from_sql({"CLUSTER_STATE": '{"foo": "bar"}'})
+    entry = CacheEntry.from_dict({"CLUSTER_STATE": {"foo": "bar"}})
     assert entry.state == {"foo": "bar"}
 
-    entry = CacheEntry.from_sql({"CLUSTER_ID": 0})
+    entry = CacheEntry.from_dict({"CLUSTER_ID": 0})
     assert entry.id == 0
 
-    entry = CacheEntry.from_sql({"CLUSTER_ID": None})
+    entry = CacheEntry.from_dict({"CLUSTER_ID": None})
     assert entry.id is None
 
-    entry = CacheEntry.from_sql({"CLUSTER_URL": "foo"})
+    entry = CacheEntry.from_dict({"CLUSTER_URL": "foo"})
     assert entry.url == "foo"
 
-    entry = CacheEntry.from_sql({"CLUSTER_URL": None})
+    entry = CacheEntry.from_dict({"CLUSTER_URL": None})
     assert entry.url is None
 
-    entry = CacheEntry.from_sql({"RUNNING": 1})
+    entry = CacheEntry.from_dict({"RUNNING": True})
     assert entry.running == True
 
-    entry = CacheEntry.from_sql({"RUNNING": 0})
+    entry = CacheEntry.from_dict({"RUNNING": False})
     assert entry.running == False
 
-    entry = CacheEntry.from_sql({"RUNNING": None})
-    assert entry.running == False
+    entry = CacheEntry.from_dict({"RUNNING": None})
+    assert entry.running is None
 
-    entry = CacheEntry.from_sql({"ERROR_MESSAGE": None})
+    entry = CacheEntry.from_dict({"ERROR_MESSAGE": None})
     assert entry.error_mesage is None
 
-    entry = CacheEntry.from_sql({"ERROR_MESSAGE": ""})
+    entry = CacheEntry.from_dict({"ERROR_MESSAGE": ""})
     assert entry.error_mesage is None
 
-    entry = CacheEntry.from_sql({"ERROR_MESSAGE": "foo"})
+    entry = CacheEntry.from_dict({"ERROR_MESSAGE": "foo"})
     assert entry.error_mesage == "foo"
 
-    entry = CacheEntry.from_sql({"LAST_RUNNING_TIMESTAMP": None})
+    entry = CacheEntry.from_dict({"LAST_RUNNING_TIMESTAMP": None})
     assert entry.last_time_running is None
 
-    entry = CacheEntry.from_sql(
+    entry = CacheEntry.from_dict(
         {"LAST_RUNNING_TIMESTAMP": "2021-03-01 23:05:53.419967"}
     )
     assert entry.last_time_running is not None
@@ -65,9 +64,37 @@ def test_from_sql():
         "2021-03-01 23:05:53.419967", DATE_FORMAT
     )
 
-    entry = CacheEntry.from_sql({"CREATED_TIMESTAMP": "2021-03-01 23:05:53.419967"})
+    entry = CacheEntry.from_dict({"CREATED_TIMESTAMP": "2021-03-01 23:05:53.419967"})
     assert entry.created is not None
     assert entry.created == datetime.strptime("2021-03-01 23:05:53.419967", DATE_FORMAT)
+
+
+def test_equal():
+    assert CacheEntry() == CacheEntry()
+    assert CacheEntry() != CacheEntry(state={"foo": "bar"})
+    assert CacheEntry() != CacheEntry(running=True)
+    assert CacheEntry() != CacheEntry(error_mesage="f")
+    assert CacheEntry() != CacheEntry(id=1)
+    assert CacheEntry() != CacheEntry(last_time_running=datetime.now())
+
+    assert CacheEntry(state={"baz": "maz", "foo": "bar"}) == CacheEntry(
+        state={"foo": "bar", "baz": "maz"}
+    )
+
+    now = datetime.now()
+    err = "foo"
+
+    a = CacheEntry(
+        state={"baz": "maz", "foo": "bar"}, created=now, error_mesage=err, running=True
+    )
+    b = CacheEntry(
+        state={"foo": "bar", "baz": "maz"},
+        created=now,
+        error_mesage=err,
+        running=True,
+    )
+
+    assert a == b
 
 
 def test_default_cache_entry():
@@ -81,30 +108,30 @@ def test_default_cache_entry():
     assert entry.created is not None
 
     assert entry.get_state() == []
-    assert entry.to_sql() is not None
+    assert entry.to_dict() is not None
 
-    assert len(entry.to_sql()) == 7
+    assert len(entry.to_dict()) == 7
 
-    assert "CLUSTER_ID" in entry.to_sql()
-    assert entry.to_sql()["CLUSTER_ID"] is None
+    assert "CLUSTER_ID" in entry.to_dict()
+    assert entry.to_dict()["CLUSTER_ID"] is None
 
-    assert "CLUSTER_URL" in entry.to_sql()
-    assert entry.to_sql()["CLUSTER_URL"] is None
+    assert "CLUSTER_URL" in entry.to_dict()
+    assert entry.to_dict()["CLUSTER_URL"] is None
 
-    assert "CLUSTER_STATE" in entry.to_sql()
-    assert entry.to_sql()["CLUSTER_STATE"] is None
+    assert "CLUSTER_STATE" in entry.to_dict()
+    assert entry.to_dict()["CLUSTER_STATE"] is None
 
-    assert "RUNNING" in entry.to_sql()
-    assert entry.to_sql()["RUNNING"] is None
+    assert "RUNNING" in entry.to_dict()
+    assert entry.to_dict()["RUNNING"] is None
 
-    assert "LAST_RUNNING_TIMESTAMP" in entry.to_sql()
-    assert entry.to_sql()["LAST_RUNNING_TIMESTAMP"] is None
+    assert "LAST_RUNNING_TIMESTAMP" in entry.to_dict()
+    assert entry.to_dict()["LAST_RUNNING_TIMESTAMP"] is None
 
-    assert "ERROR_MESSAGE" in entry.to_sql()
-    assert entry.to_sql()["ERROR_MESSAGE"] is None
+    assert "ERROR_MESSAGE" in entry.to_dict()
+    assert entry.to_dict()["ERROR_MESSAGE"] is None
 
-    assert "CREATED_TIMESTAMP" in entry.to_sql()
-    assert entry.to_sql()["CREATED_TIMESTAMP"] is not None
+    assert "CREATED_TIMESTAMP" in entry.to_dict()
+    assert entry.to_dict()["CREATED_TIMESTAMP"] is not None
 
 
 def test_load():

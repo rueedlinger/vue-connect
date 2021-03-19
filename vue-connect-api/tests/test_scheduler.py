@@ -4,6 +4,8 @@ from scheduler import Scheduler, job
 
 from tests import MockResp
 
+from common import store
+
 TIMEOUT = 5
 
 
@@ -37,5 +39,3 @@ def test_cache_job():
     mock_get.assert_called_once_with(
         "http://localhost:8083/connectors?expand=info&expand=status", timeout=TIMEOUT
     )
-
-    mock_cache.assert_called_once_with("vue-connect.db")
