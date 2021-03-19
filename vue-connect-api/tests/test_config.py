@@ -49,13 +49,6 @@ def test_multiple_clusters_mix(monkeypatch):
     ]
 
 
-def test_get_db_url(monkeypatch):
-    assert config.get_db_url() == "vue-connect.db"
-
-    monkeypatch.setenv("VC_SQLITE_FILE_PATH", "/tmp/foo")
-    assert config.get_db_url() == "/tmp/foo"
-
-
 def test_is_scheduler_activated(monkeypatch):
 
     assert config.is_scheduler_activated() == True

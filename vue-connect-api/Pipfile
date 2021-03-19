@@ -9,6 +9,7 @@ pytest-mock = "*"
 autopep8 = "*"
 pylint = "*"
 black = "*"
+fakeredis = "*"
 
 [packages]
 flask = "*"
@@ -16,6 +17,7 @@ requests = "*"
 flask-cors = "*"
 gunicorn = "*"
 apscheduler = "*"
+redis = "*"
 
 [requires]
 python_version = "3.8"

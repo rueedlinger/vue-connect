@@ -1,14 +1,10 @@
 import atexit
-import json
 import logging
-import os
-import sqlite3
-from sqlite3.dbapi2 import OperationalError
 
-from apscheduler.schedulers.background import BackgroundScheduler
 from common import config
 from flask import Flask, jsonify
 from flask_cors import CORS
+from redis import RedisError
 from requests.exceptions import ConnectionError, Timeout
 from scheduler import Scheduler, job
 
@@ -24,10 +20,10 @@ def handle_attribute_error(e: AttributeError):
     )
 
 
-def handle_db_error(e: OperationalError):
+def handle_redis_error(e: RedisError):
     logger.warn(e)
     return (
-        jsonify({"message": config.ERROR_MSG_CLUSTER_NOT_REACHABLE.format(e)}),
+        jsonify({"message": config.ERROR_MSG_REDIS_ERROR.format(e)}),
         504,
     )
 
@@ -104,7 +100,7 @@ def create_app():
     app.register_error_handler(Timeout, handle_timeout_error)
     app.register_error_handler(ConnectionError, handle_connection_error)
     app.register_error_handler(AttributeError, handle_attribute_error)
-    app.register_error_handler(OperationalError, handle_db_error)
+    app.register_error_handler(RedisError, handle_redis_error)
 
     # handler HTTP error codes
     app.register_error_handler(404, page_not_found)
@@ -112,17 +108,5 @@ def create_app():
     app.register_error_handler(500, internal_error)
 
     app.before_first_request(init_scheduler)
-
-    # should the db schema be created in the app
-    create_db_scheam_in_app = bool(json.loads(os.getenv("VC_CREATE_DB_IN_APP", "true")))
-    if create_db_scheam_in_app:
-        logger.info("Creating DB schema in application")
-        with app.app_context():
-            db = sqlite3.connect(config.get_db_url())
-            with app.open_resource("../schema.sql", mode="r") as f:
-                db.cursor().executescript(f.read())
-                db.commit()
-
-            db.close()
 
     return app

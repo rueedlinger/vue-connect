@@ -22,6 +22,14 @@ pipenv run pytest
 
 ### Run the backend (flask)
 
+First start redis.
+
+```bash
+ docker run -p 6379:6379 redis
+```
+
+After that you can start the backend.
+
 ```bash
 pipenv run python wsgi.py
 ```

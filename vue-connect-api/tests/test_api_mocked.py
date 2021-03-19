@@ -2,6 +2,7 @@ import json
 from unittest.mock import patch
 
 import backend
+import fakeredis
 import pytest
 
 from tests import MockResp
@@ -14,6 +15,10 @@ def client(monkeypatch):
 
     # disable scheduler
     monkeypatch.setenv("VC_RUN_SCHEDULER", "false")
+
+    redisPatch = patch("common.config.get_redis")
+    mockRedis = redisPatch.start()
+    mockRedis.return_value = fakeredis.FakeStrictRedis()
 
     app = backend.create_app()
 
