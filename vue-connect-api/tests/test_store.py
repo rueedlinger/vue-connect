@@ -69,6 +69,34 @@ def test_from_dict():
     assert entry.created == datetime.strptime("2021-03-01 23:05:53.419967", DATE_FORMAT)
 
 
+def test_equal():
+    assert CacheEntry() == CacheEntry()
+    assert CacheEntry() != CacheEntry(state={"foo": "bar"})
+    assert CacheEntry() != CacheEntry(running=True)
+    assert CacheEntry() != CacheEntry(error_mesage="f")
+    assert CacheEntry() != CacheEntry(id=1)
+    assert CacheEntry() != CacheEntry(last_time_running=datetime.now())
+
+    assert CacheEntry(state={"baz": "maz", "foo": "bar"}) == CacheEntry(
+        state={"foo": "bar", "baz": "maz"}
+    )
+
+    now = datetime.now()
+    err = "foo"
+
+    a = CacheEntry(
+        state={"baz": "maz", "foo": "bar"}, created=now, error_mesage=err, running=True
+    )
+    b = CacheEntry(
+        state={"foo": "bar", "baz": "maz"},
+        created=now,
+        error_mesage=err,
+        running=True,
+    )
+
+    assert a == b
+
+
 def test_default_cache_entry():
     entry = CacheEntry()
     assert entry.id is None

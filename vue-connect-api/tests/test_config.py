@@ -67,6 +67,16 @@ def test_get_poll_intervall(monkeypatch):
     assert config.get_poll_intervall() == 30
 
 
+def test_get_cache_ttl(monkeypatch):
+    assert config.get_cache_ttl() == 1800
+
+    monkeypatch.setenv("VC_CACHE_TTL_SEC", "60")
+    assert config.get_cache_ttl() == 60
+
+    monkeypatch.setenv("VC_CACHE_TTL_SEC", "FOO")
+    assert config.get_cache_ttl() == 1800
+
+
 def test_get_request_timeout(monkeypatch):
     assert config.get_request_timeout() == 5
 

@@ -4,14 +4,15 @@ import redis
 DEFAULT_REST_ENDPOINT = "http://localhost:8083"
 DEFAULT_REQUEST_TIMEOUT_SEC = 5
 DEFAULT_POLLING_INTERVAL_SEC = 30
+DEFAULT_CACHE_TTL_SEC = 1800
 
-DEFAULT_SQLITE_FILE_PATH = "vue-connect.db"
+DEFAULT_REDIS_HOST = "localhost"
+DEFAULT_REDIS_PORT = 6379
 
 ENV_RUN_SCHEDULER_CONFIG_NAME = "VC_RUN_SCHEDULER"
-ENV_MOCK_REDIS = "VC_MOCK_REDIS"
 ENV_POLLING_INTERVALL_CONFIG_NAME = "VC_POLLING_INTERVAL_SEC"
 ENV_REQUEST_TIMEOUT_CONFIG_NAME = "VC_REQUEST_TIMEOUT_SEC"
-
+ENV_CACHE_TTL_CONFIG_NAME = "VC_CACHE_TTL_SEC"
 
 ERROR_MSG_REDIS_ERROR = "Redis error. {}"
 ERROR_MSG_CLUSTER_NOT_REACHABLE = "Cluster {} not reachable!"
@@ -66,7 +67,7 @@ def get_str_config(env_name, default_value):
 
 
 def get_redis():
-    return redis.Redis(host="localhost", port=6379)
+    return redis.Redis(host=DEFAULT_REDIS_HOST, port=DEFAULT_REDIS_PORT)
 
 
 def get_connect_url(cluster_id):
@@ -105,6 +106,10 @@ def get_connect_clusters():
         return connections
     else:
         return [{"url": DEFAULT_REST_ENDPOINT, "id": 0}]
+
+
+def get_cache_ttl():
+    return get_int_config(ENV_CACHE_TTL_CONFIG_NAME, DEFAULT_CACHE_TTL_SEC)
 
 
 def get_request_timeout():

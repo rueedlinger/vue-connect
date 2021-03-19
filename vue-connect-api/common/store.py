@@ -5,6 +5,8 @@ import redis
 
 from common import config
 
+logger = config.get_logger("store")
+
 
 class CacheEntry:
     def __init__(
@@ -86,6 +88,12 @@ class CacheEntry:
             else None,
         }
 
+    def __eq__(self, other: object) -> bool:
+        return self.to_dict() == other.to_dict()
+
+    def __str__(self) -> str:
+        return str(self.to_dict())
+
 
 class CacheManager:
     def __init__(self, redis_connection: redis.Redis):
@@ -105,7 +113,7 @@ class CacheManager:
 
     def merge(self, cache_entry: CacheEntry):
 
-        TTL = 1800
+        cache_ttl = config.get_cache_ttl()
 
         if cache_entry.id is None:
             raise AssertionError("cache entry id is not set!")
@@ -124,6 +132,7 @@ class CacheManager:
             self._merge_state(new_cache=cache_entry, old_cache=old_cache)
 
             self._merge_last_time_running(new_cache=cache_entry, old_cache=old_cache)
+            self._merge_created(new_cache=cache_entry, old_cache=old_cache)
 
             # only merge error message when state was not running
             if cache_entry.running == False:
@@ -132,11 +141,21 @@ class CacheManager:
             self._merge_running(new_cache=cache_entry, old_cache=old_cache)
             self._merge_url(new_cache=cache_entry, old_cache=old_cache)
 
-            redis.set(cache_entry.id, json.dumps(cache_entry.to_dict()), ex=TTL)
+            # only update cache when state was updated the last seconds
+            if cache_entry != old_cache:
+                redis.set(
+                    cache_entry.id, json.dumps(cache_entry.to_dict()), ex=cache_ttl
+                )
+            else:
+                logger.info(
+                    "The cache entry for cluster state (id '{}') will not be updated, because there were no changes.".format(
+                        cache_entry.id
+                    )
+                )
 
         else:
 
-            redis.set(cache_entry.id, json.dumps(cache_entry.to_dict()), ex=TTL)
+            redis.set(cache_entry.id, json.dumps(cache_entry.to_dict()), ex=cache_ttl)
 
         return cache_entry
 
@@ -153,6 +172,10 @@ class CacheManager:
     def _merge_running(self, new_cache, old_cache):
         if new_cache.running is None and old_cache.running is not None:
             new_cache.running = old_cache.running
+
+    def _merge_created(self, new_cache, old_cache):
+        if old_cache.created is not None:
+            new_cache.created = old_cache.created
 
     def _merge_last_time_running(self, new_cache, old_cache):
         if (
