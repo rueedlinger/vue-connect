@@ -1,6 +1,8 @@
 import os, logging
 import redis
 
+from distutils.util import strtobool
+
 DEFAULT_REST_ENDPOINT = "http://localhost:8083"
 DEFAULT_REQUEST_TIMEOUT_SEC = 5
 DEFAULT_POLLING_INTERVAL_SEC = 30
@@ -44,11 +46,7 @@ def get_bool_config(env_name, default_value=False):
         try:
 
             val = os.getenv(env_name).lower()
-            print(val)
-            if val == "true" or val == "1":
-                return True
-            else:
-                return False
+            return strtobool(val)
 
         except ValueError:
             return default_value
