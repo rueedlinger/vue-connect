@@ -29,8 +29,9 @@ ENV VC_IMAGE_GITHUB_REPO=$IMAGE_GITHUB_REPO
 RUN mkdir -p /dist/html && \
     mkdir -p /dist/python && \
     mkdir -p /dist/db && \
+    mkdir -p /dist/redis && \
     mkdir -p /var/log/supervisord && \
-    mkdir -p /var/run/supervisord
+    mkdir -p /var/run/supervisord 
 
 
 # used fixed UID and GID for gunicorn user
@@ -40,7 +41,7 @@ RUN addgroup gunicorn --gid 500 && \
 
 
 ENV PYTHONUNBUFFERED=1
-RUN apk add --no-cache nginx python3 supervisor sqlite tzdata && \
+RUN apk add --no-cache nginx redis python3 supervisor sqlite tzdata && \
     ln -sf python3 /usr/bin/python && \
     python3 -m ensurepip && \
     pip3 install --no-cache --upgrade pip setuptools pipenv
